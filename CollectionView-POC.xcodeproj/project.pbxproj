@@ -10,7 +10,6 @@
 		E03A9BFE195CC04700316D6E /* FooterViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = E03A9BFD195CC04700316D6E /* FooterViewCell.m */; };
 		E03A9C00195DB77500316D6E /* footer_banner.png in Resources */ = {isa = PBXBuildFile; fileRef = E03A9BFF195DB77500316D6E /* footer_banner.png */; };
 		E03F8785196C3C6900854347 /* magnifying_glass_32.png in Resources */ = {isa = PBXBuildFile; fileRef = E03F8784196C3C6900854347 /* magnifying_glass_32.png */; };
-		E060DD2019588C2300D20F63 /* ImageLoadManager.m in Sources */ = {isa = PBXBuildFile; fileRef = E060DD1F19588C2300D20F63 /* ImageLoadManager.m */; };
 		E064B8EC18E4C2A1006193E8 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E064B8EB18E4C2A1006193E8 /* Foundation.framework */; };
 		E064B8EE18E4C2A1006193E8 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E064B8ED18E4C2A1006193E8 /* CoreGraphics.framework */; };
 		E064B8F018E4C2A1006193E8 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E064B8EF18E4C2A1006193E8 /* UIKit.framework */; };
@@ -45,8 +44,6 @@
 		E03A9BFD195CC04700316D6E /* FooterViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FooterViewCell.m; sourceTree = "<group>"; };
 		E03A9BFF195DB77500316D6E /* footer_banner.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = footer_banner.png; sourceTree = "<group>"; };
 		E03F8784196C3C6900854347 /* magnifying_glass_32.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = magnifying_glass_32.png; sourceTree = "<group>"; };
-		E060DD1E19588C2300D20F63 /* ImageLoadManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImageLoadManager.h; sourceTree = "<group>"; };
-		E060DD1F19588C2300D20F63 /* ImageLoadManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ImageLoadManager.m; sourceTree = "<group>"; };
 		E064B8E818E4C2A1006193E8 /* CollectionView-POC.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "CollectionView-POC.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		E064B8EB18E4C2A1006193E8 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		E064B8ED18E4C2A1006193E8 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -98,15 +95,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		E060DD2119588C2B00D20F63 /* Model */ = {
-			isa = PBXGroup;
-			children = (
-				E060DD1E19588C2300D20F63 /* ImageLoadManager.h */,
-				E060DD1F19588C2300D20F63 /* ImageLoadManager.m */,
-			);
-			name = Model;
-			sourceTree = "<group>";
-		};
 		E064B8DF18E4C2A1006193E8 = {
 			isa = PBXGroup;
 			children = (
@@ -151,7 +139,7 @@
 				E064B90118E4C2A1006193E8 /* BaseViewController.m */,
 				E08329791928F3E100A8E9DF /* DrinkDetailViewController.h */,
 				E083297A1928F3E100A8E9DF /* DrinkDetailViewController.m */,
-				E060DD2119588C2B00D20F63 /* Model */,
+				E075ACC9196F01D60012F130 /* Model */,
 				E064B90318E4C2A1006193E8 /* Images.xcassets */,
 				E064B8F218E4C2A1006193E8 /* Supporting Files */,
 			);
@@ -189,6 +177,13 @@
 				E064B91318E4C2A1006193E8 /* InfoPlist.strings */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		E075ACC9196F01D60012F130 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Model;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -293,7 +288,6 @@
 			files = (
 				E064B8F818E4C2A1006193E8 /* main.m in Sources */,
 				E064B92218E50B60006193E8 /* PatternViewCell.m in Sources */,
-				E060DD2019588C2300D20F63 /* ImageLoadManager.m in Sources */,
 				E064B90218E4C2A1006193E8 /* BaseViewController.m in Sources */,
 				E064B8FC18E4C2A1006193E8 /* BaseAppDelegate.m in Sources */,
 				E03A9BFE195CC04700316D6E /* FooterViewCell.m in Sources */,

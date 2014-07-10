@@ -265,12 +265,12 @@ NSInteger const CellWidth = 290; // width of cell
      }*/
     
     /** USE THE NEXT LINE ONLY WHEN TESTING ON DEVICE SO THAT LOCAL IMAGES WILL LOAD **/
-    self.imagesArray = [self loadImages];
+    //self.imagesArray = [self loadImages];
     
     /** This pulls from the model and loads images from local directory - will not load images to the device */
-    //self.imagesArray = self.imageLoadManager.imagesArray; // calls the model and maps UI to the model (and loads the images)
-    //NSLog(@"imagesArray size: %lu", (unsigned long)[self.imagesArray count]);
-    //self.imageNames = [self.imageLoadManager.imageNames copy]; // get the image names from the array in the model
+    self.imagesArray = self.imageLoadManager.imagesArray; // calls the model and maps UI to the model (and loads the images)
+    NSLog(@"imagesArray size: %lu", (unsigned long)[self.imagesArray count]);
+    self.imageNames = [self.imageLoadManager.imageNames copy]; // get the image names from the array in the model
 }
 
 #define ITEM_SIZE 290.0 // item size for the cell **SHOULD ALWAYS MATCH CellWidth constant!
