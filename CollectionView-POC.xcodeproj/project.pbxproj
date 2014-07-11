@@ -24,7 +24,8 @@
 		E064B90D18E4C2A1006193E8 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E064B8EF18E4C2A1006193E8 /* UIKit.framework */; };
 		E064B91518E4C2A1006193E8 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = E064B91318E4C2A1006193E8 /* InfoPlist.strings */; };
 		E064B91718E4C2A1006193E8 /* CollectionView_POCTests.m in Sources */ = {isa = PBXBuildFile; fileRef = E064B91618E4C2A1006193E8 /* CollectionView_POCTests.m */; };
-		E064B92218E50B60006193E8 /* PatternViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = E064B92118E50B60006193E8 /* PatternViewCell.m */; };
+		E064B92218E50B60006193E8 /* CoffeeViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = E064B92118E50B60006193E8 /* CoffeeViewCell.m */; };
+		E075ACCF196F07820012F130 /* ImageLoadManager.m in Sources */ = {isa = PBXBuildFile; fileRef = E075ACCE196F07820012F130 /* ImageLoadManager.m */; };
 		E083297B1928F3E100A8E9DF /* DrinkDetailViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E083297A1928F3E100A8E9DF /* DrinkDetailViewController.m */; };
 		E0E9A23218FBFC3D00043A84 /* CustomFlowLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = E0E9A23118FBFC3D00043A84 /* CustomFlowLayout.m */; };
 /* End PBXBuildFile section */
@@ -63,8 +64,10 @@
 		E064B91218E4C2A1006193E8 /* CollectionView-POCTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "CollectionView-POCTests-Info.plist"; sourceTree = "<group>"; };
 		E064B91418E4C2A1006193E8 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		E064B91618E4C2A1006193E8 /* CollectionView_POCTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CollectionView_POCTests.m; sourceTree = "<group>"; };
-		E064B92018E50B60006193E8 /* PatternViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PatternViewCell.h; sourceTree = "<group>"; };
-		E064B92118E50B60006193E8 /* PatternViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PatternViewCell.m; sourceTree = "<group>"; };
+		E064B92018E50B60006193E8 /* CoffeeViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CoffeeViewCell.h; sourceTree = "<group>"; };
+		E064B92118E50B60006193E8 /* CoffeeViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CoffeeViewCell.m; sourceTree = "<group>"; };
+		E075ACCD196F07820012F130 /* ImageLoadManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ImageLoadManager.h; path = Model/ImageLoadManager.h; sourceTree = "<group>"; };
+		E075ACCE196F07820012F130 /* ImageLoadManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ImageLoadManager.m; path = Model/ImageLoadManager.m; sourceTree = "<group>"; };
 		E08329791928F3E100A8E9DF /* DrinkDetailViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DrinkDetailViewController.h; sourceTree = "<group>"; };
 		E083297A1928F3E100A8E9DF /* DrinkDetailViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DrinkDetailViewController.m; sourceTree = "<group>"; };
 		E0E9A23018FBFC3D00043A84 /* CustomFlowLayout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CustomFlowLayout.h; sourceTree = "<group>"; };
@@ -131,8 +134,8 @@
 				E064B8FD18E4C2A1006193E8 /* Main.storyboard */,
 				E0E9A23018FBFC3D00043A84 /* CustomFlowLayout.h */,
 				E0E9A23118FBFC3D00043A84 /* CustomFlowLayout.m */,
-				E064B92018E50B60006193E8 /* PatternViewCell.h */,
-				E064B92118E50B60006193E8 /* PatternViewCell.m */,
+				E064B92018E50B60006193E8 /* CoffeeViewCell.h */,
+				E064B92118E50B60006193E8 /* CoffeeViewCell.m */,
 				E03A9BFC195CC04700316D6E /* FooterViewCell.h */,
 				E03A9BFD195CC04700316D6E /* FooterViewCell.m */,
 				E064B90018E4C2A1006193E8 /* BaseViewController.h */,
@@ -182,6 +185,8 @@
 		E075ACC9196F01D60012F130 /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				E075ACCD196F07820012F130 /* ImageLoadManager.h */,
+				E075ACCE196F07820012F130 /* ImageLoadManager.m */,
 			);
 			name = Model;
 			sourceTree = "<group>";
@@ -287,8 +292,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				E064B8F818E4C2A1006193E8 /* main.m in Sources */,
-				E064B92218E50B60006193E8 /* PatternViewCell.m in Sources */,
+				E064B92218E50B60006193E8 /* CoffeeViewCell.m in Sources */,
 				E064B90218E4C2A1006193E8 /* BaseViewController.m in Sources */,
+				E075ACCF196F07820012F130 /* ImageLoadManager.m in Sources */,
 				E064B8FC18E4C2A1006193E8 /* BaseAppDelegate.m in Sources */,
 				E03A9BFE195CC04700316D6E /* FooterViewCell.m in Sources */,
 				E083297B1928F3E100A8E9DF /* DrinkDetailViewController.m in Sources */,

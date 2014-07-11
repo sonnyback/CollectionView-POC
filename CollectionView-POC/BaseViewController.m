@@ -7,7 +7,7 @@
 //
 
 #import "BaseViewController.h"
-#import "PatternViewCell.h"
+#import "CoffeeViewCell.h"
 #import "FooterViewCell.h"
 #import "CustomFlowLayout.h"
 #import "DrinkDetailViewController.h"
@@ -116,8 +116,8 @@ NSInteger const CellWidth = 290; // width of cell
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     
-    static NSString *CellIdentifier = @"PatternCell"; // string value identifier for cell reuse
-    PatternViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:CellIdentifier forIndexPath:indexPath];
+    static NSString *CellIdentifier = @"CoffeeCell"; // string value identifier for cell reuse
+    CoffeeViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:CellIdentifier forIndexPath:indexPath];
     NSLog(@"cellForItemAtIndexPath: section: row: %d %d", indexPath.section, indexPath.row);
     //cell.backgroundColor = [UIColor whiteColor];
     //cell.layer.cornerRadius = 3;
@@ -181,7 +181,7 @@ NSInteger const CellWidth = 290; // width of cell
 
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
     
-    PatternViewCell *selectedCell = (PatternViewCell *)[collectionView cellForItemAtIndexPath:indexPath];
+    CoffeeViewCell *selectedCell = (CoffeeViewCell *)[collectionView cellForItemAtIndexPath:indexPath];
     NSLog(@"didSelectItemAtIndexPath");
     selectedCell.patternLabel.backgroundColor = [UIColor blueColor];
     selectedCell.patternLabel.textColor = [UIColor whiteColor];
@@ -189,7 +189,7 @@ NSInteger const CellWidth = 290; // width of cell
 
 - (void)collectionView:(UICollectionView *)collectionView didDeselectItemAtIndexPath:(NSIndexPath *)indexPath {
     
-    PatternViewCell *selectedCell = (PatternViewCell *)[collectionView cellForItemAtIndexPath:indexPath];
+    CoffeeViewCell *selectedCell = (CoffeeViewCell *)[collectionView cellForItemAtIndexPath:indexPath];
      NSLog(@"didDeSelectItemAtIndexPath");
     selectedCell.patternLabel.backgroundColor = [UIColor whiteColor];
     selectedCell.patternLabel.textColor = [UIColor blackColor];
@@ -512,7 +512,7 @@ NSInteger const CellWidth = 290; // width of cell
     NSLog(@"PrepareForSegue!");
     if ([segue.identifier isEqualToString:@"Drink Details"]) {
         NSLog(@"Drink Details!");
-        PatternViewCell *cell = (PatternViewCell *)sender;
+        CoffeeViewCell *cell = (CoffeeViewCell *)sender;
         NSIndexPath *indexPath = [self.myCollectionView indexPathForCell:cell];
         
         DrinkDetailViewController *ddvc = (DrinkDetailViewController *)[segue destinationViewController];

@@ -8,7 +8,7 @@
 
 #import <UIKit/UIKit.h>
 
-@interface PatternViewCell : UICollectionViewCell
+@interface CoffeeViewCell : UICollectionViewCell
 
 @property (weak, nonatomic) IBOutlet UIImageView *patternImageView;
 @property (weak, nonatomic) IBOutlet UILabel *patternLabel;

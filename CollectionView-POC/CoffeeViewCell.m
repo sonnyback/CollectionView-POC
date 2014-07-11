@@ -6,9 +6,9 @@
 //  Copyright (c) 2014 Sonny Back. All rights reserved.
 //
 
-#import "PatternViewCell.h"
+#import "CoffeeViewCell.h"
 
-@implementation PatternViewCell
+@implementation CoffeeViewCell
 
 - (id)initWithFrame:(CGRect)frame
 {
