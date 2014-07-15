@@ -223,6 +223,9 @@ NSInteger const CellWidth = 290; // width of cell
         NSLog(@"*******Element Kind is a footer!*******");
         footerView = [collectionView dequeueReusableSupplementaryViewOfKind:UICollectionElementKindSectionFooter
                                                                         withReuseIdentifier:FooterCellIdentifier forIndexPath:indexPath];
+        UILabel *testLabel = [[UILabel alloc] initWithFrame:CGRectMake(self.myCollectionView.frame.origin.x/2, self.myCollectionView.frame.origin.y/2, CellWidth, 20)];
+        testLabel.text = @"Hello";
+        [self.myCollectionView addSubview:testLabel];
          return footerView;
     } else {
         NSLog(@"*******Element Kind is NOT a footer!*******");
@@ -298,7 +301,7 @@ NSInteger const CellWidth = 290; // width of cell
     
     /*** NEXT 2 LINES ARE FOR THE SUPPLEMENTAL VIEW FOR THE FOOTER ***/
     //[self.myCollectionView registerClass:[FooterViewCell class] forSupplementaryViewOfKind:UICollectionElementKindSectionFooter withReuseIdentifier:@"FooterView"]; // not needed since set in storyboard
-    flowLayout.footerReferenceSize = CGSizeMake(CellWidth, 40); // needed for supplemental view (footer)
+    flowLayout.footerReferenceSize = CGSizeMake(CellWidth, 20); // needed for supplemental view (footer)
     
     [self.myCollectionView setCollectionViewLayout:flowLayout];
 }

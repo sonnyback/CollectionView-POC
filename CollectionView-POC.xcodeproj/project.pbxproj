@@ -27,6 +27,7 @@
 		E064B92218E50B60006193E8 /* CoffeeViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = E064B92118E50B60006193E8 /* CoffeeViewCell.m */; };
 		E075ACCF196F07820012F130 /* ImageLoadManager.m in Sources */ = {isa = PBXBuildFile; fileRef = E075ACCE196F07820012F130 /* ImageLoadManager.m */; };
 		E083297B1928F3E100A8E9DF /* DrinkDetailViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E083297A1928F3E100A8E9DF /* DrinkDetailViewController.m */; };
+		E0C4648C1974B320008236B0 /* Project Doc.rtf in Resources */ = {isa = PBXBuildFile; fileRef = E0C4648B1974B320008236B0 /* Project Doc.rtf */; };
 		E0E9A23218FBFC3D00043A84 /* CustomFlowLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = E0E9A23118FBFC3D00043A84 /* CustomFlowLayout.m */; };
 /* End PBXBuildFile section */
 
@@ -70,6 +71,7 @@
 		E075ACCE196F07820012F130 /* ImageLoadManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ImageLoadManager.m; path = Model/ImageLoadManager.m; sourceTree = "<group>"; };
 		E08329791928F3E100A8E9DF /* DrinkDetailViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DrinkDetailViewController.h; sourceTree = "<group>"; };
 		E083297A1928F3E100A8E9DF /* DrinkDetailViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DrinkDetailViewController.m; sourceTree = "<group>"; };
+		E0C4648B1974B320008236B0 /* Project Doc.rtf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; path = "Project Doc.rtf"; sourceTree = "<group>"; };
 		E0E9A23018FBFC3D00043A84 /* CustomFlowLayout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CustomFlowLayout.h; sourceTree = "<group>"; };
 		E0E9A23118FBFC3D00043A84 /* CustomFlowLayout.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CustomFlowLayout.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -152,6 +154,7 @@
 		E064B8F218E4C2A1006193E8 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				E0C4648B1974B320008236B0 /* Project Doc.rtf */,
 				E03F8784196C3C6900854347 /* magnifying_glass_32.png */,
 				E03A9BFF195DB77500316D6E /* footer_banner.png */,
 				E064B8FA18E4C2A1006193E8 /* BaseAppDelegate.h */,
@@ -268,6 +271,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E0C4648C1974B320008236B0 /* Project Doc.rtf in Resources */,
 				E03A9C00195DB77500316D6E /* footer_banner.png in Resources */,
 				E064B90418E4C2A1006193E8 /* Images.xcassets in Resources */,
 				E064B8F618E4C2A1006193E8 /* InfoPlist.strings in Resources */,

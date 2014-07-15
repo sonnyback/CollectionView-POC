@@ -68,21 +68,6 @@
                                 <collectionReusableView key="sectionFooterView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="FooterView" id="p8c-KZ-0Jy" customClass="FooterViewCell">
                                     <rect key="frame" x="0.0" y="364" width="320" height="50"/>
                                     <autoresizingMask key="autoresizingMask"/>
-                                    <subviews>
-                                        <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="footer_banner.png" translatesAutoresizingMaskIntoConstraints="NO" id="q6T-e6-Zya">
-                                            <rect key="frame" x="10" y="0.0" width="300" height="40"/>
-                                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                        </imageView>
-                                    </subviews>
-                                    <constraints>
-                                        <constraint firstAttribute="bottom" secondItem="q6T-e6-Zya" secondAttribute="bottom" constant="10" id="0Zq-GI-S2B"/>
-                                        <constraint firstItem="q6T-e6-Zya" firstAttribute="top" secondItem="p8c-KZ-0Jy" secondAttribute="top" id="ZrL-IK-MFu"/>
-                                        <constraint firstItem="q6T-e6-Zya" firstAttribute="centerX" secondItem="p8c-KZ-0Jy" secondAttribute="centerX" id="fY1-o5-5Ii"/>
-                                        <constraint firstItem="q6T-e6-Zya" firstAttribute="leading" secondItem="p8c-KZ-0Jy" secondAttribute="leading" constant="10" id="vyr-QG-80A"/>
-                                    </constraints>
-                                    <connections>
-                                        <outlet property="backgroundImage" destination="q6T-e6-Zya" id="jGV-5C-SVc"/>
-                                    </connections>
                                 </collectionReusableView>
                                 <connections>
                                     <outlet property="dataSource" destination="vXZ-lx-hvc" id="Qub-Xo-tWd"/>
@@ -187,9 +172,6 @@
             <point key="canvasLocation" x="-4477" y="-2211"/>
         </scene>
     </scenes>
-    <resources>
-        <image name="footer_banner.png" width="640" height="100"/>
-    </resources>
     <simulatedMetricsContainer key="defaultSimulatedMetrics">
         <simulatedStatusBarMetrics key="statusBar"/>
         <simulatedOrientationMetrics key="orientation"/>

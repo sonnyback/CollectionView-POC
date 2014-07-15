@@ -37,7 +37,7 @@
     NSLog(@"Entered collectionViewContentSize...");
     CGSize superSize = [super collectionViewContentSize];
     CGRect frame = self.collectionView.frame;
-    return CGSizeMake(fmaxf(superSize.width, CGRectGetWidth(frame)), 300);
+    return CGSizeMake(fmaxf(superSize.width, CGRectGetWidth(frame)), 290);
 }
 
 - (NSArray *)layoutAttributesForElementsInRect:(CGRect)rect {
@@ -48,7 +48,6 @@
     //visibleRect.origin = self.collectionView.contentOffset;
     visibleRect.size = self.collectionView.bounds.size;
     
-    //TODO - this for loop needs to be changed to place the cell where I want it
     for (UICollectionViewLayoutAttributes *attributes in attribs) {
         if (CGRectIntersectsRect(attributes.frame, rect)) {
             //CGFloat distanceFromCenter = CGRectGetMidX(visibleRect) - attributes.center.x;
