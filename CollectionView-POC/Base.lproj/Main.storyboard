@@ -93,6 +93,9 @@
                                     <segment title="Recipes"/>
                                     <segment title="Cafes"/>
                                 </segments>
+                                <connections>
+                                    <action selector="segmentedControlSelected:" destination="vXZ-lx-hvc" eventType="valueChanged" id="B5L-f2-ecb"/>
+                                </connections>
                             </segmentedControl>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
@@ -119,11 +122,12 @@
                         <outlet property="imageRecipeSegmentedControl" destination="InD-us-9xD" id="Oxp-Si-kXV"/>
                         <outlet property="myCollectionView" destination="JVU-z8-YUF" id="rdQ-lD-JZ2"/>
                         <outlet property="searchBar" destination="uSB-QY-ddN" id="d2E-rc-HbT"/>
+                        <segue destination="WUI-KS-5Q7" kind="push" identifier="Cafes" id="jYd-0r-8g6"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="x5A-6p-PRh" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-4111" y="-2211"/>
+            <point key="canvasLocation" x="-4295" y="-2570"/>
         </scene>
         <!--Drink Detail View Controller-->
         <scene sceneID="cJH-em-JW3">
@@ -151,7 +155,36 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="uHB-CN-0xO" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-3727" y="-2211"/>
+            <point key="canvasLocation" x="-4295" y="-1871"/>
+        </scene>
+        <!--Cafe Locator Table View Controller-->
+        <scene sceneID="cD1-IN-lfZ">
+            <objects>
+                <tableViewController id="WUI-KS-5Q7" customClass="CafeLocatorTableViewController" sceneMemberID="viewController">
+                    <tableView key="view" opaque="NO" clipsSubviews="YES" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" id="H36-Bo-6f0">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <prototypes>
+                            <tableViewCell contentMode="scaleToFill" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" id="jC8-XN-8aR">
+                                <rect key="frame" x="0.0" y="86" width="320" height="44"/>
+                                <autoresizingMask key="autoresizingMask"/>
+                                <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="jC8-XN-8aR" id="uc0-nU-YW2">
+                                    <rect key="frame" x="0.0" y="0.0" width="320" height="43"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                </tableViewCellContentView>
+                            </tableViewCell>
+                        </prototypes>
+                        <connections>
+                            <outlet property="dataSource" destination="WUI-KS-5Q7" id="RWr-1f-9Hs"/>
+                            <outlet property="delegate" destination="WUI-KS-5Q7" id="QMV-7v-XtB"/>
+                        </connections>
+                    </tableView>
+                    <navigationItem key="navigationItem" id="clh-Wr-uOx"/>
+                </tableViewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="r1z-2L-wxt" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-3932" y="-2199"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="Jrl-Ue-T3r">
@@ -169,7 +202,7 @@
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="ujA-tH-kEJ" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-4477" y="-2211"/>
+            <point key="canvasLocation" x="-4767" y="-2496"/>
         </scene>
     </scenes>
     <simulatedMetricsContainer key="defaultSimulatedMetrics">

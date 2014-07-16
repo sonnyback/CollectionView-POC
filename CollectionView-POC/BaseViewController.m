@@ -11,6 +11,7 @@
 #import "FooterViewCell.h"
 #import "CustomFlowLayout.h"
 #import "DrinkDetailViewController.h"
+#import "CafeLocatorTableViewController.h"
 #import "ImageLoadManager.h"
 #import <QuartzCore/QuartzCore.h>
 
@@ -477,6 +478,24 @@ NSInteger const CellWidth = 290; // width of cell
 
 #pragma mark - Action Methods
 
+/**
+ * Action Method to track the segmented control being changed
+ *
+ * @param UISegmentedControl* sender
+ * @return void
+ */
+- (IBAction)segmentedControlSelected:(UISegmentedControl *)sender {
+    NSLog(@"segmentedControlSelected: index - %ld", (long)sender.selectedSegmentIndex);
+    if (sender.selectedSegmentIndex == 0) { // Images
+        // todo
+    } else if (sender.selectedSegmentIndex == 1) { // Recipes
+        // todo
+    }
+    else if (sender.selectedSegmentIndex == 2)  { // Cafes
+        [self performSegueWithIdentifier:@"Cafes" sender:self];
+    }
+}
+
 - (IBAction)coffeeImagesButtonPressed:(UIButton *)sender {
     
     NSLog(@"coffeeImagesButtonPressed!");
@@ -520,6 +539,8 @@ NSInteger const CellWidth = 290; // width of cell
         
         DrinkDetailViewController *ddvc = (DrinkDetailViewController *)[segue destinationViewController];
         ddvc.drinkImage = [self.imagesArray objectAtIndex:indexPath.row];
+    } else if ([segue.identifier isEqualToString:[self getSelectedSegmentTitle]]) { // identifer & segment tile = "Cafes"
+        NSLog(@"Segue to Cafe locator!");
     }
 }
 

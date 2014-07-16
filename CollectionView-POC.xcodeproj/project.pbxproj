@@ -27,6 +27,8 @@
 		E064B92218E50B60006193E8 /* CoffeeViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = E064B92118E50B60006193E8 /* CoffeeViewCell.m */; };
 		E075ACCF196F07820012F130 /* ImageLoadManager.m in Sources */ = {isa = PBXBuildFile; fileRef = E075ACCE196F07820012F130 /* ImageLoadManager.m */; };
 		E083297B1928F3E100A8E9DF /* DrinkDetailViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E083297A1928F3E100A8E9DF /* DrinkDetailViewController.m */; };
+		E09DEAC71975C74600B85A5C /* CafeLocatorTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E09DEAC61975C74600B85A5C /* CafeLocatorTableViewController.m */; };
+		E09DEACD197617F400B85A5C /* CoffeeShop.m in Sources */ = {isa = PBXBuildFile; fileRef = E09DEACC197617F400B85A5C /* CoffeeShop.m */; };
 		E0C4648C1974B320008236B0 /* Project Doc.rtf in Resources */ = {isa = PBXBuildFile; fileRef = E0C4648B1974B320008236B0 /* Project Doc.rtf */; };
 		E0E9A23218FBFC3D00043A84 /* CustomFlowLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = E0E9A23118FBFC3D00043A84 /* CustomFlowLayout.m */; };
 /* End PBXBuildFile section */
@@ -71,6 +73,10 @@
 		E075ACCE196F07820012F130 /* ImageLoadManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ImageLoadManager.m; path = Model/ImageLoadManager.m; sourceTree = "<group>"; };
 		E08329791928F3E100A8E9DF /* DrinkDetailViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DrinkDetailViewController.h; sourceTree = "<group>"; };
 		E083297A1928F3E100A8E9DF /* DrinkDetailViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DrinkDetailViewController.m; sourceTree = "<group>"; };
+		E09DEAC51975C74600B85A5C /* CafeLocatorTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CafeLocatorTableViewController.h; sourceTree = "<group>"; };
+		E09DEAC61975C74600B85A5C /* CafeLocatorTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CafeLocatorTableViewController.m; sourceTree = "<group>"; };
+		E09DEACB197617F400B85A5C /* CoffeeShop.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CoffeeShop.h; path = Model/CoffeeShop.h; sourceTree = "<group>"; };
+		E09DEACC197617F400B85A5C /* CoffeeShop.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CoffeeShop.m; path = Model/CoffeeShop.m; sourceTree = "<group>"; };
 		E0C4648B1974B320008236B0 /* Project Doc.rtf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; path = "Project Doc.rtf"; sourceTree = "<group>"; };
 		E0E9A23018FBFC3D00043A84 /* CustomFlowLayout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CustomFlowLayout.h; sourceTree = "<group>"; };
 		E0E9A23118FBFC3D00043A84 /* CustomFlowLayout.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CustomFlowLayout.m; sourceTree = "<group>"; };
@@ -134,6 +140,8 @@
 			isa = PBXGroup;
 			children = (
 				E064B8FD18E4C2A1006193E8 /* Main.storyboard */,
+				E09DEAC51975C74600B85A5C /* CafeLocatorTableViewController.h */,
+				E09DEAC61975C74600B85A5C /* CafeLocatorTableViewController.m */,
 				E0E9A23018FBFC3D00043A84 /* CustomFlowLayout.h */,
 				E0E9A23118FBFC3D00043A84 /* CustomFlowLayout.m */,
 				E064B92018E50B60006193E8 /* CoffeeViewCell.h */,
@@ -188,6 +196,8 @@
 		E075ACC9196F01D60012F130 /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				E09DEACB197617F400B85A5C /* CoffeeShop.h */,
+				E09DEACC197617F400B85A5C /* CoffeeShop.m */,
 				E075ACCD196F07820012F130 /* ImageLoadManager.h */,
 				E075ACCE196F07820012F130 /* ImageLoadManager.m */,
 			);
@@ -300,9 +310,11 @@
 				E064B90218E4C2A1006193E8 /* BaseViewController.m in Sources */,
 				E075ACCF196F07820012F130 /* ImageLoadManager.m in Sources */,
 				E064B8FC18E4C2A1006193E8 /* BaseAppDelegate.m in Sources */,
+				E09DEAC71975C74600B85A5C /* CafeLocatorTableViewController.m in Sources */,
 				E03A9BFE195CC04700316D6E /* FooterViewCell.m in Sources */,
 				E083297B1928F3E100A8E9DF /* DrinkDetailViewController.m in Sources */,
 				E0E9A23218FBFC3D00043A84 /* CustomFlowLayout.m in Sources */,
+				E09DEACD197617F400B85A5C /* CoffeeShop.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
