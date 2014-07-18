@@ -13,6 +13,7 @@
 #import "DrinkDetailViewController.h"
 #import "CafeLocatorTableViewController.h"
 #import "ImageLoadManager.h"
+#import "Helper.h"
 #import <QuartzCore/QuartzCore.h>
 
 @interface BaseViewController()
@@ -26,7 +27,6 @@
 @property (weak, nonatomic) IBOutlet UIButton *coffeeImagesButton;
 @property (weak, nonatomic) IBOutlet UIButton *recipeImagesButton;*/
 @property (weak, nonatomic) IBOutlet UITextField *searchBar;
-@property (strong, nonatomic) NSArray *cellIndexes;
 @end
 
 @implementation BaseViewController
@@ -64,20 +64,11 @@ NSInteger const CellWidth = 290; // width of cell
     return _imageLoadManager;
 }
 
-// lazy instantiate cellIndexes
-- (NSArray *)cellIndexes {
-    
-    if (!_cellIndexes) {
-        _cellIndexes = [[NSArray alloc] init];
-    }
-    
-    return _cellIndexes;
-}
-
 // return the value for globalColor ro
 - (UIColor *)globalColor {
     
-    return [UIColor colorWithRed:0.5 green:0.6 blue:0.8 alpha:1.0];
+    return [UIColor colorWithRed:0.5 green:0.6 blue:0.8 alpha:1.0]; // original color i came up with randonmly
+    //return [UIColor colorWithRed:0.112 green:0.234 blue:0.4 alpha:1]; // simulated redbox app color (grayish blue)
 }
 
 #pragma mark - Setters
@@ -119,7 +110,7 @@ NSInteger const CellWidth = 290; // width of cell
     
     static NSString *CellIdentifier = @"CoffeeCell"; // string value identifier for cell reuse
     CoffeeViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:CellIdentifier forIndexPath:indexPath];
-    NSLog(@"cellForItemAtIndexPath: section: row: %d %d", indexPath.section, indexPath.row);
+    NSLog(@"cellForItemAtIndexPath: section: row: %ld %ld", (long)indexPath.section, (long)indexPath.row);
     //cell.backgroundColor = [UIColor whiteColor];
     //cell.layer.cornerRadius = 3;
     cell.layer.borderWidth = 1.0;
@@ -224,28 +215,17 @@ NSInteger const CellWidth = 290; // width of cell
         NSLog(@"*******Element Kind is a footer!*******");
         footerView = [collectionView dequeueReusableSupplementaryViewOfKind:UICollectionElementKindSectionFooter
                                                                         withReuseIdentifier:FooterCellIdentifier forIndexPath:indexPath];
-        UILabel *testLabel = [[UILabel alloc] initWithFrame:CGRectMake(self.myCollectionView.frame.origin.x/2, self.myCollectionView.frame.origin.y/2, CellWidth, 20)];
-        testLabel.text = @"Hello";
-        [self.myCollectionView addSubview:testLabel];
+        for (int i = 0; i < [self.imagesArray count]; i++) {
+            UILabel *testLabel = [[UILabel alloc] initWithFrame:CGRectMake(self.myCollectionView.frame.origin.x/2, self.myCollectionView.frame.origin.y/2, CellWidth, 20)];
+            testLabel.text = [self.imageNames objectAtIndex:indexPath.row];
+            [self.myCollectionView addSubview:testLabel];
+        }
+        
          return footerView;
     } else {
         NSLog(@"*******Element Kind is NOT a footer!*******");
         return nil;
     }
-    
-    /*UICollectionReusableView *reusableview = nil;
-    static NSString *FooterCellIdentifier = @"FooterView"; // string value identifier for cell reuse
-    
-    if (kind == UICollectionElementKindSectionFooter) {
-        NSLog(@"*******Element Kind is a footer!*******");
-        FooterViewCell *footerView = [collectionView dequeueReusableSupplementaryViewOfKind:UICollectionElementKindSectionFooter withReuseIdentifier:FooterCellIdentifier forIndexPath:indexPath];
-        
-        reusableview = footerView;
-    } else {
-        NSLog(@"*******Element Kind is NOT a footer!*******");
-    }
-    
-    return reusableview;*/
 }
 
 #pragma mark - UI Setup
@@ -291,7 +271,8 @@ NSInteger const CellWidth = 290; // width of cell
     flowLayout.itemSize = CGSizeMake(ITEM_SIZE, ITEM_SIZE); // globally sets the item (cell) size
     [flowLayout setScrollDirection:UICollectionViewScrollDirectionHorizontal]; // set scroll direction to horizontal
     
-    [self.myCollectionView setBackgroundColor:self.globalColor];
+    //[self.myCollectionView setBackgroundColor:[UIColor colorWithRed:0.227 green:0.349 blue:0.478 alpha:1]]; // ok color
+    [self.myCollectionView setBackgroundColor:[UIColor colorWithRed:0.62 green:0.651 blue:0.686 alpha:1]];
     self.myCollectionView.multipleTouchEnabled = NO; // don't allow multiple cells to be selected at the same time
     //[self.myCollectionView setBackgroundColor:[UIColor whiteColor]];
     //[self.myCollectionView setPagingEnabled:YES]; // don't use since using CustomFlowLayout.targetContentOffsetForProposedContentOffset
@@ -509,8 +490,6 @@ NSInteger const CellWidth = 290; // width of cell
 {
     [super viewDidLayoutSubviews];
     NSLog(@"viewDidLayoutSubviews");
-    //self.cellIndexes = [self.myCollectionView indexPathsForVisibleItems];
-    //NSLog(@"cellIndexes count %d", [self.cellIndexes count]);
 }
 
 - (void)viewDidLoad
@@ -519,7 +498,10 @@ NSInteger const CellWidth = 290; // width of cell
     
     [self setupCollectionView]; // setup the collectionview parameters
     [self setupSearchBar]; // setup the search bar in the navigation bar
-    self.navigationController.navigationBar.barTintColor = self.globalColor; // set the background color of the navigation bar
+    //self.navigationController.navigationBar.barTintColor = self.globalColor; // set the background color of the navigation bar
+    self.navigationController.navigationBar.barTintColor = [UIColor colorWithRed:0.112 green:0.234 blue:0.4 alpha:1];
+    // below is just a test. colors provided by Otha and are displaying correct color through helper method
+    //self.navigationController.navigationBar.barTintColor = [Helper colorFromRed:112.0 Green:234.0 Blue:4.0 Alpha:1.0];
     //[self setupButtons]; // setup the buttons - not needed since changed to uisegmentedcontrol
     //NSLog(@"imageLoadManager description %@", [self.imageLoadManager description]); // just to initialize IML for testing
     

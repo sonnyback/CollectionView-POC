@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		E03A9BFE195CC04700316D6E /* FooterViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = E03A9BFD195CC04700316D6E /* FooterViewCell.m */; };
 		E03A9C00195DB77500316D6E /* footer_banner.png in Resources */ = {isa = PBXBuildFile; fileRef = E03A9BFF195DB77500316D6E /* footer_banner.png */; };
+		E03E745D1978B11F00A3AE0F /* Helper.m in Sources */ = {isa = PBXBuildFile; fileRef = E03E745C1978B11F00A3AE0F /* Helper.m */; };
 		E03F8785196C3C6900854347 /* magnifying_glass_32.png in Resources */ = {isa = PBXBuildFile; fileRef = E03F8784196C3C6900854347 /* magnifying_glass_32.png */; };
 		E064B8EC18E4C2A1006193E8 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E064B8EB18E4C2A1006193E8 /* Foundation.framework */; };
 		E064B8EE18E4C2A1006193E8 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E064B8ED18E4C2A1006193E8 /* CoreGraphics.framework */; };
@@ -47,6 +48,8 @@
 		E03A9BFC195CC04700316D6E /* FooterViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FooterViewCell.h; sourceTree = "<group>"; };
 		E03A9BFD195CC04700316D6E /* FooterViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FooterViewCell.m; sourceTree = "<group>"; };
 		E03A9BFF195DB77500316D6E /* footer_banner.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = footer_banner.png; sourceTree = "<group>"; };
+		E03E745B1978B11F00A3AE0F /* Helper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Helper.h; path = Utility/Helper.h; sourceTree = "<group>"; };
+		E03E745C1978B11F00A3AE0F /* Helper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Helper.m; path = Utility/Helper.m; sourceTree = "<group>"; };
 		E03F8784196C3C6900854347 /* magnifying_glass_32.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = magnifying_glass_32.png; sourceTree = "<group>"; };
 		E064B8E818E4C2A1006193E8 /* CollectionView-POC.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "CollectionView-POC.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		E064B8EB18E4C2A1006193E8 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -106,6 +109,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		E03E745E1978B13000A3AE0F /* Utility */ = {
+			isa = PBXGroup;
+			children = (
+				E03E745B1978B11F00A3AE0F /* Helper.h */,
+				E03E745C1978B11F00A3AE0F /* Helper.m */,
+			);
+			name = Utility;
+			sourceTree = "<group>";
+		};
 		E064B8DF18E4C2A1006193E8 = {
 			isa = PBXGroup;
 			children = (
@@ -152,6 +164,7 @@
 				E064B90118E4C2A1006193E8 /* BaseViewController.m */,
 				E08329791928F3E100A8E9DF /* DrinkDetailViewController.h */,
 				E083297A1928F3E100A8E9DF /* DrinkDetailViewController.m */,
+				E03E745E1978B13000A3AE0F /* Utility */,
 				E075ACC9196F01D60012F130 /* Model */,
 				E064B90318E4C2A1006193E8 /* Images.xcassets */,
 				E064B8F218E4C2A1006193E8 /* Supporting Files */,
@@ -313,6 +326,7 @@
 				E09DEAC71975C74600B85A5C /* CafeLocatorTableViewController.m in Sources */,
 				E03A9BFE195CC04700316D6E /* FooterViewCell.m in Sources */,
 				E083297B1928F3E100A8E9DF /* DrinkDetailViewController.m in Sources */,
+				E03E745D1978B11F00A3AE0F /* Helper.m in Sources */,
 				E0E9A23218FBFC3D00043A84 /* CustomFlowLayout.m in Sources */,
 				E09DEACD197617F400B85A5C /* CoffeeShop.m in Sources */,
 			);
