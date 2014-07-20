@@ -119,16 +119,16 @@ NSInteger const CellWidth = 290; // width of cell
     NSString *myPatternString = [self.imageNames objectAtIndex:indexPath.row];
     //[self updateDrinkNameLabel:indexPath.row];
     //cell.patternImageView.image = [UIImage imageNamed:myPatternString];
-    cell.patternImageView.image = [self.imagesArray objectAtIndex:indexPath.row];
+    cell.coffeeImageView.image = [self.imagesArray objectAtIndex:indexPath.row];
     
     /* UIViewContentMode options from here....*/
     //cell.patternImageView.contentMode = UIViewContentModeScaleToFill; // distorts the image
     //cell.patternImageView.contentMode = UIViewContentModeScaleAspectFill; // fills out image area, but image is cropped
-    cell.patternImageView.contentMode = UIViewContentModeScaleAspectFit; // maintains aspect, but does not always fill image area
+    cell.coffeeImageView.contentMode = UIViewContentModeScaleAspectFit; // maintains aspect, but does not always fill image area
     /*...to here...*/
     
-    cell.patternImageView.clipsToBounds = YES;
-    cell.patternLabel.text = myPatternString;
+    cell.coffeeImageView.clipsToBounds = YES;
+    cell.coffeeImageLabel.text = myPatternString;
     
     /** Below lines intended to place cell in right location without having to use custom flow layout, but 
      did not work correctly. */
@@ -136,7 +136,7 @@ NSInteger const CellWidth = 290; // width of cell
     //cell.center = CGPointMake(self.view.frame.size.width/2, (self.view.frame.size.height/2 * .15));
     //cell.patternImageView.center = CGPointMake(cell.contentView.bounds.size.width/2, (cell.contentView.bounds.size.height/2 * .10));
     
-    cell.patternLabel.alpha = 0.3; // set the label to be semi transparent
+    cell.coffeeImageLabel.alpha = 0.3; // set the label to be semi transparent
     
     return cell;
 }
@@ -175,16 +175,16 @@ NSInteger const CellWidth = 290; // width of cell
     
     CoffeeViewCell *selectedCell = (CoffeeViewCell *)[collectionView cellForItemAtIndexPath:indexPath];
     NSLog(@"didSelectItemAtIndexPath");
-    selectedCell.patternLabel.backgroundColor = [UIColor blueColor];
-    selectedCell.patternLabel.textColor = [UIColor whiteColor];
+    selectedCell.coffeeImageLabel.backgroundColor = [UIColor blueColor];
+    selectedCell.coffeeImageLabel.textColor = [UIColor whiteColor];
 }
 
 - (void)collectionView:(UICollectionView *)collectionView didDeselectItemAtIndexPath:(NSIndexPath *)indexPath {
     
     CoffeeViewCell *selectedCell = (CoffeeViewCell *)[collectionView cellForItemAtIndexPath:indexPath];
      NSLog(@"didDeSelectItemAtIndexPath");
-    selectedCell.patternLabel.backgroundColor = [UIColor whiteColor];
-    selectedCell.patternLabel.textColor = [UIColor blackColor];
+    selectedCell.coffeeImageLabel.backgroundColor = [UIColor whiteColor];
+    selectedCell.coffeeImageLabel.textColor = [UIColor blackColor];
 }
 
 /*- (void)collectionView:(UICollectionView *)collectionView didEndDisplayingCell:(UICollectionViewCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath {
@@ -207,17 +207,19 @@ NSInteger const CellWidth = 290; // width of cell
 }*/
 
 - (UICollectionReusableView *)collectionView:(UICollectionView *)collectionView viewForSupplementaryElementOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath {
-    NSLog(@"&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&");
+    NSLog(@"viewForSupplementaryElementOfKind");
     
     static NSString *FooterCellIdentifier = @"FooterView"; // string value identifier for cell reuse
     FooterViewCell *footerView;
     if (kind == UICollectionElementKindSectionFooter) {
         NSLog(@"*******Element Kind is a footer!*******");
         footerView = [collectionView dequeueReusableSupplementaryViewOfKind:UICollectionElementKindSectionFooter
-                                                                        withReuseIdentifier:FooterCellIdentifier forIndexPath:indexPath];
+                                                        withReuseIdentifier:FooterCellIdentifier forIndexPath:indexPath];
         for (int i = 0; i < [self.imagesArray count]; i++) {
-            UILabel *testLabel = [[UILabel alloc] initWithFrame:CGRectMake(self.myCollectionView.frame.origin.x/2, self.myCollectionView.frame.origin.y/2, CellWidth, 20)];
-            testLabel.text = [self.imageNames objectAtIndex:indexPath.row];
+            UILabel *testLabel = [[UILabel alloc] initWithFrame:CGRectMake(self.myCollectionView.center.x * i,
+                                                                           self.myCollectionView.center.y * .85, CellWidth, 20)];
+            //testLabel.text = [self.imageNames objectAtIndex:indexPath.row];
+            testLabel.text = self.imageNames[i];
             [self.myCollectionView addSubview:testLabel];
         }
         
@@ -283,7 +285,7 @@ NSInteger const CellWidth = 290; // width of cell
     
     /*** NEXT 2 LINES ARE FOR THE SUPPLEMENTAL VIEW FOR THE FOOTER ***/
     //[self.myCollectionView registerClass:[FooterViewCell class] forSupplementaryViewOfKind:UICollectionElementKindSectionFooter withReuseIdentifier:@"FooterView"]; // not needed since set in storyboard
-    flowLayout.footerReferenceSize = CGSizeMake(CellWidth, 20); // needed for supplemental view (footer)
+    flowLayout.footerReferenceSize = CGSizeMake(20, 20); // needed for supplemental view (footer)
     
     [self.myCollectionView setCollectionViewLayout:flowLayout];
 }

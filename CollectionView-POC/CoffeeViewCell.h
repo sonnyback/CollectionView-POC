@@ -10,7 +10,7 @@
 
 @interface CoffeeViewCell : UICollectionViewCell
 
-@property (weak, nonatomic) IBOutlet UIImageView *patternImageView;
-@property (weak, nonatomic) IBOutlet UILabel *patternLabel;
+@property (weak, nonatomic) IBOutlet UIImageView *coffeeImageView;
+@property (weak, nonatomic) IBOutlet UILabel *coffeeImageLabel;
 
 @end

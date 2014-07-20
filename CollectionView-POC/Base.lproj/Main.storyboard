@@ -59,8 +59,8 @@
                                         </constraints>
                                         <size key="customSize" width="300" height="300"/>
                                         <connections>
-                                            <outlet property="patternImageView" destination="lPA-RX-FFd" id="iOv-22-Nsj"/>
-                                            <outlet property="patternLabel" destination="QJP-uQ-nFl" id="fWO-2D-HOW"/>
+                                            <outlet property="coffeeImageLabel" destination="QJP-uQ-nFl" id="h5T-L7-kj9"/>
+                                            <outlet property="coffeeImageView" destination="lPA-RX-FFd" id="F9O-7M-aq7"/>
                                             <segue destination="lEj-AM-u1I" kind="push" identifier="Drink Details" id="vmY-zT-ufy"/>
                                         </connections>
                                     </collectionViewCell>
