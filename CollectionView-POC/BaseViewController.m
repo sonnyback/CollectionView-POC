@@ -116,14 +116,18 @@ NSInteger const CellWidth = 290; // width of cell
     cell.layer.borderWidth = 1.0;
     cell.layer.borderColor = [UIColor grayColor].CGColor;
     
+    //CGRect originalImageFrame = cell.coffeeImageView.frame;
+    
+    //cell.coffeeImageView.frame = CGRectMake(originalImageFrame.origin.x, originalImageFrame.origin.y, originalImageFrame.size.width, originalImageFrame.size.height - 25);
+    
     NSString *myPatternString = [self.imageNames objectAtIndex:indexPath.row];
     //[self updateDrinkNameLabel:indexPath.row];
     //cell.patternImageView.image = [UIImage imageNamed:myPatternString];
     cell.coffeeImageView.image = [self.imagesArray objectAtIndex:indexPath.row];
     
     /* UIViewContentMode options from here....*/
-    //cell.patternImageView.contentMode = UIViewContentModeScaleToFill; // distorts the image
-    //cell.patternImageView.contentMode = UIViewContentModeScaleAspectFill; // fills out image area, but image is cropped
+    //cell.coffeeImageView.contentMode = UIViewContentModeScaleToFill; // distorts the image
+    //cell.coffeeImageView.contentMode = UIViewContentModeScaleAspectFill; // fills out image area, but image is cropped
     cell.coffeeImageView.contentMode = UIViewContentModeScaleAspectFit; // maintains aspect, but does not always fill image area
     /*...to here...*/
     
@@ -511,6 +515,19 @@ NSInteger const CellWidth = 290; // width of cell
     self.navigationItem.backBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"" style:UIBarButtonItemStylePlain target:nil action:nil];
     
     [self updateUI];
+}
+
+- (void)viewDidAppear:(BOOL)animated {
+    
+    /* Need to make sure when coming *back* from CafeLocatorTableVC segue that Cafes does not stay selected.
+     * Otherwise, user has to manually tap another segment control, then tap Cafes again to go back to cafe
+     * locator. Will make this go back to Images segment. However, this may be better handled by a delegate -
+     * need to investigate.
+     */
+    if ([[self getSelectedSegmentTitle] isEqualToString:@"Cafes"]) {
+        NSLog(@"ViewDidAppear - Cafes!!");
+        self.imageRecipeSegmentedControl.selectedSegmentIndex = 0;
+    }
 }
 
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {

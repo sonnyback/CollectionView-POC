@@ -37,6 +37,7 @@
     NSLog(@"Entered collectionViewContentSize...");
     CGSize superSize = [super collectionViewContentSize];
     CGRect frame = self.collectionView.frame;
+    // 290 value will need to match the cell height - need to make this a #define/constant so it's not hardcoded
     return CGSizeMake(fmaxf(superSize.width, CGRectGetWidth(frame)), 290);
 }
 
