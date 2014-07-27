@@ -31,6 +31,7 @@
 		E09DEAC71975C74600B85A5C /* CafeLocatorTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E09DEAC61975C74600B85A5C /* CafeLocatorTableViewController.m */; };
 		E09DEACD197617F400B85A5C /* CoffeeShop.m in Sources */ = {isa = PBXBuildFile; fileRef = E09DEACC197617F400B85A5C /* CoffeeShop.m */; };
 		E0C4648C1974B320008236B0 /* Project Doc.rtf in Resources */ = {isa = PBXBuildFile; fileRef = E0C4648B1974B320008236B0 /* Project Doc.rtf */; };
+		E0DE6CC61985535700D1A7FC /* Constants.m in Sources */ = {isa = PBXBuildFile; fileRef = E0DE6CC51985535700D1A7FC /* Constants.m */; };
 		E0E9A23218FBFC3D00043A84 /* CustomFlowLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = E0E9A23118FBFC3D00043A84 /* CustomFlowLayout.m */; };
 /* End PBXBuildFile section */
 
@@ -81,6 +82,8 @@
 		E09DEACB197617F400B85A5C /* CoffeeShop.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CoffeeShop.h; path = Model/CoffeeShop.h; sourceTree = "<group>"; };
 		E09DEACC197617F400B85A5C /* CoffeeShop.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CoffeeShop.m; path = Model/CoffeeShop.m; sourceTree = "<group>"; };
 		E0C4648B1974B320008236B0 /* Project Doc.rtf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; path = "Project Doc.rtf"; sourceTree = "<group>"; };
+		E0DE6CC41985535700D1A7FC /* Constants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Constants.h; path = Framework/Constants.h; sourceTree = "<group>"; };
+		E0DE6CC51985535700D1A7FC /* Constants.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Constants.m; path = Framework/Constants.m; sourceTree = "<group>"; };
 		E0E9A23018FBFC3D00043A84 /* CustomFlowLayout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CustomFlowLayout.h; sourceTree = "<group>"; };
 		E0E9A23118FBFC3D00043A84 /* CustomFlowLayout.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CustomFlowLayout.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -164,6 +167,7 @@
 				E064B90118E4C2A1006193E8 /* BaseViewController.m */,
 				E08329791928F3E100A8E9DF /* DrinkDetailViewController.h */,
 				E083297A1928F3E100A8E9DF /* DrinkDetailViewController.m */,
+				E0DE6CC71985536000D1A7FC /* Framework */,
 				E03E745E1978B13000A3AE0F /* Utility */,
 				E075ACC9196F01D60012F130 /* Model */,
 				E064B90318E4C2A1006193E8 /* Images.xcassets */,
@@ -215,6 +219,15 @@
 				E075ACCE196F07820012F130 /* ImageLoadManager.m */,
 			);
 			name = Model;
+			sourceTree = "<group>";
+		};
+		E0DE6CC71985536000D1A7FC /* Framework */ = {
+			isa = PBXGroup;
+			children = (
+				E0DE6CC41985535700D1A7FC /* Constants.h */,
+				E0DE6CC51985535700D1A7FC /* Constants.m */,
+			);
+			name = Framework;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -329,6 +342,7 @@
 				E03E745D1978B11F00A3AE0F /* Helper.m in Sources */,
 				E0E9A23218FBFC3D00043A84 /* CustomFlowLayout.m in Sources */,
 				E09DEACD197617F400B85A5C /* CoffeeShop.m in Sources */,
+				E0DE6CC61985535700D1A7FC /* Constants.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

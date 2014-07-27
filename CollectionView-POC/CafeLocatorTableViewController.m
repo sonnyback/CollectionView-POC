@@ -50,9 +50,8 @@
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-#warning Incomplete method implementation.
-    // Return the number of rows in the section.
-    return 0;
+    /** WILL CHANGE TO ARRAY OF LOCATIONS COUNT **/
+    return 5;
 }
 
 
@@ -62,6 +61,7 @@
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier forIndexPath:indexPath];
     
     // Configure the cell...
+    cell.textLabel.text = [NSString stringWithFormat:@"Location %ld", (long)indexPath.row];
     
     return cell;
 }

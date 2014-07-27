@@ -16,10 +16,13 @@
                         <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
-                            <collectionView opaque="NO" clipsSubviews="YES" contentMode="scaleAspectFit" ambiguous="YES" misplaced="YES" showsVerticalScrollIndicator="NO" minimumZoomScale="0.0" maximumZoomScale="0.0" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="JVU-z8-YUF">
+                            <collectionView opaque="NO" clipsSubviews="YES" contentMode="scaleAspectFit" showsVerticalScrollIndicator="NO" minimumZoomScale="0.0" maximumZoomScale="0.0" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="JVU-z8-YUF">
                                 <rect key="frame" x="0.0" y="112" width="320" height="412"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="412" id="ETT-SQ-MwY"/>
+                                </constraints>
                                 <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="0.0" minimumInteritemSpacing="0.0" id="4ec-Go-iWi">
                                     <size key="itemSize" width="250" height="250"/>
                                     <size key="headerReferenceSize" width="0.0" height="0.0"/>
@@ -74,7 +77,7 @@
                                     <outlet property="delegate" destination="vXZ-lx-hvc" id="AYL-dh-eq5"/>
                                 </connections>
                             </collectionView>
-                            <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="HFB-yh-hZe">
+                            <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="HFB-yh-hZe">
                                 <rect key="frame" x="0.0" y="524" width="320" height="44"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                                 <items>
@@ -100,10 +103,13 @@
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>
+                            <constraint firstItem="JVU-z8-YUF" firstAttribute="leading" secondItem="kh9-bI-dsS" secondAttribute="leading" id="ATz-zW-ZWP"/>
+                            <constraint firstItem="JVU-z8-YUF" firstAttribute="bottom" secondItem="HFB-yh-hZe" secondAttribute="top" id="GXC-c1-vbH"/>
                             <constraint firstItem="JVU-z8-YUF" firstAttribute="top" secondItem="InD-us-9xD" secondAttribute="bottom" constant="13" id="JjM-yI-UTm"/>
                             <constraint firstItem="InD-us-9xD" firstAttribute="leading" secondItem="kh9-bI-dsS" secondAttribute="leading" constant="20" symbolic="YES" id="amf-LW-NgM"/>
                             <constraint firstItem="InD-us-9xD" firstAttribute="centerX" secondItem="HFB-yh-hZe" secondAttribute="centerX" id="hiv-0p-rEC"/>
                             <constraint firstItem="InD-us-9xD" firstAttribute="centerX" secondItem="JVU-z8-YUF" secondAttribute="centerX" id="jfV-1l-qGa"/>
+                            <constraint firstItem="JVU-z8-YUF" firstAttribute="leading" secondItem="HFB-yh-hZe" secondAttribute="leading" id="mIB-AQ-lyN"/>
                             <constraint firstItem="InD-us-9xD" firstAttribute="top" secondItem="jyV-Pf-zRb" secondAttribute="bottom" constant="9" id="x8s-Yc-i7a"/>
                         </constraints>
                     </view>
