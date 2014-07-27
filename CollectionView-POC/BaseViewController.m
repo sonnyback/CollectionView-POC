@@ -32,6 +32,7 @@
 @implementation BaseViewController
 
 NSInteger const CellWidth = 290; // width of cell
+NSInteger const CellHeight = 320; // height of cell
 
 #pragma mark - Lazy Instantiation
 // lazy instantiate imagesArray
@@ -141,6 +142,12 @@ NSInteger const CellWidth = 290; // width of cell
     //cell.patternImageView.center = CGPointMake(cell.contentView.bounds.size.width/2, (cell.contentView.bounds.size.height/2 * .10));
     
     cell.coffeeImageLabel.alpha = 0.3; // set the label to be semi transparent
+    cell.coffeeImageLabel.hidden = YES; // just for toggling on/off until this label is completely removed
+    
+    CGSize labelSize = CGSizeMake(CellWidth, 20);
+    UILabel *testLabel = [[UILabel alloc] initWithFrame:CGRectMake(cell.bounds.size.width/2, cell.bounds.size.height-labelSize.height, cell.bounds.size.width, labelSize.height)];
+    testLabel.text = [NSString stringWithFormat:@"Test%ld", (long)indexPath.row];
+    [cell.contentView addSubview:testLabel];
     
     return cell;
 }

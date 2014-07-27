@@ -50,6 +50,7 @@
     visibleRect.size = self.collectionView.bounds.size;
     
     for (UICollectionViewLayoutAttributes *attributes in attribs) {
+        
         if (CGRectIntersectsRect(attributes.frame, rect)) {
             //CGFloat distanceFromCenter = CGRectGetMidX(visibleRect) - attributes.center.x;
             //CGFloat normalizedDistance = distanceFromCenter / 100.0f;
@@ -65,6 +66,35 @@
     }
     
     return attribs;
+    /*
+    //first get a copy of all layout attributes that represent the cells. you will be modifying this collection.
+    NSMutableArray *allAttributes = [[super layoutAttributesForElementsInRect:rect] mutableCopy];
+    //NSString *FooterCellIdentifier = @"FooterView";
+    
+    CGRect visibleRect;
+    visibleRect.size = self.collectionView.bounds.size;
+    
+    //go through each cell attribute
+    for (UICollectionViewLayoutAttributes *attributes in [super layoutAttributesForElementsInRect:rect])
+    {
+        //add a title and a detail supp view for each cell attribute to your copy of all attributes
+        //[allAttributes addObject:[self layoutAttributesForSupplementaryViewOfKind:UICollectionElementKindSectionFooter atIndexPath:[attributes indexPath]]];
+        if (CGRectIntersectsRect(attributes.frame, rect)) {
+            //CGFloat distanceFromCenter = CGRectGetMidX(visibleRect) - attributes.center.x;
+            //CGFloat normalizedDistance = distanceFromCenter / 100.0f;
+            CGRect rect = attributes.frame;
+            //rect.origin.y = sinf(normalizedDistance) * 100.0f + 150.0f;
+            
+            //rect.origin.y = self.collectionView.frame.size.height/2 - self.collectionView.frame.size.height/2;
+            //rect.origin.y = self.collectionView.frame.size.height/2 - (self.collectionView.frame.size.height/2) - 25;
+            rect.origin.y = self.collectionView.bounds.size.height/2 - self.collectionView.bounds.size.height * (1.0 - .40);
+            //rect.origin.y = self.collectionView.bounds.size.height/2 - (self.collectionView.bounds.size.height/2) - (1 * .50);
+            attributes.frame = rect;
+        }
+    }
+    
+    //return the updated attributes list along with the layout info for the supp views
+    return allAttributes;*/
 }
 
 /*- (UICollectionViewLayoutAttributes *)layoutAttributesForItemAtIndexPath:(NSIndexPath *)indexPath {
