@@ -11,8 +11,11 @@
 @implementation Helper
 
 /**
- * Class method to get RBG values after dividing them by 255.0
+ * Class method to get RBG values after dividing them by 255.0.
+ * Can use any float number even if it is > 0.
  *
+ * @param CGFloat (red) CGFloat (green) CGFloat (blue) CGFloat (alpha)
+ * @return UIColor*
  */
 + (UIColor *)colorFromRed:(CGFloat)red Green:(CGFloat)green Blue:(CGFloat)blue Alpha:(CGFloat)alpha{
     CGFloat divisor = 255.0;

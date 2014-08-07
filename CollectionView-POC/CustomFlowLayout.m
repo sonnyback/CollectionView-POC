@@ -41,6 +41,15 @@
     return CGSizeMake(fmaxf(superSize.width, CGRectGetWidth(frame)), 290);
 }
 
+/**
+ * May be needed to resolve issues of disappearing cells in collectionview
+ *
+ */
+- (BOOL)shouldInvalidateLayoutForBoundsChange:(CGRect)newBounds {
+    NSLog(@"shouldInvalidateLayoutForBoundsChange");
+    return YES;
+}
+
 - (NSArray *)layoutAttributesForElementsInRect:(CGRect)rect {
     NSLog(@"Entered layoutAttributesForElementsInRect...");
     NSArray *attribs = [super layoutAttributesForElementsInRect:rect];
@@ -66,36 +75,25 @@
     }
     
     return attribs;
-    /*
-    //first get a copy of all layout attributes that represent the cells. you will be modifying this collection.
-    NSMutableArray *allAttributes = [[super layoutAttributesForElementsInRect:rect] mutableCopy];
-    //NSString *FooterCellIdentifier = @"FooterView";
-    
-    CGRect visibleRect;
-    visibleRect.size = self.collectionView.bounds.size;
-    
-    //go through each cell attribute
-    for (UICollectionViewLayoutAttributes *attributes in [super layoutAttributesForElementsInRect:rect])
-    {
-        //add a title and a detail supp view for each cell attribute to your copy of all attributes
-        //[allAttributes addObject:[self layoutAttributesForSupplementaryViewOfKind:UICollectionElementKindSectionFooter atIndexPath:[attributes indexPath]]];
-        if (CGRectIntersectsRect(attributes.frame, rect)) {
-            //CGFloat distanceFromCenter = CGRectGetMidX(visibleRect) - attributes.center.x;
-            //CGFloat normalizedDistance = distanceFromCenter / 100.0f;
-            CGRect rect = attributes.frame;
-            //rect.origin.y = sinf(normalizedDistance) * 100.0f + 150.0f;
+}
+
+/**
+ * This version is supposed to fix the bug of disappearing collectionview cells.
+ * Take from - http://stackoverflow.com/questions/12927027/uicollectionview-flowlayout-not-wrapping-cells-correctly-ios
+ *
+ */
+/*- (NSArray *)layoutAttributesForElementsInRect:(CGRect)rect {
+    NSArray *attributes = [super layoutAttributesForElementsInRect:rect];
+    NSMutableArray *newAttributes = [NSMutableArray arrayWithCapacity:attributes.count];
+    for (UICollectionViewLayoutAttributes *attribute in attributes) {
+        if ((attribute.frame.origin.x + attribute.frame.size.width <= self.collectionViewContentSize.width) &&
+            (attribute.frame.origin.y + attribute.frame.size.height <= self.collectionViewContentSize.height)) {
             
-            //rect.origin.y = self.collectionView.frame.size.height/2 - self.collectionView.frame.size.height/2;
-            //rect.origin.y = self.collectionView.frame.size.height/2 - (self.collectionView.frame.size.height/2) - 25;
-            rect.origin.y = self.collectionView.bounds.size.height/2 - self.collectionView.bounds.size.height * (1.0 - .40);
-            //rect.origin.y = self.collectionView.bounds.size.height/2 - (self.collectionView.bounds.size.height/2) - (1 * .50);
-            attributes.frame = rect;
+            [newAttributes addObject:attribute];
         }
     }
-    
-    //return the updated attributes list along with the layout info for the supp views
-    return allAttributes;*/
-}
+    return newAttributes;
+}*/
 
 /*- (UICollectionViewLayoutAttributes *)layoutAttributesForItemAtIndexPath:(NSIndexPath *)indexPath {
     

@@ -8,8 +8,11 @@
 
 #import <UIKit/UIKit.h>
 
-@interface BaseViewController : UIViewController <UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, UITextFieldDelegate>
+@interface BaseViewController : UIViewController <UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, UITextFieldDelegate> {
+    
+    CGRect prevFrame;
+}
 
+@property (nonatomic) BOOL isFullScreen;
 - (void)updateUI;
-
 @end

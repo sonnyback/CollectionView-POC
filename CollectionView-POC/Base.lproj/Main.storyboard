@@ -64,7 +64,6 @@
                                         <connections>
                                             <outlet property="coffeeImageLabel" destination="QJP-uQ-nFl" id="h5T-L7-kj9"/>
                                             <outlet property="coffeeImageView" destination="lPA-RX-FFd" id="F9O-7M-aq7"/>
-                                            <segue destination="lEj-AM-u1I" kind="push" identifier="Drink Details" id="vmY-zT-ufy"/>
                                         </connections>
                                     </collectionViewCell>
                                 </cells>
@@ -128,6 +127,7 @@
                         <outlet property="imageRecipeSegmentedControl" destination="InD-us-9xD" id="Oxp-Si-kXV"/>
                         <outlet property="myCollectionView" destination="JVU-z8-YUF" id="rdQ-lD-JZ2"/>
                         <outlet property="searchBar" destination="uSB-QY-ddN" id="d2E-rc-HbT"/>
+                        <outlet property="toolBar" destination="HFB-yh-hZe" id="uvl-wC-LZz"/>
                         <segue destination="WUI-KS-5Q7" kind="push" identifier="Cafes" id="jYd-0r-8g6"/>
                     </connections>
                 </viewController>
