@@ -11,7 +11,7 @@
 @implementation CustomFlowLayout
 
 // over ride this method to make scrolling stop in the center of each image
-- (CGPoint)targetContentOffsetForProposedContentOffset:(CGPoint)proposedContentOffset withScrollingVelocity:(CGPoint)velocity {
+/*- (CGPoint)targetContentOffsetForProposedContentOffset:(CGPoint)proposedContentOffset withScrollingVelocity:(CGPoint)velocity {
     
     NSLog(@"targetContentOffsetForProposedContentOffset");
     CGFloat offsetAdjustment = CGFLOAT_MAX;
@@ -25,7 +25,7 @@
         }
     }
     return CGPointMake(proposedContentOffset.x + offsetAdjustment, proposedContentOffset.y);
-}
+}*/
 
 /**
  * Override method to set the size of the scrollable content, not just what's visiable.
@@ -33,13 +33,13 @@
  *
  * CGSize - height/width of the scrollable viewing area
  */
-- (CGSize)collectionViewContentSize {
+/*- (CGSize)collectionViewContentSize {
     NSLog(@"Entered collectionViewContentSize...");
     CGSize superSize = [super collectionViewContentSize];
     CGRect frame = self.collectionView.frame;
     // 290 value will need to match the cell height - need to make this a #define/constant so it's not hardcoded
     return CGSizeMake(fmaxf(superSize.width, CGRectGetWidth(frame)), 290);
-}
+}*/
 
 /**
  * May be needed to resolve issues of disappearing cells in collectionview
@@ -50,7 +50,12 @@
     return YES;
 }
 
-- (NSArray *)layoutAttributesForElementsInRect:(CGRect)rect {
+/**
+ * This implementation is specific to the *horizontal* layout
+ * My implementation, modified from code taken from the web
+ *
+ */
+/*- (NSArray *)layoutAttributesForElementsInRect:(CGRect)rect {
     NSLog(@"Entered layoutAttributesForElementsInRect...");
     NSArray *attribs = [super layoutAttributesForElementsInRect:rect];
     
@@ -75,7 +80,29 @@
     }
     
     return attribs;
-}
+}*/
+
+/*- (NSArray *)layoutAttributesForElementsInRect:(CGRect)rect {
+    NSLog(@"Entered layoutAttributesForElementsInRect...");
+    NSArray *attributes = [super layoutAttributesForElementsInRect:rect];
+    NSMutableArray *result = [[NSMutableArray alloc] initWithCapacity:[attributes count]];
+    CGRect visibleRect;
+    visibleRect.size = self.collectionView.bounds.size;
+    
+    for (int i=0; i< [attributes count]; i++) {
+        UICollectionViewLayoutAttributes *attr = (UICollectionViewLayoutAttributes *)attributes[i];
+        
+        // the key code "attr.frame.origin.y - 63"
+        [attr setFrame:CGRectMake(attr.frame.origin.x, attr.frame.origin.y - 60, attr.bounds.size.width, attr.bounds.size.height)];
+        
+        //NSLog(@"attr h=%f w=%f x=%f y=%f", attr.bounds.size.height, attr.bounds.size.width, attr.frame.origin.x, attr.frame.origin.y);
+        
+        [result addObject:attr];
+        
+    }
+    
+    return result;
+}*/
 
 /**
  * This version is supposed to fix the bug of disappearing collectionview cells.
@@ -83,8 +110,11 @@
  *
  */
 /*- (NSArray *)layoutAttributesForElementsInRect:(CGRect)rect {
+    NSLog(@"Entered layoutAttributesForElementsInRect...");
+    
     NSArray *attributes = [super layoutAttributesForElementsInRect:rect];
     NSMutableArray *newAttributes = [NSMutableArray arrayWithCapacity:attributes.count];
+    
     for (UICollectionViewLayoutAttributes *attribute in attributes) {
         if ((attribute.frame.origin.x + attribute.frame.size.width <= self.collectionViewContentSize.width) &&
             (attribute.frame.origin.y + attribute.frame.size.height <= self.collectionViewContentSize.height)) {

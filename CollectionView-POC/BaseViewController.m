@@ -22,7 +22,7 @@
 @property (strong, nonatomic) NSMutableArray *imageNames; // of NSString (name of the images)
 @property (weak, nonatomic) IBOutlet UISegmentedControl *imageRecipeSegmentedControl;
 @property (strong, nonatomic) ImageLoadManager *imageLoadManager;
-@property (weak, nonatomic) UIColor *const globalColor;
+@property (weak, nonatomic) UIColor const *globalColor;
 /** replaced 2 buttons below with segmented control
 @property (weak, nonatomic) IBOutlet UIButton *coffeeImagesButton;
 @property (weak, nonatomic) IBOutlet UIButton *recipeImagesButton;*/
@@ -34,8 +34,8 @@
 
 @implementation BaseViewController
 
-NSInteger const CellWidth = 290; // width of cell
-NSInteger const CellHeight = 320; // height of cell
+NSInteger const CellWidth = 140; // width of cell
+NSInteger const CellHeight = 140; // height of cell
 
 #pragma mark - Lazy Instantiation
 // lazy instantiate imagesArray
@@ -124,8 +124,7 @@ NSInteger const CellHeight = 320; // height of cell
     
     //cell.coffeeImageView.frame = CGRectMake(originalImageFrame.origin.x, originalImageFrame.origin.y, originalImageFrame.size.width, originalImageFrame.size.height - 25);
     
-    NSString *myPatternString = [self.imageNames objectAtIndex:indexPath.row];
-    //[self updateDrinkNameLabel:indexPath.row];
+    NSString *imageNameForLabel = [self.imageNames objectAtIndex:indexPath.row];
     //cell.patternImageView.image = [UIImage imageNamed:myPatternString];
     cell.coffeeImageView.image = [self.imagesArray objectAtIndex:indexPath.row];
     
@@ -136,7 +135,7 @@ NSInteger const CellHeight = 320; // height of cell
     /*...to here...*/
     
     //cell.coffeeImageView.clipsToBounds = YES;
-    cell.coffeeImageLabel.text = myPatternString;
+    cell.coffeeImageLabel.text = imageNameForLabel;
     
     /** Below lines intended to place cell in right location without having to use custom flow layout, but 
      did not work correctly. */
@@ -182,19 +181,38 @@ NSInteger const CellHeight = 320; // height of cell
 - (UIEdgeInsets)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout insetForSectionAtIndex:(NSInteger)section {
     
     NSLog(@"insetForSectionAtIndex");
-    NSInteger numberOfCells = self.view.frame.size.width / CellWidth;
-    NSInteger edgeInsets = (self.view.frame.size.width - (numberOfCells * CellWidth)) / (numberOfCells + 1);
+    // below coded used only for horizontal layout, which was the initial layout
+    //NSInteger numberOfCells = self.view.frame.size.width / CellWidth;
+    //NSInteger edgeInsets = (self.view.frame.size.width - (numberOfCells * CellWidth)) / (numberOfCells + 1);
     
-    return UIEdgeInsetsMake(0, edgeInsets, 0, edgeInsets);
+    //return UIEdgeInsetsMake(0, edgeInsets, 0, edgeInsets);
+    return UIEdgeInsetsMake(10, 12, 10, 12);
 }
 
+#define LIKE_BUTTON_WIDTH 35.0
+#define LIKE_BUTTON_HEIGHT 35.0
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
     
     CoffeeViewCell *selectedCell = (CoffeeViewCell *)[collectionView cellForItemAtIndexPath:indexPath];
     NSLog(@"didSelectItemAtIndexPath");
-    self.fullScreenImage = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height)];
+    self.fullScreenImage = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width-10, self.view.frame.size.height-10)];
     self.fullScreenImage.contentMode = UIViewContentModeScaleAspectFit;
     self.fullScreenImage.tag = 1;
+    
+    UIButton *likeButton = [[UIButton alloc] init]; // button for liking image and storing in profile
+    
+    CGFloat xCoord = self.fullScreenImage.bounds.size.width;
+    CGFloat yCoord = self.fullScreenImage.bounds.size.height;
+    CGFloat yPoint = self.fullScreenImage.frame.origin.y;
+    
+    // place button in lower left corner of image
+    //[likeButton setFrame:CGRectMake(xCoord - (xCoord * .97), yCoord - (yCoord * .08), LIKE_BUTTON_WIDTH, LIKE_BUTTON_HEIGHT)];
+    //[likeButton setFrame:CGRectMake(xCoord - xCoord, yCoord - (yCoord * .07), LIKE_BUTTON_WIDTH, LIKE_BUTTON_HEIGHT)];
+    [likeButton setFrame:CGRectMake(xCoord - xCoord, yPoint + (yCoord-LIKE_BUTTON_HEIGHT), LIKE_BUTTON_WIDTH, LIKE_BUTTON_HEIGHT)];
+    [likeButton setBackgroundImage:[UIImage imageNamed:@"heart_blue"] forState:UIControlStateNormal];
+    [self.fullScreenImage addSubview:likeButton]; // add the button to the view
+    [likeButton sendActionsForControlEvents:UIControlEventTouchUpInside];
+    //[likeButton performSelector:@selector(likeButtonPressed:) withObject:indexPath]; // getting NSInvalidArgumentException with this
 
     /*if (!self.isFullScreen) {
         [UIView transitionFromView:selectedCell.contentView toView:self.fullScreenImage duration:0.5 options:0
@@ -222,8 +240,8 @@ NSInteger const CellHeight = 320; // height of cell
     }*/
     
     if (!self.isFullScreen) {
-        [UIView animateWithDuration:0.5 delay:0 options:0 animations:^{
-            NSLog(@"starting animiation!");
+        [UIView animateWithDuration:0.5 delay:0 options:UIViewAnimationOptionLayoutSubviews animations:^{
+            NSLog(@"Starting animiation!");
             //prevFrame = selectedCell.coffeeImageView.frame;
             //self.flowLayout.itemSize = CGSizeMake(self.view.frame.size.width, self.view.frame.size.height);
             //[selectedCell setFrame:[[UIScreen mainScreen] bounds]];
@@ -231,20 +249,32 @@ NSInteger const CellHeight = 320; // height of cell
             //selectedCell.coffeeImageView.backgroundColor = [UIColor blackColor];
             //[selectedCell.coffeeImageView setFrame:[[UIScreen mainScreen] bounds]];
             self.searchBar.hidden = YES;
+            self.toolBar.hidden = YES;
+            self.navigationController.navigationBarHidden = YES;
             self.fullScreenImage.center = self.view.center;
             self.fullScreenImage.backgroundColor = [UIColor blackColor];
             self.fullScreenImage.image = selectedCell.coffeeImageView.image;
+            self.view.backgroundColor = [UIColor blackColor];
+            self.myCollectionView.backgroundColor = [UIColor blackColor];
             [self.view addSubview:self.fullScreenImage];
         }completion:^(BOOL finished){
             self.isFullScreen = YES;
         }];
         return;
     } else {
-        [UIView animateWithDuration:0.5 delay:0 options:0 animations:^{
+        NSLog(@"Ending animiation!");
+        //self.navigationController.navigationBarHidden = NO;
+        //self.searchBar.hidden = NO;
+        self.view.backgroundColor = [UIColor whiteColor];
+        self.myCollectionView.backgroundColor = [UIColor colorWithRed:0.62 green:0.651 blue:0.686 alpha:1];
+        [UIView animateWithDuration:0.5 delay:0 options:UIViewAnimationOptionCurveEaseOut animations:^{
+            self.navigationController.navigationBarHidden = NO;
             self.searchBar.hidden = NO;
+            self.toolBar.hidden = NO;
             //self.flowLayout.itemSize = CGSizeMake(290, 290);
             //[selectedCell.coffeeImageView setFrame:prevFrame];
-            selectedCell.coffeeImageView.backgroundColor = [UIColor colorWithRed:0.62 green:0.651 blue:0.686 alpha:1];
+            //selectedCell.coffeeImageView.backgroundColor = [UIColor colorWithRed:0.62 green:0.651 blue:0.686 alpha:1];
+            
             for (UIView *subView in self.view.subviews) {
                 if (subView.tag == (int)self.fullScreenImage.tag) {
                     [subView removeFromSuperview];
@@ -260,10 +290,30 @@ NSInteger const CellHeight = 320; // height of cell
 
 - (void)collectionView:(UICollectionView *)collectionView didDeselectItemAtIndexPath:(NSIndexPath *)indexPath {
     
-    CoffeeViewCell *selectedCell = (CoffeeViewCell *)[collectionView cellForItemAtIndexPath:indexPath];
+    //CoffeeViewCell *selectedCell = (CoffeeViewCell *)[collectionView cellForItemAtIndexPath:indexPath];
      NSLog(@"didDeSelectItemAtIndexPath");
-    selectedCell.coffeeImageLabel.backgroundColor = [UIColor whiteColor];
-    selectedCell.coffeeImageLabel.textColor = [UIColor blackColor];
+    //selectedCell.coffeeImageLabel.backgroundColor = [UIColor whiteColor];
+    //selectedCell.coffeeImageLabel.textColor = [UIColor blackColor];
+    
+    /*if (self.isFullScreen) {
+        NSLog(@"Ending animiation!");
+        [UIView animateWithDuration:0.5 delay:0 options:UIViewAnimationOptionCurveEaseOut animations:^{
+            self.navigationController.navigationBarHidden = NO;
+            self.searchBar.hidden = NO;
+            //self.flowLayout.itemSize = CGSizeMake(290, 290);
+            //[selectedCell.coffeeImageView setFrame:prevFrame];
+            selectedCell.coffeeImageView.backgroundColor = [UIColor colorWithRed:0.62 green:0.651 blue:0.686 alpha:1];
+            for (UIView *subView in self.view.subviews) {
+                if (subView.tag == (int)self.fullScreenImage.tag) {
+                    [subView removeFromSuperview];
+                    break;
+                }
+            }
+        }completion:^(BOOL finished){
+            self.isFullScreen = NO;
+        }];
+        return;
+    }*/
 }
 
 /*- (void)collectionView:(UICollectionView *)collectionView didEndDisplayingCell:(UICollectionViewCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath {
@@ -332,29 +382,36 @@ NSInteger const CellHeight = 320; // height of cell
     /** USE THE NEXT LINE ONLY WHEN TESTING ON DEVICE SO THAT LOCAL IMAGES WILL LOAD **/
     //self.imagesArray = [self loadImages];
     
-    /** This pulls from the model and loads images from local directory - will not load images to the device */
+    /** USE WHEN TESTING FROM SIMULATOR!This pulls from the model and loads images from local directory - will NOT load images to the device */
     self.imagesArray = self.imageLoadManager.imagesArray; // calls the model and maps UI to the model (and loads the images)
     NSLog(@"imagesArray size: %lu", (unsigned long)[self.imagesArray count]);
     self.imageNames = [self.imageLoadManager.imageNames copy]; // get the image names from the array in the model
 }
 
-#define ITEM_SIZE 290.0 // item size for the cell **SHOULD ALWAYS MATCH CellWidth constant!
+//#define ITEM_SIZE 290.0 // item size for the cell **SHOULD ALWAYS MATCH CellWidth constant!
+#define ITEM_SIZE 140.0 // item size for the cell **SHOULD ALWAYS MATCH CellWidth constant!
 #define EDGE_OFFSET 0.5
 /**
  * Method to setup the collectionview attributes
- *
+
  * @return void
  */
 - (void)setupCollectionView {
     NSLog(@"setupCollectionView");
     //UICollectionViewFlowLayout *flowLayout=[[UICollectionViewFlowLayout alloc] init];
-    /*CustomFlowLayout *flowLayout = [[CustomFlowLayout alloc] init];
-    flowLayout.itemSize = CGSizeMake(ITEM_SIZE, ITEM_SIZE); // globally sets the item (cell) size
-    [flowLayout setScrollDirection:UICollectionViewScrollDirectionHorizontal]; // set scroll direction to horizontal*/
+    //CustomFlowLayout *flowLayout = [[CustomFlowLayout alloc] init];
+    //flowLayout.itemSize = CGSizeMake(ITEM_SIZE, ITEM_SIZE); // globally sets the item (cell) size
+    //[flowLayout setScrollDirection:UICollectionViewScrollDirectionHorizontal]; // set scroll direction to horizontal*/
     self.flowLayout = [[CustomFlowLayout alloc] init];
     self.flowLayout.itemSize = CGSizeMake(ITEM_SIZE, ITEM_SIZE);
-    [self.flowLayout setScrollDirection:UICollectionViewScrollDirectionHorizontal];
+    //[self.flowLayout setScrollDirection:UICollectionViewScrollDirectionHorizontal];
     
+    
+    //flowLayout.itemSize = CGSizeMake(80, 100);
+    //flowLayout.itemSize = CGSizeMake(ITEM_SIZE, ITEM_SIZE);
+    self.myCollectionView.userInteractionEnabled = YES;
+    self.myCollectionView.delaysContentTouches = NO;
+
     //[self.myCollectionView setBackgroundColor:[UIColor colorWithRed:0.227 green:0.349 blue:0.478 alpha:1]]; // ok color
     [self.myCollectionView setBackgroundColor:[UIColor colorWithRed:0.62 green:0.651 blue:0.686 alpha:1]];
     self.myCollectionView.multipleTouchEnabled = NO; // don't allow multiple cells to be selected at the same time
@@ -368,6 +425,8 @@ NSInteger const CellHeight = 320; // height of cell
     /*** NEXT 2 LINES ARE FOR THE SUPPLEMENTAL VIEW FOR THE FOOTER ***/
     //[self.myCollectionView registerClass:[FooterViewCell class] forSupplementaryViewOfKind:UICollectionElementKindSectionFooter withReuseIdentifier:@"FooterView"]; // not needed since set in storyboard
     //flowLayout.footerReferenceSize = CGSizeMake(20, 20); // needed for supplemental view (footer)
+    
+    //[self.myCollectionView setCollectionViewLayout:flowLayout];
     
     [self.myCollectionView setCollectionViewLayout:self.flowLayout];
 }
@@ -482,41 +541,14 @@ NSInteger const CellHeight = 320; // height of cell
     NSLog(@"Entered loadImages!");
     NSMutableArray *arrayOfUIImages = [[NSMutableArray alloc] init];
     
-    /*NSFileManager *fileManager = [[NSFileManager alloc] init];
-     NSString *directoryFilePath = @"/Users/Sonny/Desktop/images/";
-     BOOL success = [fileManager fileExistsAtPath:directoryFilePath];
-     
-     if (success) {
-     NSLog(@"Directory exists!");
-     NSArray *imageNamesFromDirectory = [fileManager contentsOfDirectoryAtPath:directoryFilePath error:nil];
-     NSString *searchString = @".png";
-     
-     for (int i = 0; i < [imageNamesFromDirectory count]; i++) {
-     //NSLog(@"contents from directory %@", imageNamesFromDirectory[i]);
-     // file name creation requires full path to create the UIImage based off the file name
-     NSString *nameOfImageFromFile = [directoryFilePath stringByAppendingString:[imageNamesFromDirectory[i] description]];
-     NSLog(@"file name:%@", nameOfImageFromFile);
-     NSRange range = [nameOfImageFromFile rangeOfString:searchString];
-     if (range.location != NSNotFound) {
-     NSLog(@"found search string!");
-     UIImage *image = [UIImage imageWithContentsOfFile:nameOfImageFromFile];
-     NSLog(@"Image size: width:%f, height:%f", image.size.width, image.size.height
-     );
-     [arrayOfUIImages addObject:image];
-     // remove the directory path from the file name and add image name to the imageNames array
-     NSString *fileNameWithoutPath = [self removePathFromFileName:nameOfImageFromFile forPath:directoryFilePath];
-     [self.imageNames addObject:fileNameWithoutPath];
-     }
-     }
-     }*/
     /** ONLY USE THIS IF ABOVE CODE IS COMMENTED OUT! THIS IS FOR LOCAL IMAGES TO RUN ON DEVICE ONLY! **/
-    for (int i = 1; i <= 5; i++) {
+    for (int i = 1; i <= 11; i++) {
         UIImage *image = [UIImage imageNamed:[NSString stringWithFormat:@"image%d", i]];
         [arrayOfUIImages addObject:image];
         [self.imageNames addObject:[NSString stringWithFormat:@"image%d", i]];
     }
     
-    NSLog(@"arrayOfImages size: %d", [self.imagesArray count]);
+    //NSLog(@"arrayOfImages size: %d", [self.imagesArray count]);
     //[self updateUI];
     
     return arrayOfUIImages;
@@ -561,29 +593,10 @@ NSInteger const CellHeight = 320; // height of cell
     }
 }
 
-- (void)imgToFullScreen:(UITapGestureRecognizer *)gesture {
+- (IBAction)likeButtonPressed:(id)sender {
     
-    NSLog(@"imgToFullScreen");
-    
-    if (!self.isFullScreen) {
-        //self.imageView.backgroundColor = [UIColor blackColor];
-        [UIView animateWithDuration:0.5 delay:0 options:0 animations:^{
-            //prevFrame = self.imageView.frame;
-            //self.imageView.backgroundColor = [UIColor blackColor];
-            //[self.imageView setFrame:[[UIScreen mainScreen] bounds]];
-        }completion:^(BOOL finished){
-            self.isFullScreen = YES;
-        }];
-        return;
-    } else {
-        //self.imageView.backgroundColor = [UIColor whiteColor];
-        [UIView animateWithDuration:0.5 delay:0 options:0 animations:^{
-            //[self.imageView setFrame:prevFrame];
-            //self.imageView.backgroundColor = [UIColor whiteColor];
-        }completion:^(BOOL finished){
-            self.isFullScreen = NO;
-        }];
-    }
+    NSIndexPath *indexPath = (NSIndexPath *)sender;
+    NSLog(@"likeButtonPressed for indexpath %ld", (long)indexPath.row);
 }
 
 - (IBAction)coffeeImagesButtonPressed:(UIButton *)sender {
@@ -607,6 +620,7 @@ NSInteger const CellHeight = 320; // height of cell
     
     [self setupCollectionView]; // setup the collectionview parameters
     [self setupSearchBar]; // setup the search bar in the navigation bar
+    //self.toolBar.barTintColor = [UIColor colorWithRed:0.112 green:0.234 blue:0.4 alpha:1];
     //self.navigationController.navigationBar.barTintColor = self.globalColor; // set the background color of the navigation bar
     self.navigationController.navigationBar.barTintColor = [UIColor colorWithRed:0.112 green:0.234 blue:0.4 alpha:1];
     // below is just a test. colors provided by Otha and are displaying correct color through helper method
@@ -616,6 +630,7 @@ NSInteger const CellHeight = 320; // height of cell
     
     // Set this in every view controller so that the back button displays back instead of the root view controller name
     self.navigationItem.backBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"" style:UIBarButtonItemStylePlain target:nil action:nil];
+    self.automaticallyAdjustsScrollViewInsets = NO;
     
     [self updateUI];
 }
