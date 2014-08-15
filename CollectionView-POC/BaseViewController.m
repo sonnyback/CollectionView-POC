@@ -114,7 +114,7 @@ NSInteger const CellHeight = 140; // height of cell
     
     static NSString *CellIdentifier = @"CoffeeCell"; // string value identifier for cell reuse
     CoffeeViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:CellIdentifier forIndexPath:indexPath];
-    NSLog(@"cellForItemAtIndexPath: section: row: %ld %ld", (long)indexPath.section, (long)indexPath.row);
+    NSLog(@"cellForItemAtIndexPath: section:%ld row:%ld", (long)indexPath.section, (long)indexPath.row);
     //cell.backgroundColor = [UIColor whiteColor];
     //cell.layer.cornerRadius = 3;
     cell.layer.borderWidth = 1.0;
@@ -125,7 +125,6 @@ NSInteger const CellHeight = 140; // height of cell
     //cell.coffeeImageView.frame = CGRectMake(originalImageFrame.origin.x, originalImageFrame.origin.y, originalImageFrame.size.width, originalImageFrame.size.height - 25);
     
     NSString *imageNameForLabel = [self.imageNames objectAtIndex:indexPath.row];
-    //cell.patternImageView.image = [UIImage imageNamed:myPatternString];
     cell.coffeeImageView.image = [self.imagesArray objectAtIndex:indexPath.row];
     
     /* UIViewContentMode options from here....*/
@@ -189,30 +188,51 @@ NSInteger const CellHeight = 140; // height of cell
     return UIEdgeInsetsMake(10, 12, 10, 12);
 }
 
-#define LIKE_BUTTON_WIDTH 35.0
-#define LIKE_BUTTON_HEIGHT 35.0
+#define LIKE_BUTTON_WIDTH 38.0
+#define LIKE_BUTTON_HEIGHT 38.0
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
     
     CoffeeViewCell *selectedCell = (CoffeeViewCell *)[collectionView cellForItemAtIndexPath:indexPath];
     NSLog(@"didSelectItemAtIndexPath");
-    self.fullScreenImage = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width-10, self.view.frame.size.height-10)];
+    self.fullScreenImage = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width-10, self.view.bounds.size.height-15)];
     self.fullScreenImage.contentMode = UIViewContentModeScaleAspectFit;
-    self.fullScreenImage.tag = 1;
+    self.fullScreenImage.tag = 1000; // set it to this value so it will never conflict with likeButton.tag value
+    /** REQUIRED for likeButton to work. Otherwise, button is visible but doesn't respond */
+    [self.fullScreenImage setUserInteractionEnabled:YES];
     
-    UIButton *likeButton = [[UIButton alloc] init]; // button for liking image and storing in profile
+    self.tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(closeFullScreenImageView:)];
+    self.tap.delegate = self;
+    self.tap.numberOfTapsRequired = 1;
+    [self.fullScreenImage addGestureRecognizer:self.tap];
     
     CGFloat xCoord = self.fullScreenImage.bounds.size.width;
     CGFloat yCoord = self.fullScreenImage.bounds.size.height;
-    CGFloat yPoint = self.fullScreenImage.frame.origin.y;
+    CGFloat yPoint = self.fullScreenImage.bounds.origin.y;
+    
+    UIButton *likeButton = [[UIButton alloc] init]; // button for liking image and storing in profile
+    likeButton.tag = indexPath.row; // set the tag of the button to the indexpath.row so we know which cell/image is selected
     
     // place button in lower left corner of image
     //[likeButton setFrame:CGRectMake(xCoord - (xCoord * .97), yCoord - (yCoord * .08), LIKE_BUTTON_WIDTH, LIKE_BUTTON_HEIGHT)];
     //[likeButton setFrame:CGRectMake(xCoord - xCoord, yCoord - (yCoord * .07), LIKE_BUTTON_WIDTH, LIKE_BUTTON_HEIGHT)];
+    
     [likeButton setFrame:CGRectMake(xCoord - xCoord, yPoint + (yCoord-LIKE_BUTTON_HEIGHT), LIKE_BUTTON_WIDTH, LIKE_BUTTON_HEIGHT)];
     [likeButton setBackgroundImage:[UIImage imageNamed:@"heart_blue"] forState:UIControlStateNormal];
-    [self.fullScreenImage addSubview:likeButton]; // add the button to the view
-    [likeButton sendActionsForControlEvents:UIControlEventTouchUpInside];
-    //[likeButton performSelector:@selector(likeButtonPressed:) withObject:indexPath]; // getting NSInvalidArgumentException with this
+    //[likeButton sendActionsForControlEvents:UIControlEventTouchUpInside];
+    [likeButton addTarget:self action:@selector(likeButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
+    //likeButton.showsTouchWhenHighlighted = YES;
+    
+    /*if (!self.isFullScreen) {
+        NSLog(@"not fullscreen");
+        //prevFrame = selectedCell.contentView.frame;
+        //[selectedCell.coffeeImageView setFrame:[[UIScreen mainScreen] bounds]];
+        self.flowLayout.itemSize = CGSizeMake(self.view.frame.size.width, self.view.frame.size.height);
+        [selectedCell.contentView addSubview:likeButton];
+        self.isFullScreen = YES;
+    } else {
+        self.flowLayout.itemSize = CGSizeMake(140, 140);
+        self.isFullScreen = NO;
+    }*/
 
     /*if (!self.isFullScreen) {
         [UIView transitionFromView:selectedCell.contentView toView:self.fullScreenImage duration:0.5 options:0
@@ -221,6 +241,7 @@ NSInteger const CellHeight = 140; // height of cell
                             self.fullScreenImage.backgroundColor = [UIColor blackColor];
                             self.fullScreenImage.image = selectedCell.coffeeImageView.image;
                             [self.view addSubview:self.fullScreenImage];
+                            [self.fullScreenImage addSubview:likeButton];
                             self.isFullScreen = YES;
         }];
         return;
@@ -228,19 +249,19 @@ NSInteger const CellHeight = 140; // height of cell
         [UIView animateWithDuration:0.5 delay:0 options:0 animations:^{
             for (UIView *subView in self.view.subviews) {
                 if (subView.tag == (int)self.fullScreenImage.tag) {
+                    NSLog(@"removing view for tag %d", subView.tag);
                     [subView removeFromSuperview];
                     break;
                 }
             }
         }completion:^(BOOL finished){
             self.isFullScreen = NO;
-            //[self.myCollectionView reloadData];
         }];
         return;
     }*/
     
     if (!self.isFullScreen) {
-        [UIView animateWithDuration:0.5 delay:0 options:UIViewAnimationOptionLayoutSubviews animations:^{
+        [UIView animateWithDuration:0.5 delay:0 options:UIViewAnimationOptionCurveEaseIn | UIViewAnimationOptionAllowUserInteraction animations:^{
             NSLog(@"Starting animiation!");
             //prevFrame = selectedCell.coffeeImageView.frame;
             //self.flowLayout.itemSize = CGSizeMake(self.view.frame.size.width, self.view.frame.size.height);
@@ -248,8 +269,11 @@ NSInteger const CellHeight = 140; // height of cell
             //selectedCell.coffeeImageView.center = self.view.center;
             //selectedCell.coffeeImageView.backgroundColor = [UIColor blackColor];
             //[selectedCell.coffeeImageView setFrame:[[UIScreen mainScreen] bounds]];
+            
+            // hide the following uiview items so they will not be visible or active
             self.searchBar.hidden = YES;
             self.toolBar.hidden = YES;
+            self.imageRecipeSegmentedControl.hidden = YES;
             self.navigationController.navigationBarHidden = YES;
             self.fullScreenImage.center = self.view.center;
             self.fullScreenImage.backgroundColor = [UIColor blackColor];
@@ -257,20 +281,23 @@ NSInteger const CellHeight = 140; // height of cell
             self.view.backgroundColor = [UIColor blackColor];
             self.myCollectionView.backgroundColor = [UIColor blackColor];
             [self.view addSubview:self.fullScreenImage];
+            [self.fullScreenImage addSubview:likeButton]; // add the button to the view
         }completion:^(BOOL finished){
+            [self.fullScreenImage bringSubviewToFront:likeButton];
             self.isFullScreen = YES;
         }];
         return;
-    } else {
+    } /*else { // Moved this block to closeFullScreenImageView after adding tap gesture
         NSLog(@"Ending animiation!");
         //self.navigationController.navigationBarHidden = NO;
         //self.searchBar.hidden = NO;
         self.view.backgroundColor = [UIColor whiteColor];
         self.myCollectionView.backgroundColor = [UIColor colorWithRed:0.62 green:0.651 blue:0.686 alpha:1];
-        [UIView animateWithDuration:0.5 delay:0 options:UIViewAnimationOptionCurveEaseOut animations:^{
+        [UIView animateWithDuration:0.5 delay:0 options:UIViewAnimationOptionCurveEaseOut | UIViewAnimationOptionAllowUserInteraction animations:^{
             self.navigationController.navigationBarHidden = NO;
             self.searchBar.hidden = NO;
             self.toolBar.hidden = NO;
+            self.imageRecipeSegmentedControl.hidden = NO;
             //self.flowLayout.itemSize = CGSizeMake(290, 290);
             //[selectedCell.coffeeImageView setFrame:prevFrame];
             //selectedCell.coffeeImageView.backgroundColor = [UIColor colorWithRed:0.62 green:0.651 blue:0.686 alpha:1];
@@ -285,7 +312,7 @@ NSInteger const CellHeight = 140; // height of cell
             self.isFullScreen = NO;
         }];
         return;
-    }
+    }*/
 }
 
 - (void)collectionView:(UICollectionView *)collectionView didDeselectItemAtIndexPath:(NSIndexPath *)indexPath {
@@ -294,15 +321,21 @@ NSInteger const CellHeight = 140; // height of cell
      NSLog(@"didDeSelectItemAtIndexPath");
     //selectedCell.coffeeImageLabel.backgroundColor = [UIColor whiteColor];
     //selectedCell.coffeeImageLabel.textColor = [UIColor blackColor];
-    
     /*if (self.isFullScreen) {
         NSLog(@"Ending animiation!");
-        [UIView animateWithDuration:0.5 delay:0 options:UIViewAnimationOptionCurveEaseOut animations:^{
+        //self.navigationController.navigationBarHidden = NO;
+        //self.searchBar.hidden = NO;
+        self.view.backgroundColor = [UIColor whiteColor];
+        self.myCollectionView.backgroundColor = [UIColor colorWithRed:0.62 green:0.651 blue:0.686 alpha:1];
+        [UIView animateWithDuration:0.5 delay:0 options:UIViewAnimationOptionCurveEaseOut | UIViewAnimationOptionAllowUserInteraction animations:^{
             self.navigationController.navigationBarHidden = NO;
             self.searchBar.hidden = NO;
+            self.toolBar.hidden = NO;
+            self.imageRecipeSegmentedControl.hidden = NO;
             //self.flowLayout.itemSize = CGSizeMake(290, 290);
             //[selectedCell.coffeeImageView setFrame:prevFrame];
-            selectedCell.coffeeImageView.backgroundColor = [UIColor colorWithRed:0.62 green:0.651 blue:0.686 alpha:1];
+            //selectedCell.coffeeImageView.backgroundColor = [UIColor colorWithRed:0.62 green:0.651 blue:0.686 alpha:1];
+            
             for (UIView *subView in self.view.subviews) {
                 if (subView.tag == (int)self.fullScreenImage.tag) {
                     [subView removeFromSuperview];
@@ -593,10 +626,41 @@ NSInteger const CellHeight = 140; // height of cell
     }
 }
 
+- (void)closeFullScreenImageView:(UITapGestureRecognizer*)sender {
+    NSLog(@"closeFullScreenImageView");
+    
+    if (self.isFullScreen) {
+        NSLog(@"Ending animiation!");
+        //self.navigationController.navigationBarHidden = NO;
+        //self.searchBar.hidden = NO;
+        self.view.backgroundColor = [UIColor whiteColor];
+        self.myCollectionView.backgroundColor = [UIColor colorWithRed:0.62 green:0.651 blue:0.686 alpha:1];
+        [UIView animateWithDuration:0.5 delay:0 options:UIViewAnimationOptionCurveEaseOut | UIViewAnimationOptionAllowUserInteraction animations:^{
+            self.navigationController.navigationBarHidden = NO;
+            self.searchBar.hidden = NO;
+            self.toolBar.hidden = NO;
+            self.imageRecipeSegmentedControl.hidden = NO;
+            //self.flowLayout.itemSize = CGSizeMake(290, 290);
+            //[selectedCell.coffeeImageView setFrame:prevFrame];
+            //selectedCell.coffeeImageView.backgroundColor = [UIColor colorWithRed:0.62 green:0.651 blue:0.686 alpha:1];
+            
+            for (UIView *subView in self.view.subviews) {
+                if (subView.tag == (int)self.fullScreenImage.tag) {
+                    [subView removeFromSuperview];
+                    break;
+                }
+            }
+        }completion:^(BOOL finished){
+            self.isFullScreen = NO;
+        }];
+        return;
+    }
+}
+
 - (IBAction)likeButtonPressed:(id)sender {
     
-    NSIndexPath *indexPath = (NSIndexPath *)sender;
-    NSLog(@"likeButtonPressed for indexpath %ld", (long)indexPath.row);
+    UIButton *button = (UIButton *)sender;
+    NSLog(@"likeButtonPressed for indexpath %d", button.tag);
 }
 
 - (IBAction)coffeeImagesButtonPressed:(UIButton *)sender {
@@ -630,6 +694,8 @@ NSInteger const CellHeight = 140; // height of cell
     
     // Set this in every view controller so that the back button displays back instead of the root view controller name
     self.navigationItem.backBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"" style:UIBarButtonItemStylePlain target:nil action:nil];
+    
+    /** IMPORTANT: Without this line, the cells are offset by several points on the Y axis!! **/
     self.automaticallyAdjustsScrollViewInsets = NO;
     
     [self updateUI];

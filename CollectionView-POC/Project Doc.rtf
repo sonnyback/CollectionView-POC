@@ -15,8 +15,10 @@
 - Make sure segmented control is lined up evenly with search bar above\
 \
 Problems:\
-- Still not able to get button/label displayed under each cell. Unsure if supplemental view can be used, still researching. Other option is to increase cell size and fit everything inside - not my preference\
+1. Still not able to get button/label displayed under each cell. Unsure if supplemental view can be used, still researching. Other option is to increase cell size and fit everything inside - not my preference\
+2. Added button with heart image to full screen image. Tapping button does not respond. May be a frame bounds issue with the button and the parent view.\
 \
 Bugs:\
-- When tapping the Cafes in the segment control and going to the next VC and then hitting back button, the segment control retains Cafes as highlighted segment. \
-Need to change this to make it go back to Images. Fixed, but may need to resolve with a delegate}
+1. When tapping the Cafes in the segment control and going to the next VC and then hitting back button, the segment control retains Cafes as highlighted segment. \
+Need to change this to make it go back to Images. Fixed, but may need to resolve with a delegate\
+2. When viewing full screen image, tapping in upper right area will cause segue to cafe locator VC. Fixed by setting the segmentedcontrol.hidden=YES}

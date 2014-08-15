@@ -8,11 +8,14 @@
 
 #import <UIKit/UIKit.h>
 
-@interface BaseViewController : UIViewController <UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, UITextFieldDelegate> {
+@interface BaseViewController : UIViewController <UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, UITextFieldDelegate, UIGestureRecognizerDelegate> {
     
+    //UITapGestureRecognizer *tap;
     CGRect prevFrame;
 }
 
 @property (nonatomic) BOOL isFullScreen;
+@property (strong, nonatomic) UITapGestureRecognizer *tap;
 - (void)updateUI;
+
 @end
