@@ -13,6 +13,7 @@
 #import "DrinkDetailViewController.h"
 #import "CafeLocatorTableViewController.h"
 #import "ImageLoadManager.h"
+#import "CoffeeImageData.h"
 #import "Helper.h"
 #import <QuartzCore/QuartzCore.h>
 
@@ -30,6 +31,7 @@
 @property (weak, nonatomic) IBOutlet UIToolbar *toolBar;
 @property (strong, nonatomic) UIImageView *fullScreenImage;
 @property (strong, nonatomic) CustomFlowLayout *flowLayout;
+@property (strong, nonatomic) CoffeeImageData *coffeeImageData;
 @end
 
 @implementation BaseViewController
@@ -66,6 +68,16 @@ NSInteger const CellHeight = 140; // height of cell
     }
     
     return _imageLoadManager;
+}
+
+// lazy instantiate coffeeImageData
+- (CoffeeImageData *)coffeeImageData {
+    
+    if (!_coffeeImageData) {
+        _coffeeImageData = [[CoffeeImageData alloc] init];
+    }
+    
+    return _coffeeImageData;
 }
 
 // return the value for globalColor ro
@@ -107,7 +119,8 @@ NSInteger const CellHeight = 140; // height of cell
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
     
-    return [self.imagesArray count];
+    //return [self.imagesArray count]; // for testing on device until backend is setup
+    return [self.imageLoadManager.coffeeImageDataArray count];
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
@@ -120,12 +133,17 @@ NSInteger const CellHeight = 140; // height of cell
     cell.layer.borderWidth = 1.0;
     cell.layer.borderColor = [UIColor grayColor].CGColor;
     
+    CoffeeImageData *coffeeImageData = [self.imageLoadManager coffeeImageDataForCell:indexPath.row]; // maps the model to the UI
+    
     //CGRect originalImageFrame = cell.coffeeImageView.frame;
     
     //cell.coffeeImageView.frame = CGRectMake(originalImageFrame.origin.x, originalImageFrame.origin.y, originalImageFrame.size.width, originalImageFrame.size.height - 25);
     
-    NSString *imageNameForLabel = [self.imageNames objectAtIndex:indexPath.row];
-    cell.coffeeImageView.image = [self.imagesArray objectAtIndex:indexPath.row];
+    //NSString *imageNameForLabel = [self.imageNames objectAtIndex:indexPath.row];
+    NSString *imageNameForLabel = coffeeImageData.imageName;
+    NSLog(@"imageNameforLabel %@", imageNameForLabel);
+    //cell.coffeeImageView.image = [self.imagesArray objectAtIndex:indexPath.row];
+    cell.coffeeImageView.image = coffeeImageData.image;
     
     /* UIViewContentMode options from here....*/
     //cell.coffeeImageView.contentMode = UIViewContentModeScaleToFill; // distorts the image
@@ -217,7 +235,19 @@ NSInteger const CellHeight = 140; // height of cell
     //[likeButton setFrame:CGRectMake(xCoord - xCoord, yCoord - (yCoord * .07), LIKE_BUTTON_WIDTH, LIKE_BUTTON_HEIGHT)];
     
     [likeButton setFrame:CGRectMake(xCoord - xCoord, yPoint + (yCoord-LIKE_BUTTON_HEIGHT), LIKE_BUTTON_WIDTH, LIKE_BUTTON_HEIGHT)];
-    [likeButton setBackgroundImage:[UIImage imageNamed:@"heart_blue"] forState:UIControlStateNormal];
+
+    CoffeeImageData *coffeeImageData = [self.imageLoadManager coffeeImageDataForCell:indexPath.row];
+    selectedCell.imageIsLiked = coffeeImageData.isLiked;
+    likeButton.selected = selectedCell.imageIsLiked;
+    
+    if (selectedCell.imageIsLiked == YES) {
+        /*** THIS IMAGE IS TEMPORARY AND NEEDS TO BE CHANGED ONCE OTHA SENDS THE IMAGE **/
+        //[likeButton setBackgroundImage:[UIImage imageNamed:@"heart_blue_solid"] forState:UIControlStateNormal];
+        [likeButton setImage:[UIImage imageNamed:@"heart_blue_solid"] forState:UIControlStateNormal|UIControlStateSelected];
+    } else {
+        //[likeButton setBackgroundImage:[UIImage imageNamed:@"heart_blue"] forState:UIControlStateNormal];
+        [likeButton setImage:[UIImage imageNamed:@"heart_blue"] forState:UIControlStateNormal];
+    }
     //[likeButton sendActionsForControlEvents:UIControlEventTouchUpInside];
     [likeButton addTarget:self action:@selector(likeButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
     //likeButton.showsTouchWhenHighlighted = YES;
@@ -269,7 +299,7 @@ NSInteger const CellHeight = 140; // height of cell
             //selectedCell.coffeeImageView.center = self.view.center;
             //selectedCell.coffeeImageView.backgroundColor = [UIColor blackColor];
             //[selectedCell.coffeeImageView setFrame:[[UIScreen mainScreen] bounds]];
-            
+
             // hide the following uiview items so they will not be visible or active
             self.searchBar.hidden = YES;
             self.toolBar.hidden = YES;
@@ -416,9 +446,10 @@ NSInteger const CellHeight = 140; // height of cell
     //self.imagesArray = [self loadImages];
     
     /** USE WHEN TESTING FROM SIMULATOR!This pulls from the model and loads images from local directory - will NOT load images to the device */
-    self.imagesArray = self.imageLoadManager.imagesArray; // calls the model and maps UI to the model (and loads the images)
+    /*self.imagesArray = self.imageLoadManager.imagesArray; // calls the model and maps UI to the model (and loads the images)
     NSLog(@"imagesArray size: %lu", (unsigned long)[self.imagesArray count]);
-    self.imageNames = [self.imageLoadManager.imageNames copy]; // get the image names from the array in the model
+    self.imageNames = [self.imageLoadManager.imageNames copy]; // get the image names from the array in the model*/
+    //self.imagesArray = self.imageLoadManager.coffeeImageDataArray;
 }
 
 //#define ITEM_SIZE 290.0 // item size for the cell **SHOULD ALWAYS MATCH CellWidth constant!
@@ -574,7 +605,7 @@ NSInteger const CellHeight = 140; // height of cell
     NSLog(@"Entered loadImages!");
     NSMutableArray *arrayOfUIImages = [[NSMutableArray alloc] init];
     
-    /** ONLY USE THIS IF ABOVE CODE IS COMMENTED OUT! THIS IS FOR LOCAL IMAGES TO RUN ON DEVICE ONLY! **/
+    /** THIS IS FOR LOCAL IMAGES TO RUN ON DEVICE ONLY! Index is hardcoded, must change when images are added **/
     for (int i = 1; i <= 11; i++) {
         UIImage *image = [UIImage imageNamed:[NSString stringWithFormat:@"image%d", i]];
         [arrayOfUIImages addObject:image];
@@ -657,10 +688,32 @@ NSInteger const CellHeight = 140; // height of cell
     }
 }
 
+/**
+ * Method to toggle liked button and also update liked value in the model
+ *
+ * @param sender (UIButton)
+ * @return void
+ */
 - (IBAction)likeButtonPressed:(id)sender {
     
     UIButton *button = (UIButton *)sender;
-    NSLog(@"likeButtonPressed for indexpath %d", button.tag);
+    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:button.tag inSection:0];
+    CoffeeViewCell *selectedCell = (CoffeeViewCell *)[self.myCollectionView cellForItemAtIndexPath:indexPath];
+    NSLog(@"selectedCell name is %@", selectedCell.coffeeImageLabel.text);
+    selectedCell.imageIsLiked = !selectedCell.imageIsLiked; // toggle this based on button being pressed
+    CoffeeImageData *currentImageData = [self.imageLoadManager coffeeImageDataForCell:indexPath.row];
+    NSLog(@"likeButtonPressed for image name: %@", currentImageData.imageName);
+    
+    // update the liked value in the model based on the user hitting the like button on the image
+    currentImageData.liked = selectedCell.imageIsLiked;
+    if (currentImageData.isLiked) {
+        NSLog(@"image is liked");
+    } else if (!currentImageData.isLiked) {
+        NSLog(@"image is NOT liked");
+    }
+        
+    
+    NSLog(@"image liked for indexpath %d", indexPath.row);
 }
 
 - (IBAction)coffeeImagesButtonPressed:(UIButton *)sender {

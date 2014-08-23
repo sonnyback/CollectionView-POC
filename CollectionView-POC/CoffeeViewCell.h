@@ -7,10 +7,11 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "CoffeeImageData.h"
 
 @interface CoffeeViewCell : UICollectionViewCell
 
-@property (weak, nonatomic) IBOutlet UIImageView *coffeeImageView;
+@property (strong, nonatomic) IBOutlet UIImageView *coffeeImageView;
 @property (weak, nonatomic) IBOutlet UILabel *coffeeImageLabel;
-
+@property (nonatomic) BOOL imageIsLiked;
 @end

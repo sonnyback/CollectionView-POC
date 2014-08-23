@@ -10,7 +10,7 @@
 
 @implementation CoffeeViewCell
 
-- (id)initWithFrame:(CGRect)frame
+/*- (id)initWithFrame:(CGRect)frame
 {
     self = [super initWithFrame:frame];
     if (self) {
@@ -18,16 +18,24 @@
         NSLog(@"^^^^^^^CoffeeViewCell.initWithFrame^^^^^^^");
     }
     return self;
-}
+}*/
 
-/*- (id)initWithCoder:(NSCoder *)aDecoder
+- (id)initWithCoder:(NSCoder *)aDecoder
 {
     self = [super initWithCoder:aDecoder];
     if (self) {
         NSLog(@"^^^^^^^CoffeeViewCell.initWithCoder^^^^^^^");
+        [self setupImageView];
     }
     return self;
-}*/
+}
+
+- (void)setupImageView {
+    
+    NSLog(@"setupImageView");
+    self.coffeeImageView = [[UIImageView alloc] init];
+    [self addSubview:self.coffeeImageView];
+}
 
 /**
  * Overridden method. Possibly needed in order for button

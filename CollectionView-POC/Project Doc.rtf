@@ -6,13 +6,16 @@
 
 \f0\fs24 \cf0 To Do:\
 - Source control entire project - done\
-- Create folder structure for Model group - done\
-- Move ImageLoadManager to Model group/folder - done\
+- Create folder structure for Model group - Done\
+- Move ImageLoadManager to Model group/folder - Done\
 - Create Constants file and move all constants and #Defines - in progress (Constants class created)\
-- Create VC with table view and connect to Cafe segment - done\
-- Implement table view from above VC to display location based coffee shops - in progress\
-- Remove footerview and FooterViewCell class once buttons are successfully added to collectionview cell - not started\
-- Make sure segmented control is lined up evenly with search bar above\
+- Create VC with table view and connect to Cafe segment - Done\
+- Implement table view from above VC to display location based coffee shops (copy example from MapSearch sample project) - in progress\
+- Remove footerview and FooterViewCell class once buttons are successfully added to collectionview cell - changed layout, footers no longer needed and have been removed - Done\
+- Make sure segmented control is lined up evenly with search bar above (probably need to adjust constraints)  - reference this link {\field{\*\fldinst{HYPERLINK "https://developer.apple.com/library/ios/recipes/xcode_help-interface_builder/articles-autolayout/align-constraints.html"}}{\fldrslt https://developer.apple.com/library/ios/recipes/xcode_help-interface_builder/articles-autolayout/align-constraints.html}}\
+- Need to map CoffeeImageData.isLiked to cell image AND be able to map it when someone taps the like button to update and set it in the model. - Done\
+- ****Need to resolve issue of like button not changing on demand when clicking - reference Matchismo. This may be related to control state for the button. \
+- Need to look into SDWebImage (what exactly is it and should I use it for loading web images and caching) - {\field{\*\fldinst{HYPERLINK "http://stackoverflow.com/questions/15706154/memory-management-many-images-in-uicollectionview"}}{\fldrslt http://stackoverflow.com/questions/15706154/memory-management-many-images-in-uicollectionview}}\
 \
 Problems:\
 1. Still not able to get button/label displayed under each cell. Unsure if supplemental view can be used, still researching. Other option is to increase cell size and fit everything inside - not my preference\
@@ -20,5 +23,7 @@ Problems:\
 \
 Bugs:\
 1. When tapping the Cafes in the segment control and going to the next VC and then hitting back button, the segment control retains Cafes as highlighted segment. \
-Need to change this to make it go back to Images. Fixed, but may need to resolve with a delegate\
-2. When viewing full screen image, tapping in upper right area will cause segue to cafe locator VC. Fixed by setting the segmentedcontrol.hidden=YES}
+Need to change this to make it go back to Images. *Fixed*, but may need to resolve with a delegate after further development of app\
+2. When viewing full screen image, tapping in upper right area will cause segue to cafe locator VC. *Fixed* by setting the segmentedcontrol.hidden=YES\
+3. When liking an image, then tapping to close the image, then going back into the image in fullscreen, the solid like button is not visible. *Fixed* - issue was related to control state for the button \
+4. Logic not right inside likeButtonPressed regarding currentImageData.imageName. This is coming up as null. }

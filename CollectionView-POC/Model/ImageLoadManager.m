@@ -14,6 +14,17 @@
 
 @implementation ImageLoadManager
 
+
+// lazy instantiate coffeeImageDataArray getter
+- (NSMutableArray *)coffeeImageDataArray {
+    
+    if (!_coffeeImageDataArray) {
+        _coffeeImageDataArray = [[NSMutableArray alloc] init];
+    }
+    
+    return _coffeeImageDataArray;
+}
+
 /**
  * Designated Initializer: loads the images based on the selection type from the 
  * segmentedControl in the VC. This is based on testing of local images. Will change 
@@ -22,7 +33,7 @@
  * @param NSString *selectionType - passed from title of the selected UISegmentedControl
  * @return instancetype - self
  */
-- (instancetype)initImagesForSelection:(NSString *)selectionType {
+/*- (instancetype)initImagesForSelection:(NSString *)selectionType {
     
     self = [super init]; // must always call superclass' initializer from our designated initializer. always.
     
@@ -69,6 +80,70 @@
     }
     
     return self;
+}*/
+
+/**
+ * Designated Initializer: loads the images based on the selection type from the
+ * segmentedControl in the VC. This is based on testing of local images. Will change
+ * when online backend is in place - images will be pulled from internet based storage.
+ *
+ * @param NSString *selectionType - passed from title of the selected UISegmentedControl
+ * @return instancetype - self
+ */
+- (instancetype)initImagesForSelection:(NSString *)selectionType {
+    
+    self = [super init]; // must always call superclass' initializer from our designated initializer. always.
+    
+    if (self) {
+        NSLog(@"ImageLoadManager: selectionType: %@", selectionType);
+        NSFileManager *fileManager = [[NSFileManager alloc] init];
+        NSString *directoryFilePath = @"/Users/Sonny/Desktop/images/";
+        BOOL success = [fileManager fileExistsAtPath:directoryFilePath];
+        
+        if (success) {
+            NSLog(@"Directory exists!");
+            NSArray *imageNamesFromDirectory = [fileManager contentsOfDirectoryAtPath:directoryFilePath error:nil];
+            NSString *searchString = @".png";
+            /** TODO: initialize CoffeeImageData inside for loop for each image **/
+            for (int i = 0; i < [imageNamesFromDirectory count]; i++) {
+                // create CoffeeImageData object to store data in the array for each image
+                CoffeeImageData *coffeeImageData = [[CoffeeImageData alloc] init];
+                //NSLog(@"contents from directory %@", imageNamesFromDirectory[i]);
+                // file name creation requires full path to create the UIImage based off the file name
+                NSString *nameOfImageFromFile = [directoryFilePath stringByAppendingString:[imageNamesFromDirectory[i] description]];
+                NSLog(@"file name:%@", nameOfImageFromFile);
+                NSRange range = [nameOfImageFromFile rangeOfString:searchString];
+                if (range.location != NSNotFound) {
+                    NSLog(@"found search string!");
+                    UIImage *image = [UIImage imageWithContentsOfFile:nameOfImageFromFile];
+                    coffeeImageData.image = image;
+                    NSLog(@"Image size: width:%f, height:%f", image.size.width, image.size.height);
+                    //[arrayOfUIImages addObject:image];
+                    // remove the directory path from the file name and add image name to the imageNames array
+                    NSString *fileNameWithoutPath = [self removePathFromFileName:nameOfImageFromFile forPath:directoryFilePath];
+                    coffeeImageData.imageName = fileNameWithoutPath;
+                    NSLog(@"Image name:: %@", coffeeImageData.imageName);
+                    [self.coffeeImageDataArray addObject:coffeeImageData];
+                }
+            }
+        
+            NSLog(@"CoffeeImageDataArray size %d", [self.coffeeImageDataArray count]);
+        }
+    }
+    
+    return self;
+}
+/**
+ * Method for getting a specific CoffeeImageData object in the array via the index passed
+ *
+ * @param NSUInteger index
+ * @return CoffeeImageData *
+ */
+- (CoffeeImageData *)coffeeImageDataForCell:(NSUInteger)index {
+    NSLog(@"coffeeImageDataForCell for cell %d", index);
+    
+    // if the index value is < then array size, get the card, else return nil
+    return (index < [self.coffeeImageDataArray count] ? self.coffeeImageDataArray[index] : nil);
 }
 
 /**
@@ -85,7 +160,7 @@
     
     returnString = [fileName stringByReplacingOccurrencesOfString:path withString:@""];
     
-    NSLog(@"returnString:%@", returnString);
+    //NSLog(@"returnString:%@", returnString);
     
     return returnString;
 }
