@@ -235,22 +235,20 @@ NSInteger const CellHeight = 140; // height of cell
     //[likeButton setFrame:CGRectMake(xCoord - xCoord, yCoord - (yCoord * .07), LIKE_BUTTON_WIDTH, LIKE_BUTTON_HEIGHT)];
     
     [likeButton setFrame:CGRectMake(xCoord - xCoord, yPoint + (yCoord-LIKE_BUTTON_HEIGHT), LIKE_BUTTON_WIDTH, LIKE_BUTTON_HEIGHT)];
-
+    [likeButton addTarget:self action:@selector(likeButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
+    
     CoffeeImageData *coffeeImageData = [self.imageLoadManager coffeeImageDataForCell:indexPath.row];
     selectedCell.imageIsLiked = coffeeImageData.isLiked;
     likeButton.selected = selectedCell.imageIsLiked;
     
-    if (selectedCell.imageIsLiked == YES) {
-        /*** THIS IMAGE IS TEMPORARY AND NEEDS TO BE CHANGED ONCE OTHA SENDS THE IMAGE **/
-        //[likeButton setBackgroundImage:[UIImage imageNamed:@"heart_blue_solid"] forState:UIControlStateNormal];
-        [likeButton setImage:[UIImage imageNamed:@"heart_blue_solid"] forState:UIControlStateNormal|UIControlStateSelected];
+    // Check to see if image is currently liked or not and display the correct heart image
+    if (selectedCell.imageIsLiked) {
+        //[likeButton setImage:[UIImage imageNamed:@"heart_blue_solid"] forState:UIControlStateNormal|UIControlStateSelected];
+        // above line caused bug
+        [likeButton setImage:[UIImage imageNamed:@"heart_blue_solid"] forState:UIControlStateNormal];
     } else {
-        //[likeButton setBackgroundImage:[UIImage imageNamed:@"heart_blue"] forState:UIControlStateNormal];
         [likeButton setImage:[UIImage imageNamed:@"heart_blue"] forState:UIControlStateNormal];
     }
-    //[likeButton sendActionsForControlEvents:UIControlEventTouchUpInside];
-    [likeButton addTarget:self action:@selector(likeButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
-    //likeButton.showsTouchWhenHighlighted = YES;
     
     /*if (!self.isFullScreen) {
         NSLog(@"not fullscreen");
@@ -348,7 +346,7 @@ NSInteger const CellHeight = 140; // height of cell
 - (void)collectionView:(UICollectionView *)collectionView didDeselectItemAtIndexPath:(NSIndexPath *)indexPath {
     
     //CoffeeViewCell *selectedCell = (CoffeeViewCell *)[collectionView cellForItemAtIndexPath:indexPath];
-     NSLog(@"didDeSelectItemAtIndexPath");
+     //NSLog(@"didDeSelectItemAtIndexPath");
     //selectedCell.coffeeImageLabel.backgroundColor = [UIColor whiteColor];
     //selectedCell.coffeeImageLabel.textColor = [UIColor blackColor];
     /*if (self.isFullScreen) {
@@ -707,13 +705,14 @@ NSInteger const CellHeight = 140; // height of cell
     // update the liked value in the model based on the user hitting the like button on the image
     currentImageData.liked = selectedCell.imageIsLiked;
     if (currentImageData.isLiked) {
-        NSLog(@"image is liked");
-    } else if (!currentImageData.isLiked) {
-        NSLog(@"image is NOT liked");
+        //NSLog(@"image is liked");
+        [button setImage:[UIImage imageNamed:@"heart_blue_solid"] forState:UIControlStateNormal];
+    } else { /** TODO: This does not change the image onclick unlike the code above **/
+        //NSLog(@"image is NOT liked");
+        [button setImage:[UIImage imageNamed:@"heart_blue"] forState:UIControlStateNormal];
     }
-        
     
-    NSLog(@"image liked for indexpath %d", indexPath.row);
+    //NSLog(@"image liked for indexpath %ld", (long)indexPath.row);
 }
 
 - (IBAction)coffeeImagesButtonPressed:(UIButton *)sender {

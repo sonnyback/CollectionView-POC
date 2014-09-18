@@ -127,7 +127,7 @@
                 }
             }
         
-            NSLog(@"CoffeeImageDataArray size %d", [self.coffeeImageDataArray count]);
+            NSLog(@"CoffeeImageDataArray size %lu", (unsigned long)[self.coffeeImageDataArray count]);
         }
     }
     
@@ -140,7 +140,7 @@
  * @return CoffeeImageData *
  */
 - (CoffeeImageData *)coffeeImageDataForCell:(NSUInteger)index {
-    NSLog(@"coffeeImageDataForCell for cell %d", index);
+    NSLog(@"coffeeImageDataForCell for cell %lu", (unsigned long)index);
     
     // if the index value is < then array size, get the card, else return nil
     return (index < [self.coffeeImageDataArray count] ? self.coffeeImageDataArray[index] : nil);

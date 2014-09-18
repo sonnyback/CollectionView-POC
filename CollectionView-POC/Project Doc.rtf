@@ -8,7 +8,7 @@
 - Source control entire project - done\
 - Create folder structure for Model group - Done\
 - Move ImageLoadManager to Model group/folder - Done\
-- Create Constants file and move all constants and #Defines - in progress (Constants class created)\
+- Create Constants file and move all constants and #Defines - in progress (Constants class created, refer to {\field{\*\fldinst{HYPERLINK "http://stackoverflow.com/questions/538996/constants-in-objective-c"}}{\fldrslt http://stackoverflow.com/questions/538996/constants-in-objective-c}})\
 - Create VC with table view and connect to Cafe segment - Done\
 - Implement table view from above VC to display location based coffee shops (copy example from MapSearch sample project) - in progress\
 - Remove footerview and FooterViewCell class once buttons are successfully added to collectionview cell - changed layout, footers no longer needed and have been removed - Done\
@@ -26,4 +26,5 @@ Bugs:\
 Need to change this to make it go back to Images. *Fixed*, but may need to resolve with a delegate after further development of app\
 2. When viewing full screen image, tapping in upper right area will cause segue to cafe locator VC. *Fixed* by setting the segmentedcontrol.hidden=YES\
 3. When liking an image, then tapping to close the image, then going back into the image in fullscreen, the solid like button is not visible. *Fixed* - issue was related to control state for the button \
-4. Logic not right inside likeButtonPressed regarding currentImageData.imageName. This is coming up as null. }
+4. Heart image displays correctly when liking/unliking by tapping the heart button. But if an image is liked, then you go back to the collectionview and then back to the image that is liked, unliking does not show the correct heart image. *Fixed*\
+5. Logic not right inside likeButtonPressed regarding currentImageData.imageName. This is coming up as null. }
