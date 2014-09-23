@@ -104,7 +104,7 @@
             NSLog(@"Directory exists!");
             NSArray *imageNamesFromDirectory = [fileManager contentsOfDirectoryAtPath:directoryFilePath error:nil];
             NSString *searchString = @".png";
-            /** TODO: initialize CoffeeImageData inside for loop for each image **/
+            
             for (int i = 0; i < [imageNamesFromDirectory count]; i++) {
                 // create CoffeeImageData object to store data in the array for each image
                 CoffeeImageData *coffeeImageData = [[CoffeeImageData alloc] init];
@@ -128,6 +128,17 @@
             }
         
             NSLog(@"CoffeeImageDataArray size %lu", (unsigned long)[self.coffeeImageDataArray count]);
+        } else { // temporary for testing on local device until cloudkit is setup
+            NSLog(@"Directory not found...looking for local images");
+            for (int i = 1; i <= 11; i++) {
+                CoffeeImageData *coffeeImageData = [[CoffeeImageData alloc] init];
+                UIImage *image = [UIImage imageNamed:[NSString stringWithFormat:@"image%d", i]];
+                NSString *imageName = [NSString stringWithFormat:@"image%d", i];
+                NSLog(@"Image name:: %@", coffeeImageData.imageName);
+                coffeeImageData.image = image;
+                coffeeImageData.imageName = imageName;
+                [self.coffeeImageDataArray addObject:coffeeImageData];
+            }
         }
     }
     

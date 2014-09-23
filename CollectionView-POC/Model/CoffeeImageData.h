@@ -12,6 +12,7 @@
 
 @property (strong, nonatomic) UIImage *image;
 @property (weak, nonatomic) NSString *imageName;
+@property (weak, nonatomic) NSString *userID;
 @property (nonatomic, getter = isLiked) BOOL liked;
-
+@property (nonatomic) BOOL imageBelongsToCurrentUser;
 @end

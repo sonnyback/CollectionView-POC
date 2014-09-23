@@ -250,46 +250,9 @@ NSInteger const CellHeight = 140; // height of cell
         [likeButton setImage:[UIImage imageNamed:@"heart_blue"] forState:UIControlStateNormal];
     }
     
-    /*if (!self.isFullScreen) {
-        NSLog(@"not fullscreen");
-        //prevFrame = selectedCell.contentView.frame;
-        //[selectedCell.coffeeImageView setFrame:[[UIScreen mainScreen] bounds]];
-        self.flowLayout.itemSize = CGSizeMake(self.view.frame.size.width, self.view.frame.size.height);
-        [selectedCell.contentView addSubview:likeButton];
-        self.isFullScreen = YES;
-    } else {
-        self.flowLayout.itemSize = CGSizeMake(140, 140);
-        self.isFullScreen = NO;
-    }*/
-
-    /*if (!self.isFullScreen) {
-        [UIView transitionFromView:selectedCell.contentView toView:self.fullScreenImage duration:0.5 options:0
-                        completion:^(BOOL finished){
-                            self.fullScreenImage.center = self.view.center;
-                            self.fullScreenImage.backgroundColor = [UIColor blackColor];
-                            self.fullScreenImage.image = selectedCell.coffeeImageView.image;
-                            [self.view addSubview:self.fullScreenImage];
-                            [self.fullScreenImage addSubview:likeButton];
-                            self.isFullScreen = YES;
-        }];
-        return;
-    } else {
-        [UIView animateWithDuration:0.5 delay:0 options:0 animations:^{
-            for (UIView *subView in self.view.subviews) {
-                if (subView.tag == (int)self.fullScreenImage.tag) {
-                    NSLog(@"removing view for tag %d", subView.tag);
-                    [subView removeFromSuperview];
-                    break;
-                }
-            }
-        }completion:^(BOOL finished){
-            self.isFullScreen = NO;
-        }];
-        return;
-    }*/
-    
     if (!self.isFullScreen) {
-        [UIView animateWithDuration:0.5 delay:0 options:UIViewAnimationOptionCurveEaseIn | UIViewAnimationOptionAllowUserInteraction animations:^{
+        self.fullScreenImage.transform = CGAffineTransformMakeScale(0.1, 0.1);
+        [UIView animateWithDuration:0.5 delay:0 options:0 animations:^{
             NSLog(@"Starting animiation!");
             //prevFrame = selectedCell.coffeeImageView.frame;
             //self.flowLayout.itemSize = CGSizeMake(self.view.frame.size.width, self.view.frame.size.height);
@@ -297,8 +260,9 @@ NSInteger const CellHeight = 140; // height of cell
             //selectedCell.coffeeImageView.center = self.view.center;
             //selectedCell.coffeeImageView.backgroundColor = [UIColor blackColor];
             //[selectedCell.coffeeImageView setFrame:[[UIScreen mainScreen] bounds]];
-
-            // hide the following uiview items so they will not be visible or active
+            
+            self.view.backgroundColor = [UIColor blackColor];
+            self.myCollectionView.backgroundColor = [UIColor blackColor];
             self.searchBar.hidden = YES;
             self.toolBar.hidden = YES;
             self.imageRecipeSegmentedControl.hidden = YES;
@@ -306,13 +270,23 @@ NSInteger const CellHeight = 140; // height of cell
             self.fullScreenImage.center = self.view.center;
             self.fullScreenImage.backgroundColor = [UIColor blackColor];
             self.fullScreenImage.image = selectedCell.coffeeImageView.image;
-            self.view.backgroundColor = [UIColor blackColor];
-            self.myCollectionView.backgroundColor = [UIColor blackColor];
+            //self.fullScreenImage.transform = CGAffineTransformMakeScale(1.0, 1.0); // zoom in effect
+            self.fullScreenImage.transform = CGAffineTransformIdentity; // zoom in effect
             [self.view addSubview:self.fullScreenImage];
             [self.fullScreenImage addSubview:likeButton]; // add the button to the view
         }completion:^(BOOL finished){
-            [self.fullScreenImage bringSubviewToFront:likeButton];
-            self.isFullScreen = YES;
+            if (finished) {
+                NSLog(@"Animation finished!");
+                //[self.fullScreenImage bringSubviewToFront:likeButton];
+                // hide the following uiview items so they will not be visible or active
+                //self.searchBar.hidden = YES;
+                //self.toolBar.hidden = YES;
+                //self.imageRecipeSegmentedControl.hidden = YES;
+                //self.navigationController.navigationBarHidden = YES;
+                //self.view.backgroundColor = [UIColor blackColor];
+                //self.myCollectionView.backgroundColor = [UIColor blackColor];
+                self.isFullScreen = YES;
+            }
         }];
         return;
     } /*else { // Moved this block to closeFullScreenImageView after adding tap gesture
@@ -343,39 +317,9 @@ NSInteger const CellHeight = 140; // height of cell
     }*/
 }
 
-- (void)collectionView:(UICollectionView *)collectionView didDeselectItemAtIndexPath:(NSIndexPath *)indexPath {
+/*- (void)collectionView:(UICollectionView *)collectionView didDeselectItemAtIndexPath:(NSIndexPath *)indexPath {
     
-    //CoffeeViewCell *selectedCell = (CoffeeViewCell *)[collectionView cellForItemAtIndexPath:indexPath];
-     //NSLog(@"didDeSelectItemAtIndexPath");
-    //selectedCell.coffeeImageLabel.backgroundColor = [UIColor whiteColor];
-    //selectedCell.coffeeImageLabel.textColor = [UIColor blackColor];
-    /*if (self.isFullScreen) {
-        NSLog(@"Ending animiation!");
-        //self.navigationController.navigationBarHidden = NO;
-        //self.searchBar.hidden = NO;
-        self.view.backgroundColor = [UIColor whiteColor];
-        self.myCollectionView.backgroundColor = [UIColor colorWithRed:0.62 green:0.651 blue:0.686 alpha:1];
-        [UIView animateWithDuration:0.5 delay:0 options:UIViewAnimationOptionCurveEaseOut | UIViewAnimationOptionAllowUserInteraction animations:^{
-            self.navigationController.navigationBarHidden = NO;
-            self.searchBar.hidden = NO;
-            self.toolBar.hidden = NO;
-            self.imageRecipeSegmentedControl.hidden = NO;
-            //self.flowLayout.itemSize = CGSizeMake(290, 290);
-            //[selectedCell.coffeeImageView setFrame:prevFrame];
-            //selectedCell.coffeeImageView.backgroundColor = [UIColor colorWithRed:0.62 green:0.651 blue:0.686 alpha:1];
-            
-            for (UIView *subView in self.view.subviews) {
-                if (subView.tag == (int)self.fullScreenImage.tag) {
-                    [subView removeFromSuperview];
-                    break;
-                }
-            }
-        }completion:^(BOOL finished){
-            self.isFullScreen = NO;
-        }];
-        return;
-    }*/
-}
+}*/
 
 /*- (void)collectionView:(UICollectionView *)collectionView didEndDisplayingCell:(UICollectionViewCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath {
     NSLog(@"didEndDisplayingCell");
@@ -598,12 +542,12 @@ NSInteger const CellHeight = 140; // height of cell
  *
  * @return NSMutableArray* of UIImages
  */
-- (NSMutableArray *)loadImages {
+/*- (NSMutableArray *)loadImages {
     
     NSLog(@"Entered loadImages!");
     NSMutableArray *arrayOfUIImages = [[NSMutableArray alloc] init];
     
-    /** THIS IS FOR LOCAL IMAGES TO RUN ON DEVICE ONLY! Index is hardcoded, must change when images are added **/
+    // THIS IS FOR LOCAL IMAGES TO RUN ON DEVICE ONLY! Index is hardcoded, must change when images are added //
     for (int i = 1; i <= 11; i++) {
         UIImage *image = [UIImage imageNamed:[NSString stringWithFormat:@"image%d", i]];
         [arrayOfUIImages addObject:image];
@@ -614,7 +558,7 @@ NSInteger const CellHeight = 140; // height of cell
     //[self updateUI];
     
     return arrayOfUIImages;
-}
+}*/
 
 /**
  * Method to remove preceeding directory path from the file name.
@@ -664,23 +608,24 @@ NSInteger const CellHeight = 140; // height of cell
         //self.searchBar.hidden = NO;
         self.view.backgroundColor = [UIColor whiteColor];
         self.myCollectionView.backgroundColor = [UIColor colorWithRed:0.62 green:0.651 blue:0.686 alpha:1];
-        [UIView animateWithDuration:0.5 delay:0 options:UIViewAnimationOptionCurveEaseOut | UIViewAnimationOptionAllowUserInteraction animations:^{
+        [UIView animateWithDuration:0.5 delay:0 options:0 animations:^{
             self.navigationController.navigationBarHidden = NO;
             self.searchBar.hidden = NO;
             self.toolBar.hidden = NO;
             self.imageRecipeSegmentedControl.hidden = NO;
-            //self.flowLayout.itemSize = CGSizeMake(290, 290);
-            //[selectedCell.coffeeImageView setFrame:prevFrame];
-            //selectedCell.coffeeImageView.backgroundColor = [UIColor colorWithRed:0.62 green:0.651 blue:0.686 alpha:1];
-            
-            for (UIView *subView in self.view.subviews) {
+            /*for (UIView *subView in self.view.subviews) {
                 if (subView.tag == (int)self.fullScreenImage.tag) {
                     [subView removeFromSuperview];
                     break;
                 }
-            }
+            }*/
+            self.fullScreenImage.transform = CGAffineTransformMakeScale(0.1, 0.1); // animate zooming out effect
+            self.fullScreenImage.alpha = 0.0;
         }completion:^(BOOL finished){
-            self.isFullScreen = NO;
+            if (finished) {
+                [self.fullScreenImage removeFromSuperview];
+                self.isFullScreen = NO;
+            }
         }];
         return;
     }
@@ -727,7 +672,7 @@ NSInteger const CellHeight = 140; // height of cell
 - (void)viewDidLayoutSubviews
 {
     [super viewDidLayoutSubviews];
-    NSLog(@"viewDidLayoutSubviews");
+    //NSLog(@"viewDidLayoutSubviews");
 }
 
 - (void)viewDidLoad

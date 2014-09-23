@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <CloudKit/CloudKit.h>
 #import "CoffeeImageData.h"
 
 @interface ImageLoadManager : NSObject
