@@ -20,7 +20,6 @@
 @interface BaseViewController()
 @property (weak, nonatomic) IBOutlet UICollectionView *myCollectionView;
 @property (strong, nonatomic) NSArray *imagesArray; // of UIImage (array of images to display)
-@property (strong, nonatomic) NSMutableArray *imageNames; // of NSString (name of the images)
 @property (weak, nonatomic) IBOutlet UISegmentedControl *imageRecipeSegmentedControl;
 @property (strong, nonatomic) ImageLoadManager *imageLoadManager;
 @property (weak, nonatomic) UIColor const *globalColor;
@@ -48,16 +47,6 @@ NSInteger const CellHeight = 140; // height of cell
     }
     
     return _imagesArray;
-}
-
-// lazy instantiate imageNames
-- (NSMutableArray *)imageNames {
-    
-    if (!_imageNames) {
-        _imageNames = [[NSMutableArray alloc] init];
-    }
-    
-    return _imageNames;
 }
 
 // lazy instantiate imageLoadManager
@@ -93,6 +82,20 @@ NSInteger const CellHeight = 140; // height of cell
     
     _imageRecipeSegmentedControl = imageRecipeSegmentedControl;
     
+}
+
+#pragma mark - UIImagePickerControllerDelegate
+
+- (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info {
+    
+    NSLog(@"didFinishPickingMediaWithInfo");
+    [self dismissViewControllerAnimated:YES completion:nil];
+}
+
+- (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker {
+    
+    NSLog(@"imagePickerControllerDidCancel");
+    [self dismissViewControllerAnimated:YES completion:nil];
 }
 
 #pragma mark - UITextFieldDelegate
@@ -374,24 +377,7 @@ NSInteger const CellHeight = 140; // height of cell
 - (void)updateUI {
     
     NSLog(@"updateUI...");
-    /*if (!self.coffeeImagesButton.isSelected) {
-     NSLog(@"button is NOT selected");
-     [self.coffeeImagesButton setTitle:@"Images" forState:UIControlStateNormal];
-     [self.coffeeImagesButton setBackgroundColor:[UIColor whiteColor]];
-     } else {
-     NSLog(@"button is selected");
-     [self.coffeeImagesButton setTitle:@"Recipes" forState:UIControlStateSelected];
-     //self.toggleImagesRecipesButton.layer.borderColor = [UIColor blueColor].CGColor;
-     }*/
     
-    /** USE THE NEXT LINE ONLY WHEN TESTING ON DEVICE SO THAT LOCAL IMAGES WILL LOAD **/
-    //self.imagesArray = [self loadImages];
-    
-    /** USE WHEN TESTING FROM SIMULATOR!This pulls from the model and loads images from local directory - will NOT load images to the device */
-    /*self.imagesArray = self.imageLoadManager.imagesArray; // calls the model and maps UI to the model (and loads the images)
-    NSLog(@"imagesArray size: %lu", (unsigned long)[self.imagesArray count]);
-    self.imageNames = [self.imageLoadManager.imageNames copy]; // get the image names from the array in the model*/
-    //self.imagesArray = self.imageLoadManager.coffeeImageDataArray;
 }
 
 //#define ITEM_SIZE 290.0 // item size for the cell **SHOULD ALWAYS MATCH CellWidth constant!
@@ -536,31 +522,6 @@ NSInteger const CellHeight = 140; // height of cell
 }
 
 /**
- * Method to load images from a local directory. This has now been moved to the model -
- * (ImageLoadManager). This should only be used for testing on the device to get loacl images
- * loaded to the device.
- *
- * @return NSMutableArray* of UIImages
- */
-/*- (NSMutableArray *)loadImages {
-    
-    NSLog(@"Entered loadImages!");
-    NSMutableArray *arrayOfUIImages = [[NSMutableArray alloc] init];
-    
-    // THIS IS FOR LOCAL IMAGES TO RUN ON DEVICE ONLY! Index is hardcoded, must change when images are added //
-    for (int i = 1; i <= 11; i++) {
-        UIImage *image = [UIImage imageNamed:[NSString stringWithFormat:@"image%d", i]];
-        [arrayOfUIImages addObject:image];
-        [self.imageNames addObject:[NSString stringWithFormat:@"image%d", i]];
-    }
-    
-    //NSLog(@"arrayOfImages size: %d", [self.imagesArray count]);
-    //[self updateUI];
-    
-    return arrayOfUIImages;
-}*/
-
-/**
  * Method to remove preceeding directory path from the file name.
  *
  * @param NSString *fileName
@@ -599,6 +560,14 @@ NSInteger const CellHeight = 140; // height of cell
     }
 }
 
+/**
+ * Method to close the fullscreen image from the tap gesture. This logic was originally in
+ * the else block of the animation in didSelectItemAtIndexPath. However, while visible, the
+ * button would not activate. Issue seemed to be related to some view/bounds issue.
+ *
+ * @param UITapGestureRecognizer *sender
+ * @return void
+ */
 - (void)closeFullScreenImageView:(UITapGestureRecognizer*)sender {
     NSLog(@"closeFullScreenImageView");
     
@@ -623,6 +592,7 @@ NSInteger const CellHeight = 140; // height of cell
             self.fullScreenImage.alpha = 0.0;
         }completion:^(BOOL finished){
             if (finished) {
+                // remove the fullscreen view from the screen
                 [self.fullScreenImage removeFromSuperview];
                 self.isFullScreen = NO;
             }
@@ -652,7 +622,7 @@ NSInteger const CellHeight = 140; // height of cell
     if (currentImageData.isLiked) {
         //NSLog(@"image is liked");
         [button setImage:[UIImage imageNamed:@"heart_blue_solid"] forState:UIControlStateNormal];
-    } else { /** TODO: This does not change the image onclick unlike the code above **/
+    } else {
         //NSLog(@"image is NOT liked");
         [button setImage:[UIImage imageNamed:@"heart_blue"] forState:UIControlStateNormal];
     }
@@ -660,12 +630,26 @@ NSInteger const CellHeight = 140; // height of cell
     //NSLog(@"image liked for indexpath %ld", (long)indexPath.row);
 }
 
-- (IBAction)coffeeImagesButtonPressed:(UIButton *)sender {
+/**
+ * Action method that invokes the camera
+ * 
+ * @param UIBarButtonItem *sender
+ * @return void
+ */
+- (IBAction)cameraBarButtonPressed:(UIBarButtonItem *)sender {
+    NSLog(@"Entered cameraBarButtonPressed");
     
-    NSLog(@"coffeeImagesButtonPressed!");
-    //self.coffeeImagesButton.selected = !self.coffeeImagesButton.selected; // toggle selected state
+    UIImagePickerController *pickerController = [[UIImagePickerController alloc] init];
+    pickerController.delegate = self; // set the deleage for the ImagePickerController
     
-    //[self updateUI];
+    // check to see if the camera is available as source type, else check for photo album
+    if ([UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera]) {
+        pickerController.sourceType = UIImagePickerControllerSourceTypeCamera;
+    } else if ([UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeSavedPhotosAlbum]) {
+        pickerController.sourceType = UIImagePickerControllerSourceTypeSavedPhotosAlbum;
+    }
+    
+    [self presentViewController:pickerController animated:YES completion:nil];
 }
 
 #pragma mark - VC Lifecyle Methods
@@ -695,7 +679,7 @@ NSInteger const CellHeight = 140; // height of cell
     /** IMPORTANT: Without this line, the cells are offset by several points on the Y axis!! **/
     self.automaticallyAdjustsScrollViewInsets = NO;
     
-    [self updateUI];
+    //[self updateUI]; // not needed...for now at least
 }
 
 - (void)viewDidAppear:(BOOL)animated {
