@@ -139,11 +139,23 @@
                 coffeeImageData.imageName = imageName;
                 [self.coffeeImageDataArray addObject:coffeeImageData];
             }
+            NSLog(@"CoffeeImageDataArray size %lu", (unsigned long)[self.coffeeImageDataArray count]);
         }
     }
     
     return self;
 }
+
+- (void)addCIDForNewUserImage:(CoffeeImageData *)newImageData {
+    
+    NSLog(@"Entered addCIDForNewUserImage...");
+    //[self.coffeeImageDataArray addObject:newImageData];
+    // add the new object on top so it will appear at the top of the collection view
+    [self.coffeeImageDataArray insertObject:newImageData atIndex:0];
+    
+    NSLog(@"CoffeeImageDataArray size %lu", (unsigned long)[self.coffeeImageDataArray count]);
+}
+
 /**
  * Method for getting a specific CoffeeImageData object in the array via the index passed
  *

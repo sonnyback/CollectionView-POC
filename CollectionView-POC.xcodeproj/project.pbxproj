@@ -30,6 +30,7 @@
 		E075ACCF196F07820012F130 /* ImageLoadManager.m in Sources */ = {isa = PBXBuildFile; fileRef = E075ACCE196F07820012F130 /* ImageLoadManager.m */; };
 		E075C736199535A20086C523 /* heart_blue.png in Resources */ = {isa = PBXBuildFile; fileRef = E075C735199535A20086C523 /* heart_blue.png */; };
 		E083297B1928F3E100A8E9DF /* DrinkDetailViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E083297A1928F3E100A8E9DF /* DrinkDetailViewController.m */; };
+		E0896A9C19D4B80C00B12C7A /* UIImage+CS193p.m in Sources */ = {isa = PBXBuildFile; fileRef = E0896A9B19D4B80C00B12C7A /* UIImage+CS193p.m */; };
 		E091384F19A5517E003890E8 /* heart_blue_solid.png in Resources */ = {isa = PBXBuildFile; fileRef = E091384E19A5517E003890E8 /* heart_blue_solid.png */; };
 		E09DEAC71975C74600B85A5C /* CafeLocatorTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E09DEAC61975C74600B85A5C /* CafeLocatorTableViewController.m */; };
 		E09DEACD197617F400B85A5C /* CoffeeShop.m in Sources */ = {isa = PBXBuildFile; fileRef = E09DEACC197617F400B85A5C /* CoffeeShop.m */; };
@@ -84,6 +85,8 @@
 		E075C735199535A20086C523 /* heart_blue.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = heart_blue.png; sourceTree = "<group>"; };
 		E08329791928F3E100A8E9DF /* DrinkDetailViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DrinkDetailViewController.h; sourceTree = "<group>"; };
 		E083297A1928F3E100A8E9DF /* DrinkDetailViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DrinkDetailViewController.m; sourceTree = "<group>"; };
+		E0896A9A19D4B80C00B12C7A /* UIImage+CS193p.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+CS193p.h"; sourceTree = "<group>"; };
+		E0896A9B19D4B80C00B12C7A /* UIImage+CS193p.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+CS193p.m"; sourceTree = "<group>"; };
 		E091384E19A5517E003890E8 /* heart_blue_solid.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = heart_blue_solid.png; sourceTree = "<group>"; };
 		E09DEAC51975C74600B85A5C /* CafeLocatorTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CafeLocatorTableViewController.h; sourceTree = "<group>"; };
 		E09DEAC61975C74600B85A5C /* CafeLocatorTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CafeLocatorTableViewController.m; sourceTree = "<group>"; };
@@ -126,6 +129,8 @@
 		E03E745E1978B13000A3AE0F /* Utility */ = {
 			isa = PBXGroup;
 			children = (
+				E0896A9A19D4B80C00B12C7A /* UIImage+CS193p.h */,
+				E0896A9B19D4B80C00B12C7A /* UIImage+CS193p.m */,
 				E03E745B1978B11F00A3AE0F /* Helper.h */,
 				E03E745C1978B11F00A3AE0F /* Helper.m */,
 			);
@@ -368,6 +373,7 @@
 				E03A9BFE195CC04700316D6E /* FooterViewCell.m in Sources */,
 				E083297B1928F3E100A8E9DF /* DrinkDetailViewController.m in Sources */,
 				E03E745D1978B11F00A3AE0F /* Helper.m in Sources */,
+				E0896A9C19D4B80C00B12C7A /* UIImage+CS193p.m in Sources */,
 				E0E9A23218FBFC3D00043A84 /* CustomFlowLayout.m in Sources */,
 				E09DEACD197617F400B85A5C /* CoffeeShop.m in Sources */,
 				E0DE6CC61985535700D1A7FC /* Constants.m in Sources */,

@@ -46,7 +46,7 @@
  *
  */
 - (BOOL)shouldInvalidateLayoutForBoundsChange:(CGRect)newBounds {
-    NSLog(@"shouldInvalidateLayoutForBoundsChange");
+    //NSLog(@"shouldInvalidateLayoutForBoundsChange"); // commenting out to eliminate excessive logging
     return YES;
 }
 

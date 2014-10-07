@@ -18,7 +18,7 @@
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
                             <collectionView autoresizesSubviews="NO" opaque="NO" clipsSubviews="YES" contentMode="scaleAspectFit" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" minimumZoomScale="0.0" maximumZoomScale="0.0" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="JVU-z8-YUF">
-                                <rect key="frame" x="0.0" y="112" width="320" height="412"/>
+                                <rect key="frame" x="0.0" y="106" width="320" height="412"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="412" id="ETT-SQ-MwY"/>
@@ -71,7 +71,7 @@
                                 </connections>
                             </collectionView>
                             <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="HFB-yh-hZe">
-                                <rect key="frame" x="0.0" y="524" width="320" height="44"/>
+                                <rect key="frame" x="0.0" y="518" width="320" height="44"/>
                                 <items>
                                     <barButtonItem systemItem="camera" id="dDH-r1-7Lx">
                                         <color key="tintColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
@@ -82,7 +82,7 @@
                                 </items>
                             </toolbar>
                             <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="InD-us-9xD">
-                                <rect key="frame" x="20" y="73" width="280" height="27"/>
+                                <rect key="frame" x="20" y="72" width="280" height="27"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="280" id="GlW-cY-nTg"/>
                                     <constraint firstAttribute="height" constant="26" id="qZi-9N-Pyd"/>
@@ -101,12 +101,14 @@
                         <constraints>
                             <constraint firstItem="JVU-z8-YUF" firstAttribute="leading" secondItem="kh9-bI-dsS" secondAttribute="leading" id="ATz-zW-ZWP"/>
                             <constraint firstItem="JVU-z8-YUF" firstAttribute="bottom" secondItem="HFB-yh-hZe" secondAttribute="top" id="GXC-c1-vbH"/>
-                            <constraint firstItem="JVU-z8-YUF" firstAttribute="top" secondItem="InD-us-9xD" secondAttribute="bottom" constant="13" id="JjM-yI-UTm"/>
+                            <constraint firstItem="JVU-z8-YUF" firstAttribute="top" secondItem="InD-us-9xD" secondAttribute="bottom" constant="8" symbolic="YES" id="JjM-yI-UTm"/>
                             <constraint firstItem="InD-us-9xD" firstAttribute="leading" secondItem="kh9-bI-dsS" secondAttribute="leading" constant="20" symbolic="YES" id="amf-LW-NgM"/>
                             <constraint firstItem="InD-us-9xD" firstAttribute="centerX" secondItem="HFB-yh-hZe" secondAttribute="centerX" id="hiv-0p-rEC"/>
                             <constraint firstItem="InD-us-9xD" firstAttribute="centerX" secondItem="JVU-z8-YUF" secondAttribute="centerX" id="jfV-1l-qGa"/>
                             <constraint firstItem="JVU-z8-YUF" firstAttribute="leading" secondItem="HFB-yh-hZe" secondAttribute="leading" id="mIB-AQ-lyN"/>
-                            <constraint firstItem="InD-us-9xD" firstAttribute="top" secondItem="jyV-Pf-zRb" secondAttribute="bottom" constant="9" id="x8s-Yc-i7a"/>
+                            <constraint firstAttribute="trailing" secondItem="InD-us-9xD" secondAttribute="trailing" constant="20" symbolic="YES" id="tdO-Gp-O6P"/>
+                            <constraint firstItem="InD-us-9xD" firstAttribute="top" secondItem="jyV-Pf-zRb" secondAttribute="bottom" constant="8" symbolic="YES" id="x8s-Yc-i7a"/>
+                            <constraint firstItem="InD-us-9xD" firstAttribute="leading" secondItem="kh9-bI-dsS" secondAttribute="leading" constant="20" symbolic="YES" id="zsT-Ys-OEe"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="MH7-29-j1p">

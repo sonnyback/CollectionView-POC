@@ -16,9 +16,10 @@
 - Need to map CoffeeImageData.isLiked to cell image AND be able to map it when someone taps the like button to update and set it in the model. - Done\
 - ****Need to resolve issue of like button not changing on demand when clicking - reference Matchismo. This may be related to control state for the button. \
 - Need to look into SDWebImage (what exactly is it and should I use it for loading web images and caching) - {\field{\*\fldinst{HYPERLINK "http://stackoverflow.com/questions/15706154/memory-management-many-images-in-uicollectionview"}}{\fldrslt http://stackoverflow.com/questions/15706154/memory-management-many-images-in-uicollectionview}}\
+- For Recipe VC and image, Stanford iOS 7 Lecture 9 has a good tutorial on Pan gesture, starting at 10min mark.\
 \
 Problems:\
-1. Still not able to get button/label displayed under each cell. Unsure if supplemental view can be used, still researching. Other option is to increase cell size and fit everything inside - not my preference\
+1. Still not able to get button/label displayed under each cell. Unsure if supplemental view can be used, still researching. Other option is to increase cell size and fit everything inside. *No longer an issue after switching from horizontal layout to vertical (default) layout in collectionview. \
 2. Added button with heart image to full screen image. Tapping button does not respond. May be a frame bounds issue with the button and the parent view.\
 \
 Bugs:\

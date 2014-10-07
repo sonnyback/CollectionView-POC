@@ -15,11 +15,12 @@
 #import "ImageLoadManager.h"
 #import "CoffeeImageData.h"
 #import "Helper.h"
+#import "UIImage+CS193p.h"
 #import <QuartzCore/QuartzCore.h>
 
 @interface BaseViewController()
 @property (weak, nonatomic) IBOutlet UICollectionView *myCollectionView;
-@property (strong, nonatomic) NSArray *imagesArray; // of UIImage (array of images to display)
+//@property (strong, nonatomic) NSArray *imagesArray; // of UIImage (array of images to display)
 @property (weak, nonatomic) IBOutlet UISegmentedControl *imageRecipeSegmentedControl;
 @property (strong, nonatomic) ImageLoadManager *imageLoadManager;
 @property (weak, nonatomic) UIColor const *globalColor;
@@ -38,16 +39,20 @@
 NSInteger const CellWidth = 140; // width of cell
 NSInteger const CellHeight = 140; // height of cell
 
+//#define ITEM_SIZE 290.0 // item size for the cell **SHOULD ALWAYS MATCH CellWidth constant!
+#define ITEM_SIZE 140.0 // item size for the cell **SHOULD ALWAYS MATCH CellWidth constant!
+#define EDGE_OFFSET 0.5
+
 #pragma mark - Lazy Instantiation
 // lazy instantiate imagesArray
-- (NSArray *)imagesArray {
+/*- (NSArray *)imagesArray {
     
     if (!_imagesArray) {
         _imagesArray = [[NSArray alloc] init];
     }
     
     return _imagesArray;
-}
+}*/
 
 // lazy instantiate imageLoadManager
 - (ImageLoadManager *)imageLoadManager {
@@ -89,12 +94,28 @@ NSInteger const CellHeight = 140; // height of cell
 - (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info {
     
     NSLog(@"didFinishPickingMediaWithInfo");
+    UIImage *image = info[UIImagePickerControllerEditedImage]; // see if the image was edited
+    if (!image) image = info[UIImagePickerControllerOriginalImage]; // use original if image not edited
+    
+    // set the CID info for the new image
+    CoffeeImageData *dataForNewImage = [[CoffeeImageData alloc] init];
+    dataForNewImage.image = image;
+    dataForNewImage.imageName = @"temporary name"; // i think this will be an image file URL
+    dataForNewImage.userID = @"current user"; // will come from cloudkit
+    dataForNewImage.imageBelongsToCurrentUser = YES; // user took this photo
+    dataForNewImage.liked = YES;
+    
+    [self.imageLoadManager addCIDForNewUserImage:dataForNewImage]; // update the model with the new image
+    //NSLog(@"Display CID info for new image: %@", dataForNewImage.description);
+    
     [self dismissViewControllerAnimated:YES completion:nil];
+    
+    [self updateUI]; // updateUI to reload collectionview data
 }
 
 - (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker {
     
-    NSLog(@"imagePickerControllerDidCancel");
+    NSLog(@"Cancelling camera...");
     [self dismissViewControllerAnimated:YES completion:nil];
 }
 
@@ -145,8 +166,11 @@ NSInteger const CellHeight = 140; // height of cell
     //NSString *imageNameForLabel = [self.imageNames objectAtIndex:indexPath.row];
     NSString *imageNameForLabel = coffeeImageData.imageName;
     NSLog(@"imageNameforLabel %@", imageNameForLabel);
-    //cell.coffeeImageView.image = [self.imagesArray objectAtIndex:indexPath.row];
-    cell.coffeeImageView.image = coffeeImageData.image;
+    
+    cell.coffeeImageView.image = coffeeImageData.image; // original code without thumbnail
+    /* use the following to scale the image down for a thumbnail image - !!!issue with scroll lag though!!!*/
+    //UIImage *thumbnailImage = coffeeImageData.image;
+    //cell.coffeeImageView.image = [thumbnailImage imageByScalingToSize:CGSizeMake(ITEM_SIZE, ITEM_SIZE)];
     
     /* UIViewContentMode options from here....*/
     //cell.coffeeImageView.contentMode = UIViewContentModeScaleToFill; // distorts the image
@@ -157,19 +181,8 @@ NSInteger const CellHeight = 140; // height of cell
     //cell.coffeeImageView.clipsToBounds = YES;
     cell.coffeeImageLabel.text = imageNameForLabel;
     
-    /** Below lines intended to place cell in right location without having to use custom flow layout, but 
-     did not work correctly. */
-    //cell.center = CGPointMake(self.view.frame.size.width/2, (self.view.frame.size.height/2 * .15)+indexPath.row*10);
-    //cell.center = CGPointMake(self.view.frame.size.width/2, (self.view.frame.size.height/2 * .15));
-    //cell.patternImageView.center = CGPointMake(cell.contentView.bounds.size.width/2, (cell.contentView.bounds.size.height/2 * .10));
-    
     cell.coffeeImageLabel.alpha = 0.3; // set the label to be semi transparent
     cell.coffeeImageLabel.hidden = YES; // just for toggling on/off until this label is completely removed
-    
-    /*CGSize labelSize = CGSizeMake(CellWidth, 20);
-    UILabel *testLabel = [[UILabel alloc] initWithFrame:CGRectMake(cell.bounds.size.width/2, cell.bounds.size.height-labelSize.height, cell.bounds.size.width, labelSize.height)];
-    testLabel.text = [NSString stringWithFormat:@"Test%ld", (long)indexPath.row];
-    [cell.contentView addSubview:testLabel];*/
     
     return cell;
 }
@@ -255,6 +268,7 @@ NSInteger const CellHeight = 140; // height of cell
     
     if (!self.isFullScreen) {
         self.fullScreenImage.transform = CGAffineTransformMakeScale(0.1, 0.1);
+        __weak BaseViewController *weakSelf = self; // to make sure we don't have retain cycles. is this really needed here?
         [UIView animateWithDuration:0.5 delay:0 options:0 animations:^{
             NSLog(@"Starting animiation!");
             //prevFrame = selectedCell.coffeeImageView.frame;
@@ -263,20 +277,21 @@ NSInteger const CellHeight = 140; // height of cell
             //selectedCell.coffeeImageView.center = self.view.center;
             //selectedCell.coffeeImageView.backgroundColor = [UIColor blackColor];
             //[selectedCell.coffeeImageView setFrame:[[UIScreen mainScreen] bounds]];
-            
-            self.view.backgroundColor = [UIColor blackColor];
-            self.myCollectionView.backgroundColor = [UIColor blackColor];
-            self.searchBar.hidden = YES;
-            self.toolBar.hidden = YES;
-            self.imageRecipeSegmentedControl.hidden = YES;
-            self.navigationController.navigationBarHidden = YES;
-            self.fullScreenImage.center = self.view.center;
-            self.fullScreenImage.backgroundColor = [UIColor blackColor];
-            self.fullScreenImage.image = selectedCell.coffeeImageView.image;
+            /** NOTE: replaced "self" with "weakSelf below to avoid retain cycles! **/
+            weakSelf.view.backgroundColor = [UIColor blackColor];
+            weakSelf.myCollectionView.backgroundColor = [UIColor blackColor];
+            weakSelf.searchBar.hidden = YES;
+            weakSelf.toolBar.hidden = YES;
+            weakSelf.imageRecipeSegmentedControl.hidden = YES;
+            weakSelf.navigationController.navigationBarHidden = YES;
+            weakSelf.fullScreenImage.center = self.view.center;
+            weakSelf.fullScreenImage.backgroundColor = [UIColor blackColor];
+            //self.fullScreenImage.image = selectedCell.coffeeImageView.image;
+            weakSelf.fullScreenImage.image = coffeeImageData.image;
             //self.fullScreenImage.transform = CGAffineTransformMakeScale(1.0, 1.0); // zoom in effect
-            self.fullScreenImage.transform = CGAffineTransformIdentity; // zoom in effect
-            [self.view addSubview:self.fullScreenImage];
-            [self.fullScreenImage addSubview:likeButton]; // add the button to the view
+            weakSelf.fullScreenImage.transform = CGAffineTransformIdentity; // zoom in effect
+            [weakSelf.view addSubview:self.fullScreenImage];
+            [weakSelf.fullScreenImage addSubview:likeButton]; // add the button to the view
         }completion:^(BOOL finished){
             if (finished) {
                 NSLog(@"Animation finished!");
@@ -288,7 +303,7 @@ NSInteger const CellHeight = 140; // height of cell
                 //self.navigationController.navigationBarHidden = YES;
                 //self.view.backgroundColor = [UIColor blackColor];
                 //self.myCollectionView.backgroundColor = [UIColor blackColor];
-                self.isFullScreen = YES;
+                weakSelf.isFullScreen = YES;
             }
         }];
         return;
@@ -378,11 +393,9 @@ NSInteger const CellHeight = 140; // height of cell
     
     NSLog(@"updateUI...");
     
+    [self.myCollectionView reloadData]; // reload data for new user taken images
 }
 
-//#define ITEM_SIZE 290.0 // item size for the cell **SHOULD ALWAYS MATCH CellWidth constant!
-#define ITEM_SIZE 140.0 // item size for the cell **SHOULD ALWAYS MATCH CellWidth constant!
-#define EDGE_OFFSET 0.5
 /**
  * Method to setup the collectionview attributes
 
@@ -403,7 +416,7 @@ NSInteger const CellHeight = 140; // height of cell
     //flowLayout.itemSize = CGSizeMake(ITEM_SIZE, ITEM_SIZE);
     self.myCollectionView.userInteractionEnabled = YES;
     self.myCollectionView.delaysContentTouches = NO;
-
+    [self.myCollectionView setShowsVerticalScrollIndicator:YES];
     //[self.myCollectionView setBackgroundColor:[UIColor colorWithRed:0.227 green:0.349 blue:0.478 alpha:1]]; // ok color
     [self.myCollectionView setBackgroundColor:[UIColor colorWithRed:0.62 green:0.651 blue:0.686 alpha:1]];
     self.myCollectionView.multipleTouchEnabled = NO; // don't allow multiple cells to be selected at the same time
@@ -577,24 +590,25 @@ NSInteger const CellHeight = 140; // height of cell
         //self.searchBar.hidden = NO;
         self.view.backgroundColor = [UIColor whiteColor];
         self.myCollectionView.backgroundColor = [UIColor colorWithRed:0.62 green:0.651 blue:0.686 alpha:1];
+        __weak BaseViewController *weakSelf = self;
         [UIView animateWithDuration:0.5 delay:0 options:0 animations:^{
-            self.navigationController.navigationBarHidden = NO;
-            self.searchBar.hidden = NO;
-            self.toolBar.hidden = NO;
-            self.imageRecipeSegmentedControl.hidden = NO;
+            weakSelf.navigationController.navigationBarHidden = NO;
+            weakSelf.searchBar.hidden = NO;
+            weakSelf.toolBar.hidden = NO;
+            weakSelf.imageRecipeSegmentedControl.hidden = NO;
             /*for (UIView *subView in self.view.subviews) {
                 if (subView.tag == (int)self.fullScreenImage.tag) {
                     [subView removeFromSuperview];
                     break;
                 }
             }*/
-            self.fullScreenImage.transform = CGAffineTransformMakeScale(0.1, 0.1); // animate zooming out effect
-            self.fullScreenImage.alpha = 0.0;
+            weakSelf.fullScreenImage.transform = CGAffineTransformMakeScale(0.1, 0.1); // animate zooming out effect
+            weakSelf.fullScreenImage.alpha = 0.0;
         }completion:^(BOOL finished){
             if (finished) {
                 // remove the fullscreen view from the screen
-                [self.fullScreenImage removeFromSuperview];
-                self.isFullScreen = NO;
+                [weakSelf.fullScreenImage removeFromSuperview];
+                weakSelf.isFullScreen = NO;
             }
         }];
         return;
@@ -639,17 +653,22 @@ NSInteger const CellHeight = 140; // height of cell
 - (IBAction)cameraBarButtonPressed:(UIBarButtonItem *)sender {
     NSLog(@"Entered cameraBarButtonPressed");
     
-    UIImagePickerController *pickerController = [[UIImagePickerController alloc] init];
-    pickerController.delegate = self; // set the deleage for the ImagePickerController
+    UIImagePickerController *cameraUI = [[UIImagePickerController alloc] init];
+    cameraUI.delegate = self; // set the deleage for the ImagePickerController
     
     // check to see if the camera is available as source type, else check for photo album
     if ([UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera]) {
-        pickerController.sourceType = UIImagePickerControllerSourceTypeCamera;
+        cameraUI.sourceType = UIImagePickerControllerSourceTypeCamera;
     } else if ([UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeSavedPhotosAlbum]) {
-        pickerController.sourceType = UIImagePickerControllerSourceTypeSavedPhotosAlbum;
+        cameraUI.sourceType = UIImagePickerControllerSourceTypeSavedPhotosAlbum;
     }
     
-    [self presentViewController:pickerController animated:YES completion:nil];
+    [cameraUI setAllowsEditing:YES]; // let the user edit the photo
+    // set the camera presentation style
+    //cameraUI.modalPresentationStyle = UIModalPresentationFullScreen;
+    cameraUI.modalPresentationStyle = UIModalPresentationCurrentContext;
+    
+    [self presentViewController:cameraUI animated:YES completion:nil]; // show the camera with animation
 }
 
 #pragma mark - VC Lifecyle Methods
@@ -692,7 +711,7 @@ NSInteger const CellHeight = 140; // height of cell
     if ([[self getSelectedSegmentTitle] isEqualToString:@"Cafes"]) {
         NSLog(@"ViewDidAppear - Cafes!!");
         self.imageRecipeSegmentedControl.selectedSegmentIndex = 0;
-        [self.myCollectionView reloadData];
+        //[self.myCollectionView reloadData];
     }
 }
 

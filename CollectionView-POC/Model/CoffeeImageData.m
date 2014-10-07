@@ -10,4 +10,9 @@
 
 @implementation CoffeeImageData
 
+- (NSString *)description {
+    
+    NSString *space = @" ";
+    return [NSString stringWithFormat:self.imageName, space, self.userID, space, self.imageBelongsToCurrentUser, space, self.isLiked];
+}
 @end

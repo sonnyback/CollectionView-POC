@@ -15,6 +15,7 @@
 // designated Initializer
 - (instancetype)initImagesForSelection:(NSString *)selectionType;
 - (CoffeeImageData *)coffeeImageDataForCell:(NSUInteger)index;
+- (void)addCIDForNewUserImage:(CoffeeImageData *)newImageData;
 // imagesArray and imageNames array will go away. Replaced by coffeeImageDataArray
 //@property (strong, nonatomic) NSArray *imagesArray; // of UIImage (array of images)
 //@property (strong, nonatomic) NSArray *imageNames; // of NSString (name of the images)

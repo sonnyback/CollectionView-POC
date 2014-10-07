@@ -16,4 +16,5 @@
 
 + (UIColor *)colorFromRed:(CGFloat)red Green:(CGFloat)green
                      Blue:(CGFloat)blue Alpha:(CGFloat)alpha;
+
 @end
