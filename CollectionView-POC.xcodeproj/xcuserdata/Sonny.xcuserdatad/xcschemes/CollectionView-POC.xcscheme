@@ -37,6 +37,14 @@
                BlueprintName = "CollectionView-POCTests"
                ReferencedContainer = "container:CollectionView-POC.xcodeproj">
             </BuildableReference>
+            <SkippedTests>
+               <Test
+                  Identifier = "CollectionView_POCTests">
+               </Test>
+               <Test
+                  Identifier = "CollectionView_POCTests/testExample">
+               </Test>
+            </SkippedTests>
          </TestableReference>
       </Testables>
       <MacroExpansion>

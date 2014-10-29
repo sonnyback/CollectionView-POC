@@ -17,6 +17,7 @@
 - ****Need to resolve issue of like button not changing on demand when clicking - reference Matchismo. This may be related to control state for the button. \
 - Need to look into SDWebImage (what exactly is it and should I use it for loading web images and caching) - {\field{\*\fldinst{HYPERLINK "http://stackoverflow.com/questions/15706154/memory-management-many-images-in-uicollectionview"}}{\fldrslt http://stackoverflow.com/questions/15706154/memory-management-many-images-in-uicollectionview}}\
 - For Recipe VC and image, Stanford iOS 7 Lecture 9 has a good tutorial on Pan gesture, starting at 10min mark.\
+- Toolbar is not completely aligned with bottom edge of screen\
 \
 Problems:\
 1. Still not able to get button/label displayed under each cell. Unsure if supplemental view can be used, still researching. Other option is to increase cell size and fit everything inside. *No longer an issue after switching from horizontal layout to vertical (default) layout in collectionview. \
@@ -28,4 +29,13 @@ Need to change this to make it go back to Images. *Fixed*, but may need to resol
 2. When viewing full screen image, tapping in upper right area will cause segue to cafe locator VC. *Fixed* by setting the segmentedcontrol.hidden=YES\
 3. When liking an image, then tapping to close the image, then going back into the image in fullscreen, the solid like button is not visible. *Fixed* - issue was related to control state for the button \
 4. Heart image displays correctly when liking/unliking by tapping the heart button. But if an image is liked, then you go back to the collectionview and then back to the image that is liked, unliking does not show the correct heart image. *Fixed*\
-5. Logic not right inside likeButtonPressed regarding currentImageData.imageName. This is coming up as null. }
+5. Logic not right inside likeButtonPressed regarding currentImageData.imageName. This is coming up as null. \
+\
+CloudKit:\
+- Container (CKContainer) - 1 container per app. Data segregation and user encapsulation\
+- Containers must use unique identifier, such as reverse DNS naming convention\
+- Database (CKDatabase) - each app has access to 2 databases, public and private. Public db for shared data, private db for user's data. Example of each...\
+	CKDatabase *publicDatabase = [[CKContainer defaultContainer] publicCloudDatabase];\
+	CKDatabase *privateDatabase = [[CKContainer defaultContainer] privateCloudDatabase];\
+ \
+}

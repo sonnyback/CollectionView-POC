@@ -90,7 +90,7 @@
  * @param NSString *selectionType - passed from title of the selected UISegmentedControl
  * @return instancetype - self
  */
-- (instancetype)initImagesForSelection:(NSString *)selectionType {
+/*- (instancetype)initImagesForSelection:(NSString *)selectionType {
     
     self = [super init]; // must always call superclass' initializer from our designated initializer. always.
     
@@ -117,30 +117,83 @@
                     NSLog(@"found search string!");
                     UIImage *image = [UIImage imageWithContentsOfFile:nameOfImageFromFile];
                     coffeeImageData.image = image;
-                    NSLog(@"Image size: width:%f, height:%f", image.size.width, image.size.height);
+                    //NSLog(@"Image size: width:%f, height:%f", image.size.width, image.size.height);
                     //[arrayOfUIImages addObject:image];
                     // remove the directory path from the file name and add image name to the imageNames array
                     NSString *fileNameWithoutPath = [self removePathFromFileName:nameOfImageFromFile forPath:directoryFilePath];
                     coffeeImageData.imageName = fileNameWithoutPath;
+                    coffeeImageData.imageURL = [NSURL fileURLWithPath:nameOfImageFromFile isDirectory:YES];
                     NSLog(@"Image name:: %@", coffeeImageData.imageName);
                     [self.coffeeImageDataArray addObject:coffeeImageData];
                 }
             }
-        
+            
             NSLog(@"CoffeeImageDataArray size %lu", (unsigned long)[self.coffeeImageDataArray count]);
         } else { // temporary for testing on local device until cloudkit is setup
             NSLog(@"Directory not found...looking for local images");
-            for (int i = 1; i <= 11; i++) {
+            for (int i = 1; i <= 11; i++) { //
                 CoffeeImageData *coffeeImageData = [[CoffeeImageData alloc] init];
                 UIImage *image = [UIImage imageNamed:[NSString stringWithFormat:@"image%d", i]];
                 NSString *imageName = [NSString stringWithFormat:@"image%d", i];
                 NSLog(@"Image name:: %@", coffeeImageData.imageName);
                 coffeeImageData.image = image;
                 coffeeImageData.imageName = imageName;
+                coffeeImageData.imageURL = [NSURL fileURLWithPath:imageName];
                 [self.coffeeImageDataArray addObject:coffeeImageData];
             }
             NSLog(@"CoffeeImageDataArray size %lu", (unsigned long)[self.coffeeImageDataArray count]);
+            NSLog(@"CoffeeImageDataArray: %@", self.coffeeImageDataArray);
         }
+    }
+    
+    return self;
+}*/
+
+- (instancetype)initImagesForSelection:(NSString *)selectionType {
+    
+    self = [super init]; // must always call superclass' initializer from our designated initializer. always.
+    
+    if (self) {
+        NSLog(@"ImageLoadManager: selectionType: %@", selectionType);
+        // get the default container and the public database for the container
+        CKDatabase *publicDatabase = [[CKContainer defaultContainer] publicCloudDatabase];
+        // predicate query for the userID - this is just for inital testing
+        NSPredicate *predicate = [NSPredicate predicateWithFormat:@"ImageDescription = 'description'"];
+        //create the query
+        CKQuery *query = [[CKQuery alloc] initWithRecordType:@"CoffeeImageData" predicate:predicate];
+        
+        dispatch_async(dispatch_get_global_queue(0, DISPATCH_QUEUE_PRIORITY_DEFAULT), ^{
+            // execute the queary
+            [publicDatabase performQuery:query inZoneWithID:nil completionHandler:^(NSArray *results, NSError *error) {
+                // handle the error
+                if (error) {
+                    NSLog(@"Error: there was an error querying the cloud... %@", error);
+                } else {
+                    // any results?
+                    if ([results count] > 0) {
+                        NSLog(@"Success querying the cloud for %lu results!!!", (unsigned long)[results count]);
+                        for (CKRecord *record in results) {
+                            NSLog(@"Image: %@", record[@"Image"]);
+                            NSLog(@"Image belongs to user? %@", record[@"ImageBelongsToUser"]);
+                            NSLog(@"Image name: %@", record[@"ImageName"]);
+                            NSLog(@"userid: %@", record[@"UserID"]);
+                            NSLog(@"Image description: %@", record[@"ImageDescription"]);
+                            // create CoffeeImageData object to store data in the array for each image
+                            CoffeeImageData *coffeeImageData = [[CoffeeImageData alloc] init];
+                            CKAsset *imageAsset = record[@"Image"];
+                            coffeeImageData.imageURL = imageAsset.fileURL;
+                            NSLog(@"asset URL: %@", coffeeImageData.imageURL);
+                            coffeeImageData.imageName = record[@"ImageName"];
+                            //coffeeImageData.image = [UIImage imageWithData:[NSData dataWithContentsOfURL:imageAsset.fileURL]];
+                            coffeeImageData.image = [UIImage imageWithContentsOfFile:imageAsset.fileURL.path];
+                            NSLog(@"image size height:%f, width:%f", coffeeImageData.image.size.height, coffeeImageData.image.size.width);
+                            [self.coffeeImageDataArray addObject:coffeeImageData];
+                        }
+                        NSLog(@"CoffeeImageDataArray size %lu", (unsigned long)[self.coffeeImageDataArray count]);
+                    }
+                }
+            }];
+        });
     }
     
     return self;

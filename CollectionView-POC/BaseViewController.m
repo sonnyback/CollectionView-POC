@@ -157,6 +157,12 @@ NSInteger const CellHeight = 140; // height of cell
     cell.layer.borderWidth = 1.0;
     cell.layer.borderColor = [UIColor grayColor].CGColor;
     
+    /* UIViewContentMode options from here....*/
+    //cell.coffeeImageView.contentMode = UIViewContentModeScaleToFill; // distorts the image
+    //cell.coffeeImageView.contentMode = UIViewContentModeScaleAspectFill; // fills out image area, but image is cropped
+    cell.coffeeImageView.contentMode = UIViewContentModeScaleAspectFit; // maintains aspect, but does not always fill image area
+    /*...to here...*/
+    
     CoffeeImageData *coffeeImageData = [self.imageLoadManager coffeeImageDataForCell:indexPath.row]; // maps the model to the UI
     
     //CGRect originalImageFrame = cell.coffeeImageView.frame;
@@ -164,22 +170,20 @@ NSInteger const CellHeight = 140; // height of cell
     //cell.coffeeImageView.frame = CGRectMake(originalImageFrame.origin.x, originalImageFrame.origin.y, originalImageFrame.size.width, originalImageFrame.size.height - 25);
     
     //NSString *imageNameForLabel = [self.imageNames objectAtIndex:indexPath.row];
-    NSString *imageNameForLabel = coffeeImageData.imageName;
-    NSLog(@"imageNameforLabel %@", imageNameForLabel);
+    //NSString *imageNameForLabel = coffeeImageData.imageName;
+    //NSLog(@"imageNameforLabel %@", imageNameForLabel);
     
     cell.coffeeImageView.image = coffeeImageData.image; // original code without thumbnail
+    //cell.coffeeImageView.image = [UIImage imageWithContentsOfFile:coffeeImageData.imageURL.path];
+    
+    //UIImage *image = [UIImage imageWithData:[NSData dataWithContentsOfURL:coffeeImageData.imageURL]];
+    //NSLog(@"image size height: %f, %fwidth", cell.coffeeImageView.image.size.height, cell.coffeeImageView.image.size.width);
     /* use the following to scale the image down for a thumbnail image - !!!issue with scroll lag though!!!*/
     //UIImage *thumbnailImage = coffeeImageData.image;
     //cell.coffeeImageView.image = [thumbnailImage imageByScalingToSize:CGSizeMake(ITEM_SIZE, ITEM_SIZE)];
     
-    /* UIViewContentMode options from here....*/
-    //cell.coffeeImageView.contentMode = UIViewContentModeScaleToFill; // distorts the image
-    //cell.coffeeImageView.contentMode = UIViewContentModeScaleAspectFill; // fills out image area, but image is cropped
-    cell.coffeeImageView.contentMode = UIViewContentModeScaleAspectFit; // maintains aspect, but does not always fill image area
-    /*...to here...*/
-    
     //cell.coffeeImageView.clipsToBounds = YES;
-    cell.coffeeImageLabel.text = imageNameForLabel;
+    //cell.coffeeImageLabel.text = imageNameForLabel;
     
     cell.coffeeImageLabel.alpha = 0.3; // set the label to be semi transparent
     cell.coffeeImageLabel.hidden = YES; // just for toggling on/off until this label is completely removed
@@ -288,6 +292,7 @@ NSInteger const CellHeight = 140; // height of cell
             weakSelf.fullScreenImage.backgroundColor = [UIColor blackColor];
             //self.fullScreenImage.image = selectedCell.coffeeImageView.image;
             weakSelf.fullScreenImage.image = coffeeImageData.image;
+            //weakSelf.fullScreenImage.image = [UIImage imageWithData:[NSData dataWithContentsOfURL:coffeeImageData.imageURL]];
             //self.fullScreenImage.transform = CGAffineTransformMakeScale(1.0, 1.0); // zoom in effect
             weakSelf.fullScreenImage.transform = CGAffineTransformIdentity; // zoom in effect
             [weakSelf.view addSubview:self.fullScreenImage];

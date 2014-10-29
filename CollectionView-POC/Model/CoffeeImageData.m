@@ -13,6 +13,6 @@
 - (NSString *)description {
     
     NSString *space = @" ";
-    return [NSString stringWithFormat:self.imageName, space, self.userID, space, self.imageBelongsToCurrentUser, space, self.isLiked];
+    return [NSString stringWithFormat:self.imageName, space, self.imageDescription, space, self.userID, space, self.imageBelongsToCurrentUser, space, self.isLiked, space, self.isRecipe];
 }
 @end
