@@ -162,40 +162,38 @@
         //create the query
         CKQuery *query = [[CKQuery alloc] initWithRecordType:@"CoffeeImageData" predicate:predicate];
         
-        dispatch_async(dispatch_get_global_queue(0, DISPATCH_QUEUE_PRIORITY_DEFAULT), ^{
-            // execute the queary
-            [publicDatabase performQuery:query inZoneWithID:nil completionHandler:^(NSArray *results, NSError *error) {
-                // handle the error
-                if (error) {
-                    NSLog(@"Error: there was an error querying the cloud... %@", error);
-                } else {
-                    // any results?
-                    if ([results count] > 0) {
-                        NSLog(@"Success querying the cloud for %lu results!!!", (unsigned long)[results count]);
-                        for (CKRecord *record in results) {
-                            NSLog(@"Image: %@", record[@"Image"]);
-                            NSLog(@"Image belongs to user? %@", record[@"ImageBelongsToUser"]);
-                            NSLog(@"Image name: %@", record[@"ImageName"]);
-                            NSLog(@"userid: %@", record[@"UserID"]);
-                            NSLog(@"Image description: %@", record[@"ImageDescription"]);
-                            // create CoffeeImageData object to store data in the array for each image
-                            CoffeeImageData *coffeeImageData = [[CoffeeImageData alloc] init];
-                            CKAsset *imageAsset = record[@"Image"];
-                            coffeeImageData.imageURL = imageAsset.fileURL;
-                            NSLog(@"asset URL: %@", coffeeImageData.imageURL);
-                            coffeeImageData.imageName = record[@"ImageName"];
-                            //coffeeImageData.image = [UIImage imageWithData:[NSData dataWithContentsOfURL:imageAsset.fileURL]];
-                            coffeeImageData.image = [UIImage imageWithContentsOfFile:imageAsset.fileURL.path];
-                            NSLog(@"image size height:%f, width:%f", coffeeImageData.image.size.height, coffeeImageData.image.size.width);
-                            [self.coffeeImageDataArray addObject:coffeeImageData];
-                        }
-                        NSLog(@"CoffeeImageDataArray size %lu", (unsigned long)[self.coffeeImageDataArray count]);
+        // execute the queary
+        [publicDatabase performQuery:query inZoneWithID:nil completionHandler:^(NSArray *results, NSError *error) {
+            // handle the error
+            if (error) {
+                NSLog(@"Error: there was an error querying the cloud... %@", error);
+            } else {
+                // any results?
+                if ([results count] > 0) {
+                    NSLog(@"Success querying the cloud for %lu results!!!", (unsigned long)[results count]);
+                    for (CKRecord *record in results) {
+                        NSLog(@"Image: %@", record[@"Image"]);
+                        NSLog(@"Image belongs to user? %@", record[@"ImageBelongsToUser"]);
+                        NSLog(@"Image name: %@", record[@"ImageName"]);
+                        NSLog(@"userid: %@", record[@"UserID"]);
+                        NSLog(@"Image description: %@", record[@"ImageDescription"]);
+                        // create CoffeeImageData object to store data in the array for each image
+                        CoffeeImageData *coffeeImageData = [[CoffeeImageData alloc] init];
+                        CKAsset *imageAsset = record[@"Image"];
+                        coffeeImageData.imageURL = imageAsset.fileURL;
+                        NSLog(@"asset URL: %@", coffeeImageData.imageURL);
+                        coffeeImageData.imageName = record[@"ImageName"];
+                        //coffeeImageData.image = [UIImage imageWithData:[NSData dataWithContentsOfURL:imageAsset.fileURL]];
+                        coffeeImageData.image = [UIImage imageWithContentsOfFile:imageAsset.fileURL.path];
+                        NSLog(@"image size height:%f, width:%f", coffeeImageData.image.size.height, coffeeImageData.image.size.width);
+                        [self.coffeeImageDataArray addObject:coffeeImageData];
                     }
+                    NSLog(@"CoffeeImageDataArray size %lu", (unsigned long)[self.coffeeImageDataArray count]);
                 }
-            }];
-        });
+            }
+        }];
     }
-    
+    NSLog(@"Finishing loading data from the cloud!");
     return self;
 }
 

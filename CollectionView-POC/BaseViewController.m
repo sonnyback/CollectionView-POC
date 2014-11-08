@@ -32,6 +32,8 @@
 @property (strong, nonatomic) UIImageView *fullScreenImage;
 @property (strong, nonatomic) CustomFlowLayout *flowLayout;
 @property (strong, nonatomic) CoffeeImageData *coffeeImageData;
+@property (weak, nonatomic) IBOutlet UIActivityIndicatorView *spinner;
+@property (nonatomic) NSInteger numberOfItemsInSection; // property for number of items in collectionview
 @end
 
 @implementation BaseViewController
@@ -39,9 +41,9 @@
 NSInteger const CellWidth = 140; // width of cell
 NSInteger const CellHeight = 140; // height of cell
 
+
 //#define ITEM_SIZE 290.0 // item size for the cell **SHOULD ALWAYS MATCH CellWidth constant!
 #define ITEM_SIZE 140.0 // item size for the cell **SHOULD ALWAYS MATCH CellWidth constant!
-#define EDGE_OFFSET 0.5
 
 #pragma mark - Lazy Instantiation
 // lazy instantiate imagesArray
@@ -58,9 +60,10 @@ NSInteger const CellHeight = 140; // height of cell
 - (ImageLoadManager *)imageLoadManager {
     
     if (!_imageLoadManager) {
+        NSLog(@"Loading ImageLoadManager...");
         _imageLoadManager = [[ImageLoadManager alloc] initImagesForSelection:[self getSelectedSegmentTitle]];
+        NSLog(@"Finished loading ImageLoadManager...");
     }
-    
     return _imageLoadManager;
 }
 
@@ -104,6 +107,7 @@ NSInteger const CellHeight = 140; // height of cell
     dataForNewImage.userID = @"current user"; // will come from cloudkit
     dataForNewImage.imageBelongsToCurrentUser = YES; // user took this photo
     dataForNewImage.liked = YES;
+    dataForNewImage.imageURL = info[UIImagePickerControllerReferenceURL];
     
     [self.imageLoadManager addCIDForNewUserImage:dataForNewImage]; // update the model with the new image
     //NSLog(@"Display CID info for new image: %@", dataForNewImage.description);
@@ -143,8 +147,17 @@ NSInteger const CellHeight = 140; // height of cell
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
     
-    //return [self.imagesArray count]; // for testing on device until backend is setup
-    return [self.imageLoadManager.coffeeImageDataArray count];
+    NSLog(@"***numberOfItemsInSection***");
+    
+    dispatch_queue_t fetchQ = dispatch_queue_create("load image data", NULL);
+    dispatch_async(fetchQ, ^{
+        self.numberOfItemsInSection = [self.imageLoadManager.coffeeImageDataArray count];
+        [self.myCollectionView reloadData];
+    });
+    NSLog(@"numberOfItemsInSection: %ld", (long)self.numberOfItemsInSection);
+
+    return self.numberOfItemsInSection;
+    //return [self.imageLoadManager.coffeeImageDataArray count];
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
@@ -152,6 +165,7 @@ NSInteger const CellHeight = 140; // height of cell
     static NSString *CellIdentifier = @"CoffeeCell"; // string value identifier for cell reuse
     CoffeeViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:CellIdentifier forIndexPath:indexPath];
     NSLog(@"cellForItemAtIndexPath: section:%ld row:%ld", (long)indexPath.section, (long)indexPath.row);
+    [self.spinner stopAnimating]; // images should be loaded, so stop spinner
     //cell.backgroundColor = [UIColor whiteColor];
     //cell.layer.cornerRadius = 3;
     cell.layer.borderWidth = 1.0;
@@ -164,7 +178,15 @@ NSInteger const CellHeight = 140; // height of cell
     /*...to here...*/
     
     CoffeeImageData *coffeeImageData = [self.imageLoadManager coffeeImageDataForCell:indexPath.row]; // maps the model to the UI
-    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        //cell.coffeeImageView.image = coffeeImageData.image;
+        if (coffeeImageData.imageURL.path) {
+            cell.coffeeImageView.image = [UIImage imageWithContentsOfFile:coffeeImageData.imageURL.path];
+        } else {
+            // if imageURL is nil, then image is coming in from the camera as opposed to the cloud
+            cell.coffeeImageView.image = coffeeImageData.image;
+        }
+    });
     //CGRect originalImageFrame = cell.coffeeImageView.frame;
     
     //cell.coffeeImageView.frame = CGRectMake(originalImageFrame.origin.x, originalImageFrame.origin.y, originalImageFrame.size.width, originalImageFrame.size.height - 25);
@@ -173,7 +195,7 @@ NSInteger const CellHeight = 140; // height of cell
     //NSString *imageNameForLabel = coffeeImageData.imageName;
     //NSLog(@"imageNameforLabel %@", imageNameForLabel);
     
-    cell.coffeeImageView.image = coffeeImageData.image; // original code without thumbnail
+    //cell.coffeeImageView.image = coffeeImageData.image; // original code without thumbnail
     //cell.coffeeImageView.image = [UIImage imageWithContentsOfFile:coffeeImageData.imageURL.path];
     
     //UIImage *image = [UIImage imageWithData:[NSData dataWithContentsOfURL:coffeeImageData.imageURL]];
@@ -399,6 +421,7 @@ NSInteger const CellHeight = 140; // height of cell
     NSLog(@"updateUI...");
     
     [self.myCollectionView reloadData]; // reload data for new user taken images
+    //[self.view layoutIfNeeded];
 }
 
 /**
@@ -408,6 +431,8 @@ NSInteger const CellHeight = 140; // height of cell
  */
 - (void)setupCollectionView {
     NSLog(@"setupCollectionView");
+    [self.spinner startAnimating];
+    
     //UICollectionViewFlowLayout *flowLayout=[[UICollectionViewFlowLayout alloc] init];
     //CustomFlowLayout *flowLayout = [[CustomFlowLayout alloc] init];
     //flowLayout.itemSize = CGSizeMake(ITEM_SIZE, ITEM_SIZE); // globally sets the item (cell) size
@@ -686,6 +711,7 @@ NSInteger const CellHeight = 140; // height of cell
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    self.numberOfItemsInSection = 0;
     
     [self setupCollectionView]; // setup the collectionview parameters
     [self setupSearchBar]; // setup the search bar in the navigation bar

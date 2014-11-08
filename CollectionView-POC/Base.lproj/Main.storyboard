@@ -93,11 +93,16 @@
                                     </barButtonItem>
                                 </items>
                             </toolbar>
+                            <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" animating="YES" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="54p-Xr-gam">
+                                <rect key="frame" x="142" y="266" width="37" height="37"/>
+                            </activityIndicatorView>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstItem="InD-us-9xD" firstAttribute="top" secondItem="jyV-Pf-zRb" secondAttribute="bottom" constant="8" symbolic="YES" id="0R9-31-xeA"/>
+                            <constraint firstAttribute="centerX" secondItem="54p-Xr-gam" secondAttribute="centerX" id="4Sp-ve-RcR"/>
                             <constraint firstAttribute="trailing" secondItem="HFB-yh-hZe" secondAttribute="trailing" id="HKj-GN-Fhm"/>
+                            <constraint firstAttribute="centerY" secondItem="54p-Xr-gam" secondAttribute="centerY" id="W6S-jw-4jT"/>
                             <constraint firstItem="HFB-yh-hZe" firstAttribute="leading" secondItem="JVU-z8-YUF" secondAttribute="leading" id="WtL-k3-Rdq"/>
                             <constraint firstItem="HFB-yh-hZe" firstAttribute="bottom" secondItem="2fi-mo-0CV" secondAttribute="top" id="ZIG-jq-JCT"/>
                             <constraint firstItem="JVU-z8-YUF" firstAttribute="leading" secondItem="kh9-bI-dsS" secondAttribute="leading" id="dp7-0m-VnO"/>
@@ -123,6 +128,7 @@
                         <outlet property="imageRecipeSegmentedControl" destination="InD-us-9xD" id="Oxp-Si-kXV"/>
                         <outlet property="myCollectionView" destination="JVU-z8-YUF" id="rdQ-lD-JZ2"/>
                         <outlet property="searchBar" destination="uSB-QY-ddN" id="d2E-rc-HbT"/>
+                        <outlet property="spinner" destination="54p-Xr-gam" id="mIw-uh-NUV"/>
                         <outlet property="toolBar" destination="HFB-yh-hZe" id="uvl-wC-LZz"/>
                         <segue destination="WUI-KS-5Q7" kind="push" identifier="Cafes" id="jYd-0r-8g6"/>
                     </connections>
