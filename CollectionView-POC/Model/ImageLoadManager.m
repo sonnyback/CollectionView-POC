@@ -25,6 +25,13 @@
     return _coffeeImageDataArray;
 }
 
+- (instancetype)init {
+    
+    self = [super init];
+    
+    return self;
+}
+
 /**
  * Designated Initializer: loads the images based on the selection type from the 
  * segmentedControl in the VC. This is based on testing of local images. Will change 
@@ -166,7 +173,7 @@
         [publicDatabase performQuery:query inZoneWithID:nil completionHandler:^(NSArray *results, NSError *error) {
             // handle the error
             if (error) {
-                NSLog(@"Error: there was an error querying the cloud... %@", error);
+                NSLog(@"Error: there was an error fetching cloud data... %@", error);
             } else {
                 // any results?
                 if ([results count] > 0) {
@@ -193,6 +200,7 @@
             }
         }];
     }
+        
     NSLog(@"Finishing loading data from the cloud!");
     return self;
 }

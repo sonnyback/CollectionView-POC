@@ -10,7 +10,7 @@
 
 @implementation CoffeeViewCell
 
-/*- (id)initWithFrame:(CGRect)frame
+- (id)initWithFrame:(CGRect)frame
 {
     self = [super initWithFrame:frame];
     if (self) {
@@ -18,8 +18,9 @@
         NSLog(@"^^^^^^^CoffeeViewCell.initWithFrame^^^^^^^");
     }
     return self;
-}*/
+}
 
+// This method is called since the collectionview is created from storyboard!
 - (id)initWithCoder:(NSCoder *)aDecoder
 {
     self = [super initWithCoder:aDecoder];

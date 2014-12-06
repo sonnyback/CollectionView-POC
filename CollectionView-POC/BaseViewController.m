@@ -17,6 +17,7 @@
 #import "Helper.h"
 #import "UIImage+CS193p.h"
 #import <QuartzCore/QuartzCore.h>
+#import <CloudKit/CloudKit.h>
 
 @interface BaseViewController()
 @property (weak, nonatomic) IBOutlet UICollectionView *myCollectionView;
@@ -34,6 +35,7 @@
 @property (strong, nonatomic) CoffeeImageData *coffeeImageData;
 @property (weak, nonatomic) IBOutlet UIActivityIndicatorView *spinner;
 @property (nonatomic) NSInteger numberOfItemsInSection; // property for number of items in collectionview
+//@property (strong, nonatomic) NSMutableArray *queryResults;
 @end
 
 @implementation BaseViewController
@@ -61,7 +63,9 @@ NSInteger const CellHeight = 140; // height of cell
     
     if (!_imageLoadManager) {
         NSLog(@"Loading ImageLoadManager...");
-        _imageLoadManager = [[ImageLoadManager alloc] initImagesForSelection:[self getSelectedSegmentTitle]];
+        /*IMPORTANT: below line commented out while doing CK calls from this VC */
+        //_imageLoadManager = [[ImageLoadManager alloc] initImagesForSelection:[self getSelectedSegmentTitle]];
+        _imageLoadManager = [[ImageLoadManager alloc] init];
         NSLog(@"Finished loading ImageLoadManager...");
     }
     return _imageLoadManager;
@@ -76,6 +80,15 @@ NSInteger const CellHeight = 140; // height of cell
     
     return _coffeeImageData;
 }
+
+/*- (NSMutableArray *)queryResults {
+    
+    if (!_queryResults) {
+        _queryResults = [[NSMutableArray alloc] init];
+    }
+    
+    return _queryResults;
+}*/
 
 // return the value for globalColor ro
 - (UIColor *)globalColor {
@@ -113,6 +126,8 @@ NSInteger const CellHeight = 140; // height of cell
     //NSLog(@"Display CID info for new image: %@", dataForNewImage.description);
     
     [self dismissViewControllerAnimated:YES completion:nil];
+    // update number of items since array set has increased from new photo taken
+    self.numberOfItemsInSection = [self.imageLoadManager.coffeeImageDataArray count];
     
     [self updateUI]; // updateUI to reload collectionview data
 }
@@ -142,20 +157,38 @@ NSInteger const CellHeight = 140; // height of cell
 // implementing protocol method
 - (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView {
     
-    return 1; // only one cell
+    return 1; // only one section
 }
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
     
     NSLog(@"***numberOfItemsInSection***");
     
-    dispatch_queue_t fetchQ = dispatch_queue_create("load image data", NULL);
+    // this block will load CV cells without invoking camera, but takes too much time to load and often
+    // crashes with BAD_EXC_ACCESS. And numberOfItems property almost always printes 1 less than array count
+    /*dispatch_queue_t fetchQ = dispatch_queue_create("load image data", NULL);
     dispatch_async(fetchQ, ^{
         self.numberOfItemsInSection = [self.imageLoadManager.coffeeImageDataArray count];
-        [self.myCollectionView reloadData];
+        //[self.myCollectionView reloadData];
+    });*/
+    
+    // this block will only load the CV data if photo is taken with camera image added to the array. NumberOfItems
+    // property always correctly prints the same value as array count
+    /*dispatch_semaphore_t sema = dispatch_semaphore_create(0);
+    dispatch_queue_t fetchQ = dispatch_queue_create("load image data", NULL);
+    dispatch_async(fetchQ, ^{
+        NSLog(@"Remote call started...");
+        self.numberOfItemsInSection = [self.imageLoadManager.coffeeImageDataArray count];
+        NSLog(@"Remote call returned...");
+        //[self.myCollectionView reloadData]; // should be done on main thread!
+        dispatch_semaphore_signal(sema);
     });
+    [self.myCollectionView reloadData];
+    dispatch_semaphore_wait(sema, DISPATCH_TIME_FOREVER);*/
+    
+    //[self.myCollectionView reloadData];
     NSLog(@"numberOfItemsInSection: %ld", (long)self.numberOfItemsInSection);
-
+    //return [self.queryResults count];
     return self.numberOfItemsInSection;
     //return [self.imageLoadManager.coffeeImageDataArray count];
 }
@@ -165,50 +198,68 @@ NSInteger const CellHeight = 140; // height of cell
     static NSString *CellIdentifier = @"CoffeeCell"; // string value identifier for cell reuse
     CoffeeViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:CellIdentifier forIndexPath:indexPath];
     NSLog(@"cellForItemAtIndexPath: section:%ld row:%ld", (long)indexPath.section, (long)indexPath.row);
-    [self.spinner stopAnimating]; // images should be loaded, so stop spinner
-    //cell.backgroundColor = [UIColor whiteColor];
-    //cell.layer.cornerRadius = 3;
-    cell.layer.borderWidth = 1.0;
-    cell.layer.borderColor = [UIColor grayColor].CGColor;
-    
-    /* UIViewContentMode options from here....*/
-    //cell.coffeeImageView.contentMode = UIViewContentModeScaleToFill; // distorts the image
-    //cell.coffeeImageView.contentMode = UIViewContentModeScaleAspectFill; // fills out image area, but image is cropped
-    cell.coffeeImageView.contentMode = UIViewContentModeScaleAspectFit; // maintains aspect, but does not always fill image area
-    /*...to here...*/
-    
-    CoffeeImageData *coffeeImageData = [self.imageLoadManager coffeeImageDataForCell:indexPath.row]; // maps the model to the UI
-    dispatch_async(dispatch_get_main_queue(), ^{
-        //cell.coffeeImageView.image = coffeeImageData.image;
+    if (cell) {
+        
+        [self.spinner stopAnimating]; // images should be loaded, so stop spinner
+        //cell.backgroundColor = [UIColor whiteColor];
+        //cell.layer.cornerRadius = 3;
+        cell.layer.borderWidth = 1.0;
+        cell.layer.borderColor = [UIColor grayColor].CGColor;
+        
+        /* UIViewContentMode options from here....*/
+        //cell.coffeeImageView.contentMode = UIViewContentModeScaleToFill; // distorts the image
+        //cell.coffeeImageView.contentMode = UIViewContentModeScaleAspectFill; // fills out image area, but image is cropped
+        cell.coffeeImageView.contentMode = UIViewContentModeScaleAspectFit; // maintains aspect, but does not always fill image area
+        /*...to here...*/
+        
+        /*CoffeeImageData *coffeeImageData = [self.imageLoadManager coffeeImageDataForCell:indexPath.row]; // maps the model to the UI
+        dispatch_async(dispatch_get_main_queue(), ^{
+            //cell.coffeeImageView.image = coffeeImageData.image;
+            if (coffeeImageData.imageURL.path) {
+                cell.coffeeImageView.image = [UIImage imageWithContentsOfFile:coffeeImageData.imageURL.path];
+                //[cell setNeedsLayout];
+            } else {
+                // if imageURL is nil, then image is coming in from the camera as opposed to the cloud
+                cell.coffeeImageView.image = coffeeImageData.image;
+                //[cell setNeedsLayout];
+            }
+        });*/
+        /********************************************************/
+        //CoffeeImageData *coffeeImageData = self.queryResults[indexPath.row];
+        CoffeeImageData *coffeeImageData = self.imageLoadManager.coffeeImageDataArray[indexPath.row];
         if (coffeeImageData.imageURL.path) {
             cell.coffeeImageView.image = [UIImage imageWithContentsOfFile:coffeeImageData.imageURL.path];
+            //[cell setNeedsLayout];
         } else {
             // if imageURL is nil, then image is coming in from the camera as opposed to the cloud
             cell.coffeeImageView.image = coffeeImageData.image;
+            //[cell setNeedsLayout];
         }
-    });
-    //CGRect originalImageFrame = cell.coffeeImageView.frame;
-    
-    //cell.coffeeImageView.frame = CGRectMake(originalImageFrame.origin.x, originalImageFrame.origin.y, originalImageFrame.size.width, originalImageFrame.size.height - 25);
-    
-    //NSString *imageNameForLabel = [self.imageNames objectAtIndex:indexPath.row];
-    //NSString *imageNameForLabel = coffeeImageData.imageName;
-    //NSLog(@"imageNameforLabel %@", imageNameForLabel);
-    
-    //cell.coffeeImageView.image = coffeeImageData.image; // original code without thumbnail
-    //cell.coffeeImageView.image = [UIImage imageWithContentsOfFile:coffeeImageData.imageURL.path];
-    
-    //UIImage *image = [UIImage imageWithData:[NSData dataWithContentsOfURL:coffeeImageData.imageURL]];
-    //NSLog(@"image size height: %f, %fwidth", cell.coffeeImageView.image.size.height, cell.coffeeImageView.image.size.width);
-    /* use the following to scale the image down for a thumbnail image - !!!issue with scroll lag though!!!*/
-    //UIImage *thumbnailImage = coffeeImageData.image;
-    //cell.coffeeImageView.image = [thumbnailImage imageByScalingToSize:CGSizeMake(ITEM_SIZE, ITEM_SIZE)];
-    
-    //cell.coffeeImageView.clipsToBounds = YES;
-    //cell.coffeeImageLabel.text = imageNameForLabel;
-    
-    cell.coffeeImageLabel.alpha = 0.3; // set the label to be semi transparent
-    cell.coffeeImageLabel.hidden = YES; // just for toggling on/off until this label is completely removed
+        
+        /********************************************************/
+        //CGRect originalImageFrame = cell.coffeeImageView.frame;
+        
+        //cell.coffeeImageView.frame = CGRectMake(originalImageFrame.origin.x, originalImageFrame.origin.y, originalImageFrame.size.width, originalImageFrame.size.height - 25);
+        
+        //NSString *imageNameForLabel = [self.imageNames objectAtIndex:indexPath.row];
+        //NSString *imageNameForLabel = coffeeImageData.imageName;
+        //NSLog(@"imageNameforLabel %@", imageNameForLabel);
+        
+        //cell.coffeeImageView.image = coffeeImageData.image; // original code without thumbnail
+        //cell.coffeeImageView.image = [UIImage imageWithContentsOfFile:coffeeImageData.imageURL.path];
+        
+        //UIImage *image = [UIImage imageWithData:[NSData dataWithContentsOfURL:coffeeImageData.imageURL]];
+        //NSLog(@"image size height: %f, %fwidth", cell.coffeeImageView.image.size.height, cell.coffeeImageView.image.size.width);
+        /* use the following to scale the image down for a thumbnail image - !!!issue with scroll lag though!!!*/
+        //UIImage *thumbnailImage = coffeeImageData.image;
+        //cell.coffeeImageView.image = [thumbnailImage imageByScalingToSize:CGSizeMake(ITEM_SIZE, ITEM_SIZE)];
+        
+        //cell.coffeeImageView.clipsToBounds = YES;
+        //cell.coffeeImageLabel.text = imageNameForLabel;
+        
+        cell.coffeeImageLabel.alpha = 0.3; // set the label to be semi transparent
+        cell.coffeeImageLabel.hidden = YES; // just for toggling on/off until this label is completely removed
+    }
     
     return cell;
 }
@@ -551,6 +602,74 @@ NSInteger const CellHeight = 140; // height of cell
 
 #pragma mark - Helper Methods
 
+- (void)beginLoadingCloudKitData {
+    
+    NSLog(@"beginLoadingCloudKitData...started!");
+    //self.numberOfItemsInSection = 0;
+    
+    /*dispatch_semaphore_t sema = dispatch_semaphore_create(0);
+        dispatch_queue_t fetchQ = dispatch_queue_create("load image data", NULL);
+        dispatch_async(fetchQ, ^{
+            self.numberOfItemsInSection = [self.imageLoadManager.coffeeImageDataArray count];
+            //[self.myCollectionView reloadData];
+            dispatch_semaphore_signal(sema);
+    });
+    //[self.myCollectionView reloadData];
+    dispatch_semaphore_wait(sema, DISPATCH_TIME_FOREVER);*/
+    
+    /*dispatch_queue_t fetchQ = dispatch_queue_create("load image data", NULL);
+    dispatch_async(fetchQ, ^{
+        self.numberOfItemsInSection = [self.imageLoadManager.coffeeImageDataArray count];
+    });*/
+    //NSLog(@"numberOfItemsInSection: %ld", (long)self.numberOfItemsInSection);
+    CKDatabase *publicDatabase = [[CKContainer defaultContainer] publicCloudDatabase];
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"ImageDescription = 'description'"];
+    //create the query
+    CKQuery *query = [[CKQuery alloc] initWithRecordType:@"CoffeeImageData" predicate:predicate];
+    
+    // execute the queary
+    [publicDatabase performQuery:query inZoneWithID:nil completionHandler:^(NSArray *results, NSError *error) {
+        // handle the error
+        if (error) {
+            NSLog(@"Error: there was an error fetching cloud data... %@", error);
+        } else {
+            // any results?
+            if ([results count] > 0) {
+                // number of items is based on number of records returned from CK query
+                self.numberOfItemsInSection = [results count];
+                @synchronized(self){
+                    NSLog(@"Success querying the cloud for %lu results!!!", (unsigned long)[results count]);
+                    for (CKRecord *record in results) {
+                        NSLog(@"Image: %@", record[@"Image"]);
+                        NSLog(@"Image belongs to user? %@", record[@"ImageBelongsToUser"]);
+                        NSLog(@"Image name: %@", record[@"ImageName"]);
+                        NSLog(@"userid: %@", record[@"UserID"]);
+                        NSLog(@"Image description: %@", record[@"ImageDescription"]);
+                        // create CoffeeImageData object to store data in the array for each image
+                        CoffeeImageData *coffeeImageData = [[CoffeeImageData alloc] init];
+                        CKAsset *imageAsset = record[@"Image"];
+                        coffeeImageData.imageURL = imageAsset.fileURL;
+                        NSLog(@"asset URL: %@", coffeeImageData.imageURL);
+                        coffeeImageData.imageName = record[@"ImageName"];
+                        //coffeeImageData.image = [UIImage imageWithData:[NSData dataWithContentsOfURL:imageAsset.fileURL]];
+                        coffeeImageData.image = [UIImage imageWithContentsOfFile:imageAsset.fileURL.path];
+                        NSLog(@"image size height:%f, width:%f", coffeeImageData.image.size.height, coffeeImageData.image.size.width);
+                        //[self.coffeeImageDataArray addObject:coffeeImageData];
+                        //[self.queryResults addObject:coffeeImageData];
+                        [self.imageLoadManager.coffeeImageDataArray addObject:coffeeImageData];
+                    }
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        [self.myCollectionView reloadData];
+                    });
+                    NSLog(@"CoffeeImageDataArray size %lu", (unsigned long)[self.imageLoadManager.coffeeImageDataArray count]);
+                }
+            }
+        }
+    }];
+    
+    NSLog(@"beginLoadingCloudKitData...ended!");
+}
+
 /**
  * Method to determine the selected segment from the UISegmentedControl and
  * get the corresponded title.
@@ -710,8 +829,10 @@ NSInteger const CellHeight = 140; // height of cell
 
 - (void)viewDidLoad
 {
+    NSLog(@"viewDidLoad...");
     [super viewDidLoad];
-    self.numberOfItemsInSection = 0;
+    
+    [self beginLoadingCloudKitData]; // call method to trigger CK query
     
     [self setupCollectionView]; // setup the collectionview parameters
     [self setupSearchBar]; // setup the search bar in the navigation bar
