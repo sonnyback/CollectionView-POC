@@ -117,10 +117,23 @@ NSInteger const CellHeight = 140; // height of cell
     CoffeeImageData *dataForNewImage = [[CoffeeImageData alloc] init];
     dataForNewImage.image = image;
     dataForNewImage.imageName = @"temporary name"; // i think this will be an image file URL
+    dataForNewImage.imageDescription = @"description";
     dataForNewImage.userID = @"current user"; // will come from cloudkit
     dataForNewImage.imageBelongsToCurrentUser = YES; // user took this photo
     dataForNewImage.liked = YES;
-    dataForNewImage.imageURL = info[UIImagePickerControllerReferenceURL];
+    /** THIS IS NULL. NEED TO USE SDWEBIMAGE cache **/
+    //dataForNewImage.imageURL = info[UIImagePickerControllerReferenceURL];
+    //NSLog(@"CID.imageURL: %@", dataForNewImage.imageURL);
+    
+    // write the image to local cache directory - will later convert this to SDWebImage cache
+    NSData *data = UIImageJPEGRepresentation(image, 0.75);
+    NSURL *cacheDirectory = [[NSFileManager defaultManager] URLForDirectory:NSCachesDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:YES error:nil];
+    NSString *temporaryName = [[NSUUID UUID].UUIDString stringByAppendingPathExtension:@"jpeg"];
+    NSURL *localURL = [cacheDirectory URLByAppendingPathComponent:temporaryName];
+    [data writeToURL:localURL atomically:YES];
+    
+    dataForNewImage.imageURL = localURL;
+    NSLog(@"CID.imageURL: %@", dataForNewImage.imageURL);
     
     [self.imageLoadManager addCIDForNewUserImage:dataForNewImage]; // update the model with the new image
     //NSLog(@"Display CID info for new image: %@", dataForNewImage.description);
@@ -128,6 +141,12 @@ NSInteger const CellHeight = 140; // height of cell
     [self dismissViewControllerAnimated:YES completion:nil];
     // update number of items since array set has increased from new photo taken
     self.numberOfItemsInSection = [self.imageLoadManager.coffeeImageDataArray count];
+    
+    /* NOTE: This is just for initial testing...will need to segue or use action sheet to confirm the user wants
+     * save the image!
+     */
+    // prepare the CKRecord and save it
+    [self saveRecord:[self createCKRecordForImage:dataForNewImage]];
     
     [self updateUI]; // updateUI to reload collectionview data
 }
@@ -233,6 +252,7 @@ NSInteger const CellHeight = 140; // height of cell
         } else {
             // if imageURL is nil, then image is coming in from the camera as opposed to the cloud
             cell.coffeeImageView.image = coffeeImageData.image;
+            //cell.coffeeImageView.image = [UIImage imageNamed:@"placeholder.png"];
             //[cell setNeedsLayout];
         }
         
@@ -602,26 +622,62 @@ NSInteger const CellHeight = 140; // height of cell
 
 #pragma mark - Helper Methods
 
+/**
+ * Method for preparing a CKRecord before saving to CloudKit. 
+ * CKRecord will contain recent photo taken and prepared as CID object.
+ *
+ * @param CoffeeImageData*
+ * @return CKRecord*
+ */
+- (CKRecord *)createCKRecordForImage:(CoffeeImageData *)coffeeImageData {
+    
+    NSLog(@"Entered createCKRecordForImage...");
+    NSUInteger randomNumber = arc4random() % 100;
+    CKRecordID *wellKnownID = [[CKRecordID alloc] initWithRecordName:[NSString stringWithFormat:@"recordID%ld", (long)randomNumber]];
+    CKRecord *CIDRecord = [[CKRecord alloc] initWithRecordType:@"CoffeeImageData" recordID:wellKnownID];
+    
+    CIDRecord[@"ImageBelongsToUser"] = [NSNumber numberWithBool:coffeeImageData.imageBelongsToCurrentUser];
+    //CIDRecord[@"ImageName"] = [NSString stringWithFormat:coffeeImageData.imageName, @"%d", randomNumber];
+    CIDRecord[@"ImageName"] = coffeeImageData.imageName;
+    CIDRecord[@"ImageDescription"] = coffeeImageData.imageDescription;
+    CIDRecord[@"UserID"] = coffeeImageData.userID;
+    CIDRecord[@"Recipe"] = [NSNumber numberWithBool:coffeeImageData.isRecipe];
+    CKAsset *photoAsset = [[CKAsset alloc] initWithFileURL:coffeeImageData.imageURL];
+    CIDRecord[@"Image"] = photoAsset;
+    
+    return CIDRecord;
+}
+
+/**
+ * Method to save a CKRecord to CloudKit
+ *
+ *
+ */
+- (void)saveRecord:(CKRecord *)record {
+    
+    NSLog(@"Entered saveRecord...");
+    CKDatabase *publicDatabase = [[CKContainer defaultContainer] publicCloudDatabase];
+    
+    // save the record
+    [publicDatabase saveRecord:record completionHandler:^(CKRecord *record, NSError *error) {
+        if (error) {
+            NSLog(@"Error saving record to cloud...%@", error);
+        } else {
+            NSLog(@"Record saved successfully!");
+        }
+    }];
+}
+
+/**
+ * Method to do the initial loading of CK records to populate the CV.
+ * This will eventually be moved out of the ViewController and back into ImageLoadManager
+ * CKManager.
+ * @return void
+ */
 - (void)beginLoadingCloudKitData {
     
     NSLog(@"beginLoadingCloudKitData...started!");
-    //self.numberOfItemsInSection = 0;
     
-    /*dispatch_semaphore_t sema = dispatch_semaphore_create(0);
-        dispatch_queue_t fetchQ = dispatch_queue_create("load image data", NULL);
-        dispatch_async(fetchQ, ^{
-            self.numberOfItemsInSection = [self.imageLoadManager.coffeeImageDataArray count];
-            //[self.myCollectionView reloadData];
-            dispatch_semaphore_signal(sema);
-    });
-    //[self.myCollectionView reloadData];
-    dispatch_semaphore_wait(sema, DISPATCH_TIME_FOREVER);*/
-    
-    /*dispatch_queue_t fetchQ = dispatch_queue_create("load image data", NULL);
-    dispatch_async(fetchQ, ^{
-        self.numberOfItemsInSection = [self.imageLoadManager.coffeeImageDataArray count];
-    });*/
-    //NSLog(@"numberOfItemsInSection: %ld", (long)self.numberOfItemsInSection);
     CKDatabase *publicDatabase = [[CKContainer defaultContainer] publicCloudDatabase];
     NSPredicate *predicate = [NSPredicate predicateWithFormat:@"ImageDescription = 'description'"];
     //create the query
