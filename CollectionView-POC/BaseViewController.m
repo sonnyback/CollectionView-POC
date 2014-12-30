@@ -18,6 +18,7 @@
 #import "UIImage+CS193p.h"
 #import <QuartzCore/QuartzCore.h>
 #import <CloudKit/CloudKit.h>
+#import "SDImageCache.h"
 
 @interface BaseViewController()
 @property (weak, nonatomic) IBOutlet UICollectionView *myCollectionView;
@@ -384,7 +385,8 @@ NSInteger const CellHeight = 140; // height of cell
             weakSelf.fullScreenImage.center = self.view.center;
             weakSelf.fullScreenImage.backgroundColor = [UIColor blackColor];
             //self.fullScreenImage.image = selectedCell.coffeeImageView.image;
-            weakSelf.fullScreenImage.image = coffeeImageData.image;
+            //weakSelf.fullScreenImage.image = coffeeImageData.image;
+            weakSelf.fullScreenImage.image = [UIImage imageWithContentsOfFile:coffeeImageData.imageURL.path];
             //weakSelf.fullScreenImage.image = [UIImage imageWithData:[NSData dataWithContentsOfURL:coffeeImageData.imageURL]];
             //self.fullScreenImage.transform = CGAffineTransformMakeScale(1.0, 1.0); // zoom in effect
             weakSelf.fullScreenImage.transform = CGAffineTransformIdentity; // zoom in effect
@@ -707,12 +709,16 @@ NSInteger const CellHeight = 140; // height of cell
                         coffeeImageData.imageURL = imageAsset.fileURL;
                         NSLog(@"asset URL: %@", coffeeImageData.imageURL);
                         coffeeImageData.imageName = record[@"ImageName"];
-                        //coffeeImageData.image = [UIImage imageWithData:[NSData dataWithContentsOfURL:imageAsset.fileURL]];
-                        coffeeImageData.image = [UIImage imageWithContentsOfFile:imageAsset.fileURL.path];
+                        /* below line is not needed, but not removing it yet */
+                        //coffeeImageData.image = [UIImage imageWithContentsOfFile:imageAsset.fileURL.path];
+                        //coffeeImageData.image = [UIImage imageWithData:[NSData dataWithContentsOfURL:coffeeImageData.imageURL]];
                         NSLog(@"image size height:%f, width:%f", coffeeImageData.image.size.height, coffeeImageData.image.size.width);
                         //[self.coffeeImageDataArray addObject:coffeeImageData];
                         //[self.queryResults addObject:coffeeImageData];
                         [self.imageLoadManager.coffeeImageDataArray addObject:coffeeImageData];
+                        
+                        // cache the image with the string representation of the absolute URL as the cache key
+                        [[SDImageCache sharedImageCache] storeImage:coffeeImageData.image forKey:[coffeeImageData.imageURL absoluteString] toDisk:YES];
                     }
                     dispatch_async(dispatch_get_main_queue(), ^{
                         [self.myCollectionView reloadData];
