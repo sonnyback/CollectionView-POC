@@ -8,7 +8,6 @@
 
 #import "BaseViewController.h"
 #import "CoffeeViewCell.h"
-#import "FooterViewCell.h"
 #import "CustomFlowLayout.h"
 #import "DrinkDetailViewController.h"
 #import "CafeLocatorTableViewController.h"
@@ -458,30 +457,6 @@ NSInteger const CellHeight = 140; // height of cell
     
 }*/
 
-/*- (UICollectionReusableView *)collectionView:(UICollectionView *)collectionView viewForSupplementaryElementOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath {
-    NSLog(@"viewForSupplementaryElementOfKind");
-    
-    static NSString *FooterCellIdentifier = @"FooterView"; // string value identifier for cell reuse
-    FooterViewCell *footerView;
-    if (kind == UICollectionElementKindSectionFooter) {
-        NSLog(@"*******Element Kind is a footer!*******");
-        footerView = [collectionView dequeueReusableSupplementaryViewOfKind:UICollectionElementKindSectionFooter
-                                                        withReuseIdentifier:FooterCellIdentifier forIndexPath:indexPath];
-        for (int i = 0; i < [self.imagesArray count]; i++) {
-            UILabel *testLabel = [[UILabel alloc] initWithFrame:CGRectMake(self.myCollectionView.center.x * i,
-                                                                           self.myCollectionView.center.y * .85, CellWidth, 20)];
-            //testLabel.text = [self.imageNames objectAtIndex:indexPath.row];
-            testLabel.text = self.imageNames[i];
-            [self.myCollectionView addSubview:testLabel];
-        }
-        
-         return footerView;
-    } else {
-        NSLog(@"*******Element Kind is NOT a footer!*******");
-        return nil;
-    }
-}*/
-
 #pragma mark - UI Setup
 
 /**
@@ -529,10 +504,6 @@ NSInteger const CellHeight = 140; // height of cell
     
     //self.myCollectionView.delegate = self; // not needed since done in storyboard
     //self.myCollectionView.dataSource = self; // not needed since done in storyboard
-    
-    /*** NEXT 2 LINES ARE FOR THE SUPPLEMENTAL VIEW FOR THE FOOTER ***/
-    //[self.myCollectionView registerClass:[FooterViewCell class] forSupplementaryViewOfKind:UICollectionElementKindSectionFooter withReuseIdentifier:@"FooterView"]; // not needed since set in storyboard
-    //flowLayout.footerReferenceSize = CGSizeMake(20, 20); // needed for supplemental view (footer)
     
     //[self.myCollectionView setCollectionViewLayout:flowLayout];
     
