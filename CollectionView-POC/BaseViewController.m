@@ -35,7 +35,8 @@
 @property (strong, nonatomic) CoffeeImageData *coffeeImageData;
 @property (weak, nonatomic) IBOutlet UIActivityIndicatorView *spinner;
 @property (nonatomic) NSInteger numberOfItemsInSection; // property for number of items in collectionview
-//@property (strong, nonatomic) NSMutableArray *queryResults;
+@property (strong, nonatomic) SDImageCache *imageCache;
+@property (strong, nonatomic) NSMutableArray *allCacheKeys; // holds all the image URL strings from the cache
 @end
 
 @implementation BaseViewController
@@ -81,14 +82,28 @@ NSInteger const CellHeight = 140; // height of cell
     return _coffeeImageData;
 }
 
-/*- (NSMutableArray *)queryResults {
+#define ONE_HOUR_IN_SECONDS 3600
+
+// lazy instantiate imageCache
+- (SDImageCache *)imageCache {
     
-    if (!_queryResults) {
-        _queryResults = [[NSMutableArray alloc] init];
+    if (!_imageCache) {
+        _imageCache = [[SDImageCache alloc] initWithNamespace:@"nameSpaceImageCacheCID"];
+        [_imageCache setMaxCacheAge:ONE_HOUR_IN_SECONDS * 3]; // cache age limit set to 3 hours (in seconds)
     }
     
-    return _queryResults;
-}*/
+    return _imageCache;
+}
+
+// lazy instantiate allCacheKeys
+- (NSMutableArray *)allCacheKeys {
+    
+    if (!_allCacheKeys) {
+        _allCacheKeys = [[NSMutableArray alloc] init];
+    }
+    
+    return _allCacheKeys;
+}
 
 // return the value for globalColor ro
 - (UIColor *)globalColor {
@@ -107,6 +122,7 @@ NSInteger const CellHeight = 140; // height of cell
 
 #pragma mark - UIImagePickerControllerDelegate
 
+// handles photos taken with camera
 - (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info {
     
     NSLog(@"didFinishPickingMediaWithInfo");
@@ -147,6 +163,11 @@ NSInteger const CellHeight = 140; // height of cell
      */
     // prepare the CKRecord and save it
     [self saveRecord:[self createCKRecordForImage:dataForNewImage]];
+    
+    // store the image in SDWebImage cache
+    [self.imageCache storeImage:image forKey:dataForNewImage.imageURL.absoluteString];
+    // insert the new key (image URL) into the cacheKeys array
+    [self.allCacheKeys insertObject:dataForNewImage.imageURL.absoluteString atIndex:0];
     
     [self updateUI]; // updateUI to reload collectionview data
 }
@@ -207,7 +228,6 @@ NSInteger const CellHeight = 140; // height of cell
     
     //[self.myCollectionView reloadData];
     NSLog(@"numberOfItemsInSection: %ld", (long)self.numberOfItemsInSection);
-    //return [self.queryResults count];
     return self.numberOfItemsInSection;
     //return [self.imageLoadManager.coffeeImageDataArray count];
 }
@@ -231,6 +251,9 @@ NSInteger const CellHeight = 140; // height of cell
         cell.coffeeImageView.contentMode = UIViewContentModeScaleAspectFit; // maintains aspect, but does not always fill image area
         /*...to here...*/
         
+        // load placeholder image. will only been seen if loading from very weak signal or during scrolling after being idle
+        cell.coffeeImageView.image = [UIImage imageNamed:@"placeholder"];
+        
         /*CoffeeImageData *coffeeImageData = [self.imageLoadManager coffeeImageDataForCell:indexPath.row]; // maps the model to the UI
         dispatch_async(dispatch_get_main_queue(), ^{
             //cell.coffeeImageView.image = coffeeImageData.image;
@@ -243,10 +266,41 @@ NSInteger const CellHeight = 140; // height of cell
                 //[cell setNeedsLayout];
             }
         });*/
+        
         /********************************************************/
-        //CoffeeImageData *coffeeImageData = self.queryResults[indexPath.row];
         CoffeeImageData *coffeeImageData = self.imageLoadManager.coffeeImageDataArray[indexPath.row];
-        if (coffeeImageData.imageURL.path) {
+        
+        if ([self.allCacheKeys count] > 0) { // check to see if the cacheKeys arrays contains any keys (URLs)
+            
+            NSString *cacheKey = self.allCacheKeys[indexPath.row];
+            if (cacheKey) {
+                NSLog(@"cacheKey found!");
+                [self.imageCache queryDiskCacheForKey:cacheKey done:^(UIImage *image, SDImageCacheType cacheType) {
+                    if (image) { // image is found in the cache
+                        NSLog(@"Image found in cache!");
+                        cell.coffeeImageView.image = image;
+                    } else {
+                        NSLog(@"Image not found in cache, getting image from CID!");
+                        if (coffeeImageData.imageURL.path) {
+                            cell.coffeeImageView.image = [UIImage imageWithContentsOfFile:coffeeImageData.imageURL.path];
+                        }
+                    }
+                }];
+            } else {
+                NSLog(@"cacheKey NOT found!");
+                if (coffeeImageData.imageURL.path) {
+                    cell.coffeeImageView.image = [UIImage imageWithContentsOfFile:coffeeImageData.imageURL.path];
+                }
+            }
+        } else { // if not, get the image data from the CID object
+            NSLog(@"allCacheKeys array is empty, getting image from CID!");
+            if (coffeeImageData.imageURL.path) {
+                cell.coffeeImageView.image = [UIImage imageWithContentsOfFile:coffeeImageData.imageURL.path];
+            }
+        }
+        
+        
+        /*if (coffeeImageData.imageURL.path) {
             cell.coffeeImageView.image = [UIImage imageWithContentsOfFile:coffeeImageData.imageURL.path];
             //[cell setNeedsLayout];
         } else {
@@ -254,8 +308,7 @@ NSInteger const CellHeight = 140; // height of cell
             cell.coffeeImageView.image = coffeeImageData.image;
             //cell.coffeeImageView.image = [UIImage imageNamed:@"placeholder.png"];
             //[cell setNeedsLayout];
-        }
-        
+        }*/
         /********************************************************/
         //CGRect originalImageFrame = cell.coffeeImageView.frame;
         
@@ -669,33 +722,38 @@ NSInteger const CellHeight = 140; // height of cell
                 @synchronized(self){
                     NSLog(@"Success querying the cloud for %lu results!!!", (unsigned long)[results count]);
                     for (CKRecord *record in results) {
-                        NSLog(@"Image: %@", record[@"Image"]);
-                        NSLog(@"Image belongs to user? %@", record[@"ImageBelongsToUser"]);
-                        NSLog(@"Image name: %@", record[@"ImageName"]);
-                        NSLog(@"userid: %@", record[@"UserID"]);
-                        NSLog(@"Image description: %@", record[@"ImageDescription"]);
+                        //NSLog(@"Image: %@", record[@"Image"]);
+                        //NSLog(@"Image belongs to user? %@", record[@"ImageBelongsToUser"]);
+                        //NSLog(@"Image name: %@", record[@"ImageName"]);
+                        //NSLog(@"userid: %@", record[@"UserID"]);
+                        //NSLog(@"Image description: %@", record[@"ImageDescription"]);
                         // create CoffeeImageData object to store data in the array for each image
                         CoffeeImageData *coffeeImageData = [[CoffeeImageData alloc] init];
                         CKAsset *imageAsset = record[@"Image"];
                         coffeeImageData.imageURL = imageAsset.fileURL;
-                        NSLog(@"asset URL: %@", coffeeImageData.imageURL);
+                        //NSLog(@"asset URL: %@", coffeeImageData.imageURL);
                         coffeeImageData.imageName = record[@"ImageName"];
-                        /* below line is not needed, but not removing it yet */
+                        /* below lines is not needed, but not removing it yet */
                         //coffeeImageData.image = [UIImage imageWithContentsOfFile:imageAsset.fileURL.path];
                         //coffeeImageData.image = [UIImage imageWithData:[NSData dataWithContentsOfURL:coffeeImageData.imageURL]];
-                        NSLog(@"image size height:%f, width:%f", coffeeImageData.image.size.height, coffeeImageData.image.size.width);
+                        //NSLog(@"image size height:%f, width:%f", coffeeImageData.image.size.height, coffeeImageData.image.size.width);
                         //[self.coffeeImageDataArray addObject:coffeeImageData];
-                        //[self.queryResults addObject:coffeeImageData];
                         [self.imageLoadManager.coffeeImageDataArray addObject:coffeeImageData];
                         
                         // cache the image with the string representation of the absolute URL as the cache key
-                        [[SDImageCache sharedImageCache] storeImage:coffeeImageData.image forKey:[coffeeImageData.imageURL absoluteString] toDisk:YES];
+                        //[[SDImageCache sharedImageCache] storeImage:[UIImage imageWithContentsOfFile:coffeeImageData.imageURL.path] forKey:coffeeImageData.imageURL.absoluteString toDisk:YES];
+                        if (self.imageCache) {
+                            [self.imageCache storeImage:[UIImage imageWithContentsOfFile:coffeeImageData.imageURL.path] forKey:coffeeImageData.imageURL.absoluteString toDisk:YES];
+                            //NSLog(@"Printing cache: %@", [[SDImageCache sharedImageCache] description]);
+                        }
                     }
                     dispatch_async(dispatch_get_main_queue(), ^{
-                        [self.myCollectionView reloadData];
+                        [self.myCollectionView reloadData]; // reload the collectionview after getting all the data from CK
                     });
                     NSLog(@"CoffeeImageDataArray size %lu", (unsigned long)[self.imageLoadManager.coffeeImageDataArray count]);
                 }
+                // load the keys to be used for cache look up
+                [self getAllCacheKeys];
             }
         }
     }];
@@ -715,6 +773,34 @@ NSInteger const CellHeight = 140; // height of cell
     //NSString *segmentTitle = [self.imageRecipeSegmentedControl titleForSegmentAtIndex:segmentedIndex];
     return [self.imageRecipeSegmentedControl titleForSegmentAtIndex:segmentedIndex];
 }
+
+/**
+ * Method to take all the URL strings corresponding to each image and uses it for cache
+ * storage and lookup. This array should always be empty when called. Should only be
+ * called right after beginLoadingCloudKitData is called.
+ *
+ * @return void
+ */
+- (void)getAllCacheKeys {
+    
+    NSLog(@"Entered getAllCacheKeys...");
+    
+    if (self.allCacheKeys) {
+        NSLog(@"Ready to set the cache keys!");
+        // go through the CID objecs in the array and get the URL string for each corresponding image
+        for (CoffeeImageData *cid in self.imageLoadManager.coffeeImageDataArray) {
+            NSString *url = cid.imageURL.absoluteString;
+            NSLog(@"URL key being stored: %@", url);
+            // check to make sure the URL is not already in the array
+            if (![self.allCacheKeys containsObject:url]) {
+                NSLog(@"Adding URL to cacheKeys array...");
+                [self.allCacheKeys addObject:url];
+            }
+        }
+        NSLog(@"allCacheKeys array size: %lu", (unsigned long)[self.allCacheKeys count]);
+    }
+}
+
 
 /**
  * Method to remove preceeding directory path from the file name.
@@ -865,6 +951,10 @@ NSInteger const CellHeight = 140; // height of cell
     NSLog(@"viewDidLoad...");
     [super viewDidLoad];
     
+    // clear the cache
+    [self.imageCache clearMemory];
+    [self.imageCache clearDisk];
+    
     [self beginLoadingCloudKitData]; // call method to trigger CK query
     
     [self setupCollectionView]; // setup the collectionview parameters
@@ -920,6 +1010,8 @@ NSInteger const CellHeight = 140; // height of cell
 {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
+    
+    [self.imageCache clearMemory];
 }
 
 @end
