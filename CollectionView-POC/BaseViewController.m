@@ -32,7 +32,7 @@
 @property (weak, nonatomic) IBOutlet UIToolbar *toolBar;
 @property (strong, nonatomic) UIImageView *fullScreenImage;
 @property (strong, nonatomic) CustomFlowLayout *flowLayout;
-@property (strong, nonatomic) CoffeeImageData *coffeeImageData;
+//@property (strong, nonatomic) CoffeeImageData *coffeeImageData;
 @property (weak, nonatomic) IBOutlet UIActivityIndicatorView *spinner;
 @property (nonatomic) NSInteger numberOfItemsInSection; // property for number of items in collectionview
 @property (strong, nonatomic) SDImageCache *imageCache;
@@ -73,14 +73,14 @@ NSInteger const CellHeight = 140; // height of cell
 }
 
 // lazy instantiate coffeeImageData
-- (CoffeeImageData *)coffeeImageData {
+/*- (CoffeeImageData *)coffeeImageData {
     
     if (!_coffeeImageData) {
         _coffeeImageData = [[CoffeeImageData alloc] init];
     }
     
     return _coffeeImageData;
-}
+}*/
 
 #define ONE_HOUR_IN_SECONDS 3600
 
@@ -416,17 +416,12 @@ NSInteger const CellHeight = 140; // height of cell
         [likeButton setImage:[UIImage imageNamed:@"heart_blue"] forState:UIControlStateNormal];
     }
     
+    // if ! isFullScreen, then not yet viewing fullscreen image, so animate to fullScreen view
     if (!self.isFullScreen) {
         self.fullScreenImage.transform = CGAffineTransformMakeScale(0.1, 0.1);
         __weak BaseViewController *weakSelf = self; // to make sure we don't have retain cycles. is this really needed here?
         [UIView animateWithDuration:0.5 delay:0 options:0 animations:^{
             NSLog(@"Starting animiation!");
-            //prevFrame = selectedCell.coffeeImageView.frame;
-            //self.flowLayout.itemSize = CGSizeMake(self.view.frame.size.width, self.view.frame.size.height);
-            //[selectedCell setFrame:[[UIScreen mainScreen] bounds]];
-            //selectedCell.coffeeImageView.center = self.view.center;
-            //selectedCell.coffeeImageView.backgroundColor = [UIColor blackColor];
-            //[selectedCell.coffeeImageView setFrame:[[UIScreen mainScreen] bounds]];
             /** NOTE: replaced "self" with "weakSelf below to avoid retain cycles! **/
             weakSelf.view.backgroundColor = [UIColor blackColor];
             weakSelf.myCollectionView.backgroundColor = [UIColor blackColor];
@@ -500,15 +495,6 @@ NSInteger const CellHeight = 140; // height of cell
     
 }*/
 
-
-/*
-- (void)collectionView:(UICollectionView *)collectionView performAction:(SEL)action forItemAtIndexPath:(NSIndexPath *)indexPath withSender:(id)sender {
-    
-    NSLog(@"perform Action!");
-    PatternViewCell *selectedCell = (PatternViewCell *)[collectionView cellForItemAtIndexPath:indexPath];
-    NSLog(@"selectedCell: %@", [selectedCell description]);
-    
-}*/
 
 #pragma mark - UI Setup
 
@@ -741,10 +727,13 @@ NSInteger const CellHeight = 140; // height of cell
                         [self.imageLoadManager.coffeeImageDataArray addObject:coffeeImageData];
                         
                         // cache the image with the string representation of the absolute URL as the cache key
-                        //[[SDImageCache sharedImageCache] storeImage:[UIImage imageWithContentsOfFile:coffeeImageData.imageURL.path] forKey:coffeeImageData.imageURL.absoluteString toDisk:YES];
-                        if (self.imageCache) {
-                            [self.imageCache storeImage:[UIImage imageWithContentsOfFile:coffeeImageData.imageURL.path] forKey:coffeeImageData.imageURL.absoluteString toDisk:YES];
-                            //NSLog(@"Printing cache: %@", [[SDImageCache sharedImageCache] description]);
+                        if (coffeeImageData.imageURL) { // make sure there's an image URL to cache
+                            if (self.imageCache) {
+                                [self.imageCache storeImage:[UIImage imageWithContentsOfFile:coffeeImageData.imageURL.path] forKey:coffeeImageData.imageURL.absoluteString toDisk:YES];
+                                //NSLog(@"Printing cache: %@", [[SDImageCache sharedImageCache] description]);
+                            }
+                        } else {
+                            NSLog(@"INFO: CID imageURL is nil...cannot cache.");
                         }
                     }
                     dispatch_async(dispatch_get_main_queue(), ^{
@@ -769,6 +758,7 @@ NSInteger const CellHeight = 140; // height of cell
  */
 - (NSString *)getSelectedSegmentTitle {
     
+    NSLog(@"Entered getSelectedSegmentTitle...");
     NSInteger segmentedIndex = self.imageRecipeSegmentedControl.selectedSegmentIndex;
     //NSString *segmentTitle = [self.imageRecipeSegmentedControl titleForSegmentAtIndex:segmentedIndex];
     return [self.imageRecipeSegmentedControl titleForSegmentAtIndex:segmentedIndex];
@@ -793,32 +783,12 @@ NSInteger const CellHeight = 140; // height of cell
             NSLog(@"URL key being stored: %@", url);
             // check to make sure the URL is not already in the array
             if (![self.allCacheKeys containsObject:url]) {
-                NSLog(@"Adding URL to cacheKeys array...");
+                NSLog(@"INFO: Adding URL to cacheKeys array...");
                 [self.allCacheKeys addObject:url];
             }
         }
         NSLog(@"allCacheKeys array size: %lu", (unsigned long)[self.allCacheKeys count]);
     }
-}
-
-
-/**
- * Method to remove preceeding directory path from the file name.
- *
- * @param NSString *fileName
- * @param NSString *path
- * @return NSString *string filename without path
- */
-- (NSString *)removePathFromFileName:(NSString *)fileName forPath:(NSString *)path {
-    
-    NSLog(@"Entered removePathFromFileName - filename: %@", fileName);
-    NSString *returnString = @"";
-    
-    returnString = [fileName stringByReplacingOccurrencesOfString:path withString:@""];
-    
-    NSLog(@"returnString:%@", returnString);
-    
-    return returnString;
 }
 
 #pragma mark - Action Methods
