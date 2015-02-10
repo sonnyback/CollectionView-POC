@@ -126,6 +126,7 @@ NSInteger const CellHeight = 140; // height of cell
 - (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info {
     
     NSLog(@"didFinishPickingMediaWithInfo");
+    
     UIImage *image = info[UIImagePickerControllerEditedImage]; // see if the image was edited
     if (!image) image = info[UIImagePickerControllerOriginalImage]; // use original if image not edited
     
@@ -403,7 +404,10 @@ NSInteger const CellHeight = 140; // height of cell
     [likeButton setFrame:CGRectMake(xCoord - xCoord, yPoint + (yCoord-LIKE_BUTTON_HEIGHT), LIKE_BUTTON_WIDTH, LIKE_BUTTON_HEIGHT)];
     [likeButton addTarget:self action:@selector(likeButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
     
+    // get the CoffeeImageData object for this cell
     CoffeeImageData *coffeeImageData = [self.imageLoadManager coffeeImageDataForCell:indexPath.row];
+    //CoffeeImageData *coffeeImageData = self.imageLoadManager.coffeeImageDataArray[indexPath.row];
+    
     selectedCell.imageIsLiked = coffeeImageData.isLiked;
     likeButton.selected = selectedCell.imageIsLiked;
     
@@ -644,9 +648,10 @@ NSInteger const CellHeight = 140; // height of cell
 - (CKRecord *)createCKRecordForImage:(CoffeeImageData *)coffeeImageData {
     
     NSLog(@"Entered createCKRecordForImage...");
-    NSUInteger randomNumber = arc4random() % 100;
-    CKRecordID *wellKnownID = [[CKRecordID alloc] initWithRecordName:[NSString stringWithFormat:@"recordID%ld", (long)randomNumber]];
-    CKRecord *CIDRecord = [[CKRecord alloc] initWithRecordType:@"CoffeeImageData" recordID:wellKnownID];
+    //NSUInteger randomNumber = arc4random() % 100;
+    //CKRecordID *wellKnownID = [[CKRecordID alloc] initWithRecordName:[NSString stringWithFormat:@"recordID%ld", (long)randomNumber]];
+    //CKRecord *CIDRecord = [[CKRecord alloc] initWithRecordType:@"CoffeeImageData" recordID:wellKnownID];
+    CKRecord *CIDRecord = [[CKRecord alloc] initWithRecordType:@"CoffeeImageData"];
     
     CIDRecord[@"ImageBelongsToUser"] = [NSNumber numberWithBool:coffeeImageData.imageBelongsToCurrentUser];
     //CIDRecord[@"ImageName"] = [NSString stringWithFormat:coffeeImageData.imageName, @"%d", randomNumber];
@@ -673,7 +678,7 @@ NSInteger const CellHeight = 140; // height of cell
     // save the record
     [publicDatabase saveRecord:record completionHandler:^(CKRecord *record, NSError *error) {
         if (error) {
-            NSLog(@"Error saving record to cloud...%@", error);
+            NSLog(@"Error saving record to cloud...%@", error.localizedDescription);
         } else {
             NSLog(@"Record saved successfully!");
         }
@@ -699,7 +704,7 @@ NSInteger const CellHeight = 140; // height of cell
     [publicDatabase performQuery:query inZoneWithID:nil completionHandler:^(NSArray *results, NSError *error) {
         // handle the error
         if (error) {
-            NSLog(@"Error: there was an error fetching cloud data... %@", error);
+            NSLog(@"Error: there was an error fetching cloud data... %@", error.localizedDescription);
         } else {
             // any results?
             if ([results count] > 0) {
@@ -864,10 +869,13 @@ NSInteger const CellHeight = 140; // height of cell
     UIButton *button = (UIButton *)sender;
     NSIndexPath *indexPath = [NSIndexPath indexPathForRow:button.tag inSection:0];
     CoffeeViewCell *selectedCell = (CoffeeViewCell *)[self.myCollectionView cellForItemAtIndexPath:indexPath];
-    NSLog(@"selectedCell name is %@", selectedCell.coffeeImageLabel.text);
+    
     selectedCell.imageIsLiked = !selectedCell.imageIsLiked; // toggle this based on button being pressed
-    CoffeeImageData *currentImageData = [self.imageLoadManager coffeeImageDataForCell:indexPath.row];
-    NSLog(@"likeButtonPressed for image name: %@", currentImageData.imageName);
+    //CoffeeImageData *currentImageData = [self.imageLoadManager coffeeImageDataForCell:indexPath.row];
+    CoffeeImageData *currentImageData = self.imageLoadManager.coffeeImageDataArray[indexPath.row];
+    
+    //NSLog(@"likeButtonPressed for image name: %@", currentImageData.imageName);
+    NSLog(@"likeButtonPressed for: section:%ld row:%ld", (long)indexPath.section, (long)indexPath.row);
     
     // update the liked value in the model based on the user hitting the like button on the image
     currentImageData.liked = selectedCell.imageIsLiked;
@@ -891,22 +899,53 @@ NSInteger const CellHeight = 140; // height of cell
 - (IBAction)cameraBarButtonPressed:(UIBarButtonItem *)sender {
     NSLog(@"Entered cameraBarButtonPressed");
     
-    UIImagePickerController *cameraUI = [[UIImagePickerController alloc] init];
-    cameraUI.delegate = self; // set the deleage for the ImagePickerController
+    CKContainer *container = [CKContainer defaultContainer];
+    dispatch_queue_t fetchQ = dispatch_queue_create("check user status", NULL);
     
-    // check to see if the camera is available as source type, else check for photo album
-    if ([UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera]) {
-        cameraUI.sourceType = UIImagePickerControllerSourceTypeCamera;
-    } else if ([UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeSavedPhotosAlbum]) {
-        cameraUI.sourceType = UIImagePickerControllerSourceTypeSavedPhotosAlbum;
-    }
-    
-    [cameraUI setAllowsEditing:YES]; // let the user edit the photo
-    // set the camera presentation style
-    //cameraUI.modalPresentationStyle = UIModalPresentationFullScreen;
-    cameraUI.modalPresentationStyle = UIModalPresentationCurrentContext;
-    
-    [self presentViewController:cameraUI animated:YES completion:nil]; // show the camera with animation
+    dispatch_async(fetchQ, ^{ // check user's CK status on different thread
+        [container accountStatusWithCompletionHandler:^(CKAccountStatus accountStatus, NSError *error) {
+            if (error) {
+                NSLog(@"Error getting user CloudKit status: %@", error.localizedDescription);
+            } else {
+                if (accountStatus == CKAccountStatusAvailable) {
+                    NSLog(@"User is logged into CK - user can upload pics!");
+                    UIImagePickerController *cameraUI = [[UIImagePickerController alloc] init];
+                    cameraUI.delegate = self; // set the deleage for the ImagePickerController
+                    
+                    // check to see if the camera is available as source type, else check for photo album
+                    if ([UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera]) {
+                        cameraUI.sourceType = UIImagePickerControllerSourceTypeCamera;
+                    } else if ([UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeSavedPhotosAlbum]) {
+                        cameraUI.sourceType = UIImagePickerControllerSourceTypeSavedPhotosAlbum;
+                    }
+                    
+                    [cameraUI setAllowsEditing:YES]; // let the user edit the photo
+                    // set the camera presentation style
+                    //cameraUI.modalPresentationStyle = UIModalPresentationFullScreen;
+                    cameraUI.modalPresentationStyle = UIModalPresentationCurrentContext;
+                    
+                    dispatch_async(dispatch_get_main_queue(), ^{ // show the camera on main thread to avoid latency
+                        [self presentViewController:cameraUI animated:YES completion:nil]; // show the camera with animation
+                    });
+                    
+                } else if (accountStatus == CKAccountStatusNoAccount) {
+                    NSLog(@"User is not logged into CK - Camera not available!");
+                    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"iCloud Not Available" message:@"You must be logged into your iCloud account to submit photos and recipes. Go into iCloud under Settings on your device to login." delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil, nil];
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        [alert show];
+                    });
+                } else if (accountStatus == CKAccountStatusRestricted) {
+                    NSLog(@"User CK account is RESTRICTED - what does that mean!?");
+                } else if (CKAccountStatusCouldNotDetermine) {
+                    NSLog(@"Error: Could not determine user CK Account Status: %@", error.localizedDescription);
+                    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"iCloud Status Undetermined" message:@"We could not determine your iClould status. You must be logged into your iCloud account to submit photos and recipes. Go into iCloud under Settings on your device to login." delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil, nil];
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        [alert show];
+                    });
+                }
+            }
+        }];
+    });
 }
 
 #pragma mark - VC Lifecyle Methods

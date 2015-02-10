@@ -1,8 +1,8 @@
-{\rtf1\ansi\ansicpg1252\cocoartf1343\cocoasubrtf160
+{\rtf1\ansi\ansicpg1252\cocoartf1344\cocoasubrtf720
 {\fonttbl\f0\fswiss\fcharset0 Helvetica;\f1\fnil\fcharset0 Menlo-Regular;\f2\fswiss\fcharset0 ArialMT;
 }
-{\colortbl;\red255\green255\blue255;\red37\green127\blue159;\red234\green234\blue234;\red0\green0\blue0;
-\red255\green255\blue255;\red0\green116\blue0;}
+{\colortbl;\red255\green255\blue255;\red37\green127\blue159;\red234\green234\blue234;\red0\green116\blue0;
+}
 \margl1440\margr1440\vieww9000\viewh8400\viewkind0
 \pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
 
@@ -38,27 +38,29 @@ To Do:\
 - ***Make sure to implement this for SDWebImage caching: ({\field{\*\fldinst{HYPERLINK "http://stackoverflow.com/questions/13865537/sdwebimage-clearing-cache?rq=1"}}{\fldrslt http://stackoverflow.com/questions/13865537/sdwebimage-clearing-cache?rq=1}})\
 	
 \f1\fs28 \cf2 \cb3 \expnd0\expndtw0\kerning0
-\outl0\strokewidth0 \strokec2 SDImageCache\cf4 \expnd0\expndtw0\kerning0
-\outl0\strokewidth0 \strokec4  *imageCache = [\cf2 \expnd0\expndtw0\kerning0
-\outl0\strokewidth0 \strokec2 SDImageCache\cf4 \expnd0\expndtw0\kerning0
-\outl0\strokewidth0 \strokec4  sharedImageCache];\
+SDImageCache\cf0 \expnd0\expndtw0\kerning0
+ *imageCache = [\cf2 \expnd0\expndtw0\kerning0
+SDImageCache\cf0 \expnd0\expndtw0\kerning0
+ sharedImageCache];\
 \pard\pardeftab720\sl356
-\cf4 	[imageCache clearMemory];\
+\cf0 \expnd0\expndtw0\kerning0
+	[imageCache clearMemory];\
 	[imageCache clearDisk];\
 \pard\pardeftab720\sl356\sa280
 
-\f2 \cf4 \cb5 \expnd0\expndtw0\kerning0
-\outl0\strokewidth0 	Don't forget to put these lines of code in your 
+\f2 \cf0 \cb1 \expnd0\expndtw0\kerning0
+	Don't forget to put these lines of code in your 
 \f1 \cb3 \expnd0\expndtw0\kerning0
-\outl0\strokewidth0 didReceiveMemoryWarning
-\f2 \cb5 \expnd0\expndtw0\kerning0
-\outl0\strokewidth0 , too.
-\f0\fs24 \cf0 \cb1 \kerning1\expnd0\expndtw0 \outl0\strokewidth0 \
+didReceiveMemoryWarning
+\f2 \cb1 \expnd0\expndtw0\kerning0
+, too.\
+- Refer to this link when ready to rename completed project - {\field{\*\fldinst{HYPERLINK "http://stackoverflow.com/questions/238980/how-to-change-the-name-of-an-ios-app"}}{\fldrslt http://stackoverflow.com/questions/238980/how-to-change-the-name-of-an-ios-app}} and {\field{\*\fldinst{HYPERLINK "http://matthewfecher.com/app-developement/xcode-tips-the-best-way-to-change-a-project-name-in-xcode/"}}{\fldrslt http://matthewfecher.com/app-developement/xcode-tips-the-best-way-to-change-a-project-name-in-xcode/}}
+\f0\fs24 \kerning1\expnd0\expndtw0 \
 \pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
 \cf0 Problems:\
 1. Still not able to get button/label displayed under each cell. Unsure if supplemental view can be used, still researching. Other option is to increase cell size and fit everything inside. *No longer an issue after switching from horizontal layout to vertical (default) layout in collectionview. \
 2. Added button with heart image to full screen image. Tapping button does not respond. May be a frame bounds issue with the button and the parent view. *Resolved this by moving anitmation logic from didSelectItemAtIndexPath to new method (
-\f1\fs22 \cf6 \CocoaLigature0 closeFullScreenImageView
+\f1\fs22 \cf4 \CocoaLigature0 closeFullScreenImageView
 \f0\fs24 \cf0 \CocoaLigature1 ) and adding tap gesture. It works fine but not happy that previous solution did not work. Seemed to be an iOS 7 issue. May try it with iOS 8 to see if original code works.\
 \
 Bugs:\
