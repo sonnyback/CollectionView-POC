@@ -54,7 +54,9 @@ SDImageCache\cf0 \expnd0\expndtw0\kerning0
 didReceiveMemoryWarning
 \f2 \cb1 \expnd0\expndtw0\kerning0
 , too.\
-- Refer to this link when ready to rename completed project - {\field{\*\fldinst{HYPERLINK "http://stackoverflow.com/questions/238980/how-to-change-the-name-of-an-ios-app"}}{\fldrslt http://stackoverflow.com/questions/238980/how-to-change-the-name-of-an-ios-app}} and {\field{\*\fldinst{HYPERLINK "http://matthewfecher.com/app-developement/xcode-tips-the-best-way-to-change-a-project-name-in-xcode/"}}{\fldrslt http://matthewfecher.com/app-developement/xcode-tips-the-best-way-to-change-a-project-name-in-xcode/}}
+- Refer to this link when ready to rename completed project - {\field{\*\fldinst{HYPERLINK "http://stackoverflow.com/questions/238980/how-to-change-the-name-of-an-ios-app"}}{\fldrslt \expnd0\expndtw0\kerning0
+http://stackoverflow.com/questions/238980/how-to-change-the-name-of-an-ios-app}} and {\field{\*\fldinst{HYPERLINK "http://matthewfecher.com/app-developement/xcode-tips-the-best-way-to-change-a-project-name-in-xcode/"}}{\fldrslt \expnd0\expndtw0\kerning0
+http://matthewfecher.com/app-developement/xcode-tips-the-best-way-to-change-a-project-name-in-xcode/}}
 \f0\fs24 \kerning1\expnd0\expndtw0 \
 \pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
 \cf0 Problems:\
@@ -75,5 +77,12 @@ CloudKit:\
 - Container (CKContainer) - 1 container per app. Data segregation and user encapsulation\
 - Containers must use unique identifier, such as reverse DNS naming convention\
 - Database (CKDatabase) - each app has access to 2 databases, public and private. Public db for shared data, private db for user's data.\
+\
+CKRecords:\
+- recordID (will let cloudkit create the ids)\
+- recordType (CoffeeImageData). May create a recordType for RecipeImageData if needed\
+- creationDate\
+- creatorUserRecordID (will use this to know who submitted image/recipe)\
+\
  \
 }

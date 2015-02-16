@@ -18,6 +18,7 @@
 #import <QuartzCore/QuartzCore.h>
 #import <CloudKit/CloudKit.h>
 #import "SDImageCache.h"
+#import "CKManager.h"
 
 @interface BaseViewController()
 @property (weak, nonatomic) IBOutlet UICollectionView *myCollectionView;
@@ -37,6 +38,7 @@
 @property (nonatomic) NSInteger numberOfItemsInSection; // property for number of items in collectionview
 @property (strong, nonatomic) SDImageCache *imageCache;
 @property (strong, nonatomic) NSMutableArray *allCacheKeys; // holds all the image URL strings from the cache
+@property (strong, nonatomic) CKManager *ckManager; // CloudKitManager class
 @end
 
 @implementation BaseViewController
@@ -70,6 +72,16 @@ NSInteger const CellHeight = 140; // height of cell
         NSLog(@"Finished loading ImageLoadManager...");
     }
     return _imageLoadManager;
+}
+
+// lazy instantiate CKManager
+- (CKManager *)ckManager {
+    
+    if (!_ckManager) {
+        _ckManager = [[CKManager alloc] init];
+    }
+    
+    return _ckManager;
 }
 
 // lazy instantiate coffeeImageData
@@ -163,7 +175,8 @@ NSInteger const CellHeight = 140; // height of cell
      * save the image!
      */
     // prepare the CKRecord and save it
-    [self saveRecord:[self createCKRecordForImage:dataForNewImage]];
+    //[self saveRecord:[self createCKRecordForImage:dataForNewImage]];
+    [self.ckManager saveRecord:[self.ckManager createCKRecordForImage:dataForNewImage]];
     
     // store the image in SDWebImage cache
     [self.imageCache storeImage:image forKey:dataForNewImage.imageURL.absoluteString];
@@ -645,7 +658,7 @@ NSInteger const CellHeight = 140; // height of cell
  * @param CoffeeImageData*
  * @return CKRecord*
  */
-- (CKRecord *)createCKRecordForImage:(CoffeeImageData *)coffeeImageData {
+/*- (CKRecord *)createCKRecordForImage:(CoffeeImageData *)coffeeImageData {
     
     NSLog(@"Entered createCKRecordForImage...");
     //NSUInteger randomNumber = arc4random() % 100;
@@ -663,14 +676,14 @@ NSInteger const CellHeight = 140; // height of cell
     CIDRecord[@"Image"] = photoAsset;
     
     return CIDRecord;
-}
+}*/
 
 /**
  * Method to save a CKRecord to CloudKit
  *
  *
  */
-- (void)saveRecord:(CKRecord *)record {
+/*- (void)saveRecord:(CKRecord *)record {
     
     NSLog(@"Entered saveRecord...");
     CKDatabase *publicDatabase = [[CKContainer defaultContainer] publicCloudDatabase];
@@ -683,7 +696,7 @@ NSInteger const CellHeight = 140; // height of cell
             NSLog(@"Record saved successfully!");
         }
     }];
-}
+}*/
 
 /**
  * Method to do the initial loading of CK records to populate the CV.
@@ -713,17 +726,23 @@ NSInteger const CellHeight = 140; // height of cell
                 @synchronized(self){
                     NSLog(@"Success querying the cloud for %lu results!!!", (unsigned long)[results count]);
                     for (CKRecord *record in results) {
-                        //NSLog(@"Image: %@", record[@"Image"]);
-                        //NSLog(@"Image belongs to user? %@", record[@"ImageBelongsToUser"]);
-                        //NSLog(@"Image name: %@", record[@"ImageName"]);
-                        //NSLog(@"userid: %@", record[@"UserID"]);
-                        //NSLog(@"Image description: %@", record[@"ImageDescription"]);
+                        /*NSLog(@"Image: %@", record[@"Image"]);
+                        NSLog(@"ImageBelongsToUser? %@", record[@"ImageBelongsToUser"]);
+                        NSLog(@"Image name: %@", record[@"ImageName"]);
+                        NSLog(@"userid: %@", record[@"UserID"]);
+                        NSLog(@"Image description: %@", record[@"ImageDescription"]);
+                        NSLog(@"isRecipe? %@", record[@"Recipe"]);*/
                         // create CoffeeImageData object to store data in the array for each image
                         CoffeeImageData *coffeeImageData = [[CoffeeImageData alloc] init];
                         CKAsset *imageAsset = record[@"Image"];
                         coffeeImageData.imageURL = imageAsset.fileURL;
                         //NSLog(@"asset URL: %@", coffeeImageData.imageURL);
                         coffeeImageData.imageName = record[@"ImageName"];
+                        coffeeImageData.imageDescription = record[@"ImageDescription"];
+                        coffeeImageData.userID = record[@"UserID"];
+                        coffeeImageData.imageBelongsToCurrentUser = record[@"ImageBelongsToUser"];
+                        coffeeImageData.recipe = record[@"Recipe"];
+                        
                         /* below lines is not needed, but not removing it yet */
                         //coffeeImageData.image = [UIImage imageWithContentsOfFile:imageAsset.fileURL.path];
                         //coffeeImageData.image = [UIImage imageWithData:[NSData dataWithContentsOfURL:coffeeImageData.imageURL]];
@@ -738,7 +757,7 @@ NSInteger const CellHeight = 140; // height of cell
                                 //NSLog(@"Printing cache: %@", [[SDImageCache sharedImageCache] description]);
                             }
                         } else {
-                            NSLog(@"INFO: CID imageURL is nil...cannot cache.");
+                            NSLog(@"WARN: CID imageURL is nil...cannot cache.");
                         }
                     }
                     dispatch_async(dispatch_get_main_queue(), ^{
@@ -899,53 +918,50 @@ NSInteger const CellHeight = 140; // height of cell
 - (IBAction)cameraBarButtonPressed:(UIBarButtonItem *)sender {
     NSLog(@"Entered cameraBarButtonPressed");
     
-    CKContainer *container = [CKContainer defaultContainer];
-    dispatch_queue_t fetchQ = dispatch_queue_create("check user status", NULL);
+    CKAccountStatus userAccountStatus; // will return values 0-3. 1 is what we're looking for
     
-    dispatch_async(fetchQ, ^{ // check user's CK status on different thread
-        [container accountStatusWithCompletionHandler:^(CKAccountStatus accountStatus, NSError *error) {
-            if (error) {
-                NSLog(@"Error getting user CloudKit status: %@", error.localizedDescription);
-            } else {
-                if (accountStatus == CKAccountStatusAvailable) {
-                    NSLog(@"User is logged into CK - user can upload pics!");
-                    UIImagePickerController *cameraUI = [[UIImagePickerController alloc] init];
-                    cameraUI.delegate = self; // set the deleage for the ImagePickerController
-                    
-                    // check to see if the camera is available as source type, else check for photo album
-                    if ([UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera]) {
-                        cameraUI.sourceType = UIImagePickerControllerSourceTypeCamera;
-                    } else if ([UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeSavedPhotosAlbum]) {
-                        cameraUI.sourceType = UIImagePickerControllerSourceTypeSavedPhotosAlbum;
-                    }
-                    
-                    [cameraUI setAllowsEditing:YES]; // let the user edit the photo
-                    // set the camera presentation style
-                    //cameraUI.modalPresentationStyle = UIModalPresentationFullScreen;
-                    cameraUI.modalPresentationStyle = UIModalPresentationCurrentContext;
-                    
-                    dispatch_async(dispatch_get_main_queue(), ^{ // show the camera on main thread to avoid latency
-                        [self presentViewController:cameraUI animated:YES completion:nil]; // show the camera with animation
-                    });
-                    
-                } else if (accountStatus == CKAccountStatusNoAccount) {
-                    NSLog(@"User is not logged into CK - Camera not available!");
-                    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"iCloud Not Available" message:@"You must be logged into your iCloud account to submit photos and recipes. Go into iCloud under Settings on your device to login." delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil, nil];
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        [alert show];
-                    });
-                } else if (accountStatus == CKAccountStatusRestricted) {
-                    NSLog(@"User CK account is RESTRICTED - what does that mean!?");
-                } else if (CKAccountStatusCouldNotDetermine) {
-                    NSLog(@"Error: Could not determine user CK Account Status: %@", error.localizedDescription);
-                    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"iCloud Status Undetermined" message:@"We could not determine your iClould status. You must be logged into your iCloud account to submit photos and recipes. Go into iCloud under Settings on your device to login." delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil, nil];
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        [alert show];
-                    });
-                }
-            }
-        }];
-    });
+    userAccountStatus = [self.ckManager getUsersCKStatus];
+    NSLog(@"cameraBarButtonPressed userAccountStatus: %ld", userAccountStatus);
+        
+    if (userAccountStatus == CKAccountStatusAvailable) { // status = 1
+        //NSLog(@"User is logged into CK - user can upload pics!");
+        UIImagePickerController *cameraUI = [[UIImagePickerController alloc] init];
+        cameraUI.delegate = self; // set the deleage for the ImagePickerController
+            
+        // check to see if the camera is available as source type, else check for photo album
+        if ([UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera]) {
+            cameraUI.sourceType = UIImagePickerControllerSourceTypeCamera;
+        } else if ([UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeSavedPhotosAlbum]) {
+            cameraUI.sourceType = UIImagePickerControllerSourceTypeSavedPhotosAlbum;
+        }
+            
+        [cameraUI setAllowsEditing:YES]; // let the user edit the photo
+        // set the camera presentation style
+        //cameraUI.modalPresentationStyle = UIModalPresentationFullScreen;
+        cameraUI.modalPresentationStyle = UIModalPresentationCurrentContext;
+            
+        dispatch_async(dispatch_get_main_queue(), ^{ // show the camera on main thread to avoid latency
+            [self presentViewController:cameraUI animated:YES completion:nil]; // show the camera with animation
+        });
+    } else if (userAccountStatus == CKAccountStatusNoAccount) { // status = 3
+        //NSLog(@"User is not logged into CK - Camera not available!");
+        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"iCloud Not Available" message:@"You must be logged into your iCloud account to submit photos and recipes. Go into iCloud under Settings on your device to login." delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil, nil];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [alert show];
+        });
+    } else if (userAccountStatus == CKAccountStatusRestricted) { // status = 2
+        NSLog(@"User CK account is RESTRICTED !");
+    } else if (userAccountStatus == CKAccountStatusCouldNotDetermine) { // status = 0
+        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"iCloud Status Undetermined" message:@"We could not determine your iCloud status. You must be logged into your iCloud account to submit photos and recipes. Go into iCloud under Settings on your device to login." delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil, nil];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [alert show];
+        });
+    } else { // did not get back one of the above values so show the Could Not Determine message
+        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"iCloud Status Undetermined" message:@"We could not determine your iCloud status. You must be logged into your iCloud account to submit photos and recipes. Go into iCloud under Settings on your device to login." delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil, nil];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [alert show];
+        });
+    }
 }
 
 #pragma mark - VC Lifecyle Methods
@@ -1019,7 +1035,7 @@ NSInteger const CellHeight = 140; // height of cell
 {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
-    
+    NSLog(@"Did Receive Memory Warning...clearing cache!");
     [self.imageCache clearMemory];
 }
 

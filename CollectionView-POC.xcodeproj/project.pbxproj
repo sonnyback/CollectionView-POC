@@ -29,6 +29,7 @@
 		E064B92218E50B60006193E8 /* CoffeeViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = E064B92118E50B60006193E8 /* CoffeeViewCell.m */; };
 		E075ACCF196F07820012F130 /* ImageLoadManager.m in Sources */ = {isa = PBXBuildFile; fileRef = E075ACCE196F07820012F130 /* ImageLoadManager.m */; };
 		E075C736199535A20086C523 /* heart_blue.png in Resources */ = {isa = PBXBuildFile; fileRef = E075C735199535A20086C523 /* heart_blue.png */; };
+		E07D2A771A8A6D50009AF38D /* CKManager.m in Sources */ = {isa = PBXBuildFile; fileRef = E07D2A761A8A6D50009AF38D /* CKManager.m */; };
 		E083297B1928F3E100A8E9DF /* DrinkDetailViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E083297A1928F3E100A8E9DF /* DrinkDetailViewController.m */; };
 		E0896A9C19D4B80C00B12C7A /* UIImage+CS193p.m in Sources */ = {isa = PBXBuildFile; fileRef = E0896A9B19D4B80C00B12C7A /* UIImage+CS193p.m */; };
 		E091384F19A5517E003890E8 /* heart_blue_solid.png in Resources */ = {isa = PBXBuildFile; fileRef = E091384E19A5517E003890E8 /* heart_blue_solid.png */; };
@@ -88,6 +89,8 @@
 		E075ACCD196F07820012F130 /* ImageLoadManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ImageLoadManager.h; path = Model/ImageLoadManager.h; sourceTree = "<group>"; };
 		E075ACCE196F07820012F130 /* ImageLoadManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ImageLoadManager.m; path = Model/ImageLoadManager.m; sourceTree = "<group>"; };
 		E075C735199535A20086C523 /* heart_blue.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = heart_blue.png; sourceTree = "<group>"; };
+		E07D2A751A8A6D50009AF38D /* CKManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CKManager.h; path = Framework/CKManager.h; sourceTree = "<group>"; };
+		E07D2A761A8A6D50009AF38D /* CKManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CKManager.m; path = Framework/CKManager.m; sourceTree = "<group>"; };
 		E08329791928F3E100A8E9DF /* DrinkDetailViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DrinkDetailViewController.h; sourceTree = "<group>"; };
 		E083297A1928F3E100A8E9DF /* DrinkDetailViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DrinkDetailViewController.m; sourceTree = "<group>"; };
 		E0896A9A19D4B80C00B12C7A /* UIImage+CS193p.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+CS193p.h"; sourceTree = "<group>"; };
@@ -265,6 +268,8 @@
 		E0DE6CC71985536000D1A7FC /* Framework */ = {
 			isa = PBXGroup;
 			children = (
+				E07D2A751A8A6D50009AF38D /* CKManager.h */,
+				E07D2A761A8A6D50009AF38D /* CKManager.m */,
 				E0DE6CC41985535700D1A7FC /* Constants.h */,
 				E0DE6CC51985535700D1A7FC /* Constants.m */,
 			);
@@ -432,6 +437,7 @@
 				E0E9A23218FBFC3D00043A84 /* CustomFlowLayout.m in Sources */,
 				E09DEACD197617F400B85A5C /* CoffeeShop.m in Sources */,
 				E0DE6CC61985535700D1A7FC /* Constants.m in Sources */,
+				E07D2A771A8A6D50009AF38D /* CKManager.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
