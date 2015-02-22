@@ -26,9 +26,9 @@
 }
 
 - (instancetype)init {
-    
+    NSLog(@"Loading ImageLoadManager...");
     self = [super init];
-    
+    NSLog(@"Finished loading ImageLoadManager...");
     return self;
 }
 

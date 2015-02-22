@@ -65,11 +65,11 @@ NSInteger const CellHeight = 140; // height of cell
 - (ImageLoadManager *)imageLoadManager {
     
     if (!_imageLoadManager) {
-        NSLog(@"Loading ImageLoadManager...");
+        //NSLog(@"Loading ImageLoadManager...");
         /*IMPORTANT: below line commented out while doing CK calls from this VC */
         //_imageLoadManager = [[ImageLoadManager alloc] initImagesForSelection:[self getSelectedSegmentTitle]];
         _imageLoadManager = [[ImageLoadManager alloc] init];
-        NSLog(@"Finished loading ImageLoadManager...");
+        //NSLog(@"Finished loading ImageLoadManager...");
     }
     return _imageLoadManager;
 }
@@ -709,7 +709,9 @@ NSInteger const CellHeight = 140; // height of cell
     NSLog(@"beginLoadingCloudKitData...started!");
     
     CKDatabase *publicDatabase = [[CKContainer defaultContainer] publicCloudDatabase];
-    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"ImageDescription = 'description'"];
+    //NSPredicate *predicate = [NSPredicate predicateWithFormat:@"ImageDescription = 'description'"];
+    // just for initial testing...give me all records
+    NSPredicate *predicate = [NSPredicate predicateWithValue:true];
     //create the query
     CKQuery *query = [[CKQuery alloc] initWithRecordType:@"CoffeeImageData" predicate:predicate];
     
@@ -726,12 +728,13 @@ NSInteger const CellHeight = 140; // height of cell
                 @synchronized(self){
                     NSLog(@"Success querying the cloud for %lu results!!!", (unsigned long)[results count]);
                     for (CKRecord *record in results) {
-                        /*NSLog(@"Image: %@", record[@"Image"]);
-                        NSLog(@"ImageBelongsToUser? %@", record[@"ImageBelongsToUser"]);
-                        NSLog(@"Image name: %@", record[@"ImageName"]);
-                        NSLog(@"userid: %@", record[@"UserID"]);
-                        NSLog(@"Image description: %@", record[@"ImageDescription"]);
-                        NSLog(@"isRecipe? %@", record[@"Recipe"]);*/
+                        //NSLog(@"Image: %@", record[@"Image"]);
+                        //NSLog(@"ImageBelongsToUser? %@", record[@"ImageBelongsToUser"]);
+                        //NSLog(@"Image name: %@", record[@"ImageName"]);
+                        //NSLog(@"userid: %@", record[@"UserID"]);
+                        //NSLog(@"Image description: %@", record[@"ImageDescription"]);
+                        //NSLog(@"isRecipe? %@", record[@"Recipe"]);
+                        //NSLog(@"recordID: %@", record.recordID.recordName);
                         // create CoffeeImageData object to store data in the array for each image
                         CoffeeImageData *coffeeImageData = [[CoffeeImageData alloc] init];
                         CKAsset *imageAsset = record[@"Image"];
@@ -742,6 +745,7 @@ NSInteger const CellHeight = 140; // height of cell
                         coffeeImageData.userID = record[@"UserID"];
                         coffeeImageData.imageBelongsToCurrentUser = record[@"ImageBelongsToUser"];
                         coffeeImageData.recipe = record[@"Recipe"];
+                        coffeeImageData.recordID = record.recordID.recordName;
                         
                         /* below lines is not needed, but not removing it yet */
                         //coffeeImageData.image = [UIImage imageWithContentsOfFile:imageAsset.fileURL.path];
