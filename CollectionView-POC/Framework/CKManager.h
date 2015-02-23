@@ -21,6 +21,9 @@ extern NSString *const Recipe; // will be interpreted as BOOL
 extern NSString *const Image; // CKAsset
 extern NSString *const CoffeeImageDataRecordType;
 
+// public properties
+@property (strong, nonatomic) CKRecordID *userRecordID; // unique user identifier
+
 // public methods
 - (CKRecord *)createCKRecordForImage:(CoffeeImageData *)coffeeImageData;
 - (void)saveRecord:(CKRecord *)record;

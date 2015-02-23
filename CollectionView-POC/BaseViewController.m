@@ -955,6 +955,10 @@ NSInteger const CellHeight = 140; // height of cell
         });
     } else if (userAccountStatus == CKAccountStatusRestricted) { // status = 2
         NSLog(@"User CK account is RESTRICTED !");
+        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"iCloud Status Restricted" message:@"Your iCloud account is listed as Restricted. Saving to CloudKit databases is not allowed on restricted accounts. Try a different iCloud account if you have one." delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil, nil];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [alert show];
+        });
     } else if (userAccountStatus == CKAccountStatusCouldNotDetermine) { // status = 0
         UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"iCloud Status Undetermined" message:@"We could not determine your iCloud status. You must be logged into your iCloud account to submit photos and recipes. Go into iCloud under Settings on your device to login." delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil, nil];
         dispatch_async(dispatch_get_main_queue(), ^{

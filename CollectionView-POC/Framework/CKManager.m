@@ -12,9 +12,9 @@
 
 @interface CKManager()
 
-@property (readonly) CKContainer *container;
-@property (readonly) CKDatabase *publicDatabase;
-@property (readonly) CKDatabase *privateDatabase;
+@property (nonatomic, readonly) CKContainer *container;
+@property (nonatomic, readonly) CKDatabase *publicDatabase;
+@property (nonatomic, readonly) CKDatabase *privateDatabase;
 
 @end
 
@@ -94,13 +94,14 @@ NSString *const CoffeeImageDataRecordType = @"CoffeeImageData";
 }
 
 /**
- * Method to get the user's current iCloud status.
+ * Method to get the user's current iCloud status. Also fetches userRecordID if logged in and
+ * not already retrieved.
  *
  * @return CKAccountStatus typedef enum
+ * CKAccountStatusCouldNotDetermine = 0
  * CKAccountStatusAvailable = 1
  * CKAccountStatusRestricted = 2
  * CKAccountStatusNoAccount  = 3
- * CKAccountStatusCouldNotDetermine = 0
  */
 - (CKAccountStatus)getUsersCKStatus {
     
@@ -115,16 +116,30 @@ NSString *const CoffeeImageDataRecordType = @"CoffeeImageData";
             if (error) {
                 NSLog(@"Error: Error encountered while getting user CloudKit status: %@", error.localizedDescription);
             } else {
-                if (accountStatus == CKAccountStatusAvailable) {
+                if (accountStatus == CKAccountStatusAvailable) { // 1
                     NSLog(@"Info: User is logged into CK - camera is available!");
                     userAccountStatus = CKAccountStatusAvailable;
-                } else if (accountStatus == CKAccountStatusNoAccount) {
+                    // since user is logged into iCloud, check to see if we already have the userRecordID. if not, fetch it
+                    if (self.userRecordID == nil) {
+                        NSLog(@"userRecordID is nil!");
+                        [self.container fetchUserRecordIDWithCompletionHandler:^(CKRecordID *recordID, NSError *error) {
+                            if (error) {
+                                NSLog(@"Error: Error encountered while getting userRecordID: %@", error.localizedDescription);
+                            } else {
+                                self.userRecordID = recordID;
+                                NSLog(@"userRecordID: %@", self.userRecordID);
+                            }
+                        }];
+                    } else {
+                        NSLog(@"Already obtained userRecordID, no need to fetch...%@", self.userRecordID);
+                    }
+                } else if (accountStatus == CKAccountStatusNoAccount) { // 3
                     NSLog(@"Info: User is not logged into CK - Camera not available!");
                     userAccountStatus = CKAccountStatusNoAccount;
-                } else if (accountStatus == CKAccountStatusRestricted) {
+                } else if (accountStatus == CKAccountStatusRestricted) { // 2
                     NSLog(@"Info: User CK account is RESTRICTED - what does that mean!?");
                     userAccountStatus = CKAccountStatusRestricted;
-                } else if (accountStatus == CKAccountStatusCouldNotDetermine) {
+                } else if (accountStatus == CKAccountStatusCouldNotDetermine) { // 0
                     NSLog(@"Error: Could not determine user CK Account Status: %@", error.localizedDescription);
                     userAccountStatus = CKAccountStatusCouldNotDetermine;
                 }
