@@ -22,7 +22,6 @@
 
 @interface BaseViewController()
 @property (weak, nonatomic) IBOutlet UICollectionView *myCollectionView;
-//@property (strong, nonatomic) NSArray *imagesArray; // of UIImage (array of images to display)
 @property (weak, nonatomic) IBOutlet UISegmentedControl *imageRecipeSegmentedControl;
 @property (strong, nonatomic) ImageLoadManager *imageLoadManager;
 @property (weak, nonatomic) UIColor const *globalColor;
@@ -39,6 +38,7 @@
 @property (strong, nonatomic) SDImageCache *imageCache;
 @property (strong, nonatomic) NSMutableArray *allCacheKeys; // holds all the image URL strings from the cache
 @property (strong, nonatomic) CKManager *ckManager; // CloudKitManager class
+@property (strong, nonatomic) NSMutableArray *userActivity; // tracks images user likes and stores CID objects to be saved in CloudKit
 @end
 
 @implementation BaseViewController
@@ -51,15 +51,6 @@ NSInteger const CellHeight = 140; // height of cell
 #define ITEM_SIZE 140.0 // item size for the cell **SHOULD ALWAYS MATCH CellWidth constant!
 
 #pragma mark - Lazy Instantiation
-// lazy instantiate imagesArray
-/*- (NSArray *)imagesArray {
-    
-    if (!_imagesArray) {
-        _imagesArray = [[NSArray alloc] init];
-    }
-    
-    return _imagesArray;
-}*/
 
 // lazy instantiate imageLoadManager
 - (ImageLoadManager *)imageLoadManager {
@@ -115,6 +106,16 @@ NSInteger const CellHeight = 140; // height of cell
     }
     
     return _allCacheKeys;
+}
+
+// lazy instantiate userActivity
+- (NSMutableArray *)userActivity {
+    
+    if (!_userActivity) {
+        _userActivity = [[NSMutableArray alloc] init];
+    }
+    
+    return _userActivity;
 }
 
 // return the value for globalColor ro
@@ -390,7 +391,7 @@ NSInteger const CellHeight = 140; // height of cell
 #define LIKE_BUTTON_HEIGHT 38.0
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
     
-    CoffeeViewCell *selectedCell = (CoffeeViewCell *)[collectionView cellForItemAtIndexPath:indexPath];
+    //CoffeeViewCell *selectedCell = (CoffeeViewCell *)[collectionView cellForItemAtIndexPath:indexPath];
     NSLog(@"didSelectItemAtIndexPath");
     self.fullScreenImage = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width-10, self.view.bounds.size.height-15)];
     self.fullScreenImage.contentMode = UIViewContentModeScaleAspectFit;
@@ -421,11 +422,12 @@ NSInteger const CellHeight = 140; // height of cell
     CoffeeImageData *coffeeImageData = [self.imageLoadManager coffeeImageDataForCell:indexPath.row];
     //CoffeeImageData *coffeeImageData = self.imageLoadManager.coffeeImageDataArray[indexPath.row];
     
-    selectedCell.imageIsLiked = coffeeImageData.isLiked;
-    likeButton.selected = selectedCell.imageIsLiked;
-    
+    //selectedCell.imageIsLiked = coffeeImageData.isLiked;
+    //likeButton.selected = selectedCell.imageIsLiked;
+    likeButton.selected = coffeeImageData.isLiked;
+    NSLog(@"image is liked? %d", coffeeImageData.isLiked);
     // Check to see if image is currently liked or not and display the correct heart image
-    if (selectedCell.imageIsLiked) {
+    if (coffeeImageData.isLiked) {
         //[likeButton setImage:[UIImage imageNamed:@"heart_blue_solid"] forState:UIControlStateNormal|UIControlStateSelected];
         // above line caused bug
         [likeButton setImage:[UIImage imageNamed:@"heart_blue_solid"] forState:UIControlStateNormal];
@@ -734,6 +736,7 @@ NSInteger const CellHeight = 140; // height of cell
                         //NSLog(@"userid: %@", record[@"UserID"]);
                         //NSLog(@"Image description: %@", record[@"ImageDescription"]);
                         //NSLog(@"isRecipe? %@", record[@"Recipe"]);
+                        NSLog(@"isLiked? %@", record[@"Liked"]);
                         //NSLog(@"recordID: %@", record.recordID.recordName);
                         // create CoffeeImageData object to store data in the array for each image
                         CoffeeImageData *coffeeImageData = [[CoffeeImageData alloc] init];
@@ -745,6 +748,7 @@ NSInteger const CellHeight = 140; // height of cell
                         coffeeImageData.userID = record[@"UserID"];
                         coffeeImageData.imageBelongsToCurrentUser = record[@"ImageBelongsToUser"];
                         coffeeImageData.recipe = record[@"Recipe"];
+                        coffeeImageData.liked = [record[@"Liked"] boolValue]; // 0 = No, 1 = Yes
                         coffeeImageData.recordID = record.recordID.recordName;
                         
                         /* below lines is not needed, but not removing it yet */
@@ -905,9 +909,17 @@ NSInteger const CellHeight = 140; // height of cell
     if (currentImageData.isLiked) {
         //NSLog(@"image is liked");
         [button setImage:[UIImage imageNamed:@"heart_blue_solid"] forState:UIControlStateNormal];
+        NSLog(@"Added liked image to userActivity!");
+        // add liked image to userActivity array so it can be stored in CloudKit
+        [self.userActivity addObject:currentImageData];
     } else {
         //NSLog(@"image is NOT liked");
         [button setImage:[UIImage imageNamed:@"heart_blue"] forState:UIControlStateNormal];
+        // if the user is unliking the image, check to see if it's currently in userActivity. If so, remove it
+        if ([self.userActivity containsObject:currentImageData]) {
+            NSLog(@"Current image exists in userActivity. Removing it...");
+            [self.userActivity removeObject:currentImageData];
+        }
     }
     
     //NSLog(@"image liked for indexpath %ld", (long)indexPath.row);
@@ -1021,6 +1033,16 @@ NSInteger const CellHeight = 140; // height of cell
         self.imageRecipeSegmentedControl.selectedSegmentIndex = 0;
         //[self.myCollectionView reloadData];
     }
+}
+
+- (void)viewWillDisappear:(BOOL)animated {
+    
+    NSLog(@"viewWillDisappear");
+}
+
+- (void)viewDidDisappear:(BOOL)animated {
+    
+    NSLog(@"viewDidDisappear");
 }
 
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {

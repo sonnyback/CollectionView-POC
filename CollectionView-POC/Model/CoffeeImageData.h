@@ -13,7 +13,7 @@
 @property (strong, nonatomic) UIImage *image;
 @property (strong, nonatomic) NSString *imageName;
 @property (strong, nonatomic) NSString *imageDescription;
-@property (strong, nonatomic) NSString *userID;
+@property (strong, nonatomic) NSString *userID; // image owner's ID
 @property (strong, nonatomic) NSString *recordID; // will come from CloudKit
 @property (strong, nonatomic) NSURL *imageURL; // local file on disk
 @property (nonatomic, getter = isRecipe) BOOL recipe;
