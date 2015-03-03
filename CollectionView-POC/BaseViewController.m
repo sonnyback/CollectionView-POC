@@ -91,7 +91,7 @@ NSInteger const CellHeight = 140; // height of cell
 - (SDImageCache *)imageCache {
     
     if (!_imageCache) {
-        _imageCache = [[SDImageCache alloc] initWithNamespace:@"nameSpaceImageCacheCID"];
+        _imageCache = [[SDImageCache alloc] initWithNamespace:NAME_SPACE_IMAGE_CACHE];
         [_imageCache setMaxCacheAge:ONE_HOUR_IN_SECONDS * 3]; // cache age limit set to 3 hours (in seconds)
     }
     
@@ -149,6 +149,7 @@ NSInteger const CellHeight = 140; // height of cell
     dataForNewImage.imageName = @"temporary name"; // i think this will be an image file URL
     dataForNewImage.imageDescription = @"description";
     dataForNewImage.userID = @"current user"; // will come from cloudkit
+    //dataForNewImage.userID = self.ckManager.userRecordID.description;
     dataForNewImage.imageBelongsToCurrentUser = YES; // user took this photo
     dataForNewImage.liked = YES;
     /** THIS IS NULL. NEED TO USE SDWEBIMAGE cache **/
@@ -158,7 +159,7 @@ NSInteger const CellHeight = 140; // height of cell
     // write the image to local cache directory - will later convert this to SDWebImage cache
     NSData *data = UIImageJPEGRepresentation(image, 0.75);
     NSURL *cacheDirectory = [[NSFileManager defaultManager] URLForDirectory:NSCachesDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:YES error:nil];
-    NSString *temporaryName = [[NSUUID UUID].UUIDString stringByAppendingPathExtension:@"jpeg"];
+    NSString *temporaryName = [[NSUUID UUID].UUIDString stringByAppendingPathExtension:JPEG];
     NSURL *localURL = [cacheDirectory URLByAppendingPathComponent:temporaryName];
     [data writeToURL:localURL atomically:YES];
     
@@ -267,7 +268,7 @@ NSInteger const CellHeight = 140; // height of cell
         /*...to here...*/
         
         // load placeholder image. will only been seen if loading from very weak signal or during scrolling after being idle
-        cell.coffeeImageView.image = [UIImage imageNamed:@"placeholder"];
+        cell.coffeeImageView.image = [UIImage imageNamed:PLACE_HOLDER];
         
         /*CoffeeImageData *coffeeImageData = [self.imageLoadManager coffeeImageDataForCell:indexPath.row]; // maps the model to the UI
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -430,9 +431,9 @@ NSInteger const CellHeight = 140; // height of cell
     if (coffeeImageData.isLiked) {
         //[likeButton setImage:[UIImage imageNamed:@"heart_blue_solid"] forState:UIControlStateNormal|UIControlStateSelected];
         // above line caused bug
-        [likeButton setImage:[UIImage imageNamed:@"heart_blue_solid"] forState:UIControlStateNormal];
+        [likeButton setImage:[UIImage imageNamed:HEART_BLUE_SOLID] forState:UIControlStateNormal];
     } else {
-        [likeButton setImage:[UIImage imageNamed:@"heart_blue"] forState:UIControlStateNormal];
+        [likeButton setImage:[UIImage imageNamed:HEART_BLUE] forState:UIControlStateNormal];
     }
     
     // if ! isFullScreen, then not yet viewing fullscreen image, so animate to fullScreen view
@@ -632,7 +633,7 @@ NSInteger const CellHeight = 140; // height of cell
     
     /** SWITCHED FROM UISEARCHBAR TO UITEXTFIELD **/
     self.searchBar.clearButtonMode = UITextFieldViewModeWhileEditing;
-    self.searchBar.placeholder = @"Search for coffee";
+    self.searchBar.placeholder = SEARCH_FOR_COFFEE;
     //self.searchBar.background = [UIImage imageNamed:@"magnifier_24.png"];
     self.searchBar.delegate = self; // this tells textfield delegate messages to be sent to this VC
     
@@ -715,7 +716,7 @@ NSInteger const CellHeight = 140; // height of cell
     // just for initial testing...give me all records
     NSPredicate *predicate = [NSPredicate predicateWithValue:true];
     //create the query
-    CKQuery *query = [[CKQuery alloc] initWithRecordType:@"CoffeeImageData" predicate:predicate];
+    CKQuery *query = [[CKQuery alloc] initWithRecordType:COFFEE_IMAGE_DATA_RECORD_TYPE predicate:predicate];
     
     // execute the queary
     [publicDatabase performQuery:query inZoneWithID:nil completionHandler:^(NSArray *results, NSError *error) {
@@ -732,23 +733,23 @@ NSInteger const CellHeight = 140; // height of cell
                     for (CKRecord *record in results) {
                         //NSLog(@"Image: %@", record[@"Image"]);
                         //NSLog(@"ImageBelongsToUser? %@", record[@"ImageBelongsToUser"]);
-                        //NSLog(@"Image name: %@", record[@"ImageName"]);
+                        //NSLog(@"Image name: %@", record[IMAGE_NAME]);
                         //NSLog(@"userid: %@", record[@"UserID"]);
                         //NSLog(@"Image description: %@", record[@"ImageDescription"]);
                         //NSLog(@"isRecipe? %@", record[@"Recipe"]);
-                        NSLog(@"isLiked? %@", record[@"Liked"]);
+                        //NSLog(@"isLiked? %@", record[Liked]);
                         //NSLog(@"recordID: %@", record.recordID.recordName);
                         // create CoffeeImageData object to store data in the array for each image
                         CoffeeImageData *coffeeImageData = [[CoffeeImageData alloc] init];
-                        CKAsset *imageAsset = record[@"Image"];
+                        CKAsset *imageAsset = record[IMAGE];
                         coffeeImageData.imageURL = imageAsset.fileURL;
                         //NSLog(@"asset URL: %@", coffeeImageData.imageURL);
-                        coffeeImageData.imageName = record[@"ImageName"];
-                        coffeeImageData.imageDescription = record[@"ImageDescription"];
-                        coffeeImageData.userID = record[@"UserID"];
-                        coffeeImageData.imageBelongsToCurrentUser = record[@"ImageBelongsToUser"];
-                        coffeeImageData.recipe = record[@"Recipe"];
-                        coffeeImageData.liked = [record[@"Liked"] boolValue]; // 0 = No, 1 = Yes
+                        coffeeImageData.imageName = record[IMAGE_NAME];
+                        coffeeImageData.imageDescription = record[IMAGE_DESCRIPTION];
+                        coffeeImageData.userID = record[USER_ID];
+                        coffeeImageData.imageBelongsToCurrentUser = [record[IMAGE_BELONGS_TO_USER] boolValue];
+                        coffeeImageData.recipe = [record[RECIPE] boolValue];
+                        coffeeImageData.liked = [record[LIKED] boolValue]; // 0 = No, 1 = Yes
                         coffeeImageData.recordID = record.recordID.recordName;
                         
                         /* below lines is not needed, but not removing it yet */
@@ -839,7 +840,7 @@ NSInteger const CellHeight = 140; // height of cell
         // todo
     }
     else if (sender.selectedSegmentIndex == 2)  { // Cafes
-        [self performSegueWithIdentifier:@"Cafes" sender:self];
+        [self performSegueWithIdentifier:CAFES sender:self];
     }
 }
 
@@ -908,13 +909,13 @@ NSInteger const CellHeight = 140; // height of cell
     currentImageData.liked = selectedCell.imageIsLiked;
     if (currentImageData.isLiked) {
         //NSLog(@"image is liked");
-        [button setImage:[UIImage imageNamed:@"heart_blue_solid"] forState:UIControlStateNormal];
+        [button setImage:[UIImage imageNamed:HEART_BLUE_SOLID] forState:UIControlStateNormal];
         NSLog(@"Added liked image to userActivity!");
         // add liked image to userActivity array so it can be stored in CloudKit
         [self.userActivity addObject:currentImageData];
     } else {
         //NSLog(@"image is NOT liked");
-        [button setImage:[UIImage imageNamed:@"heart_blue"] forState:UIControlStateNormal];
+        [button setImage:[UIImage imageNamed:HEART_BLUE] forState:UIControlStateNormal];
         // if the user is unliking the image, check to see if it's currently in userActivity. If so, remove it
         if ([self.userActivity containsObject:currentImageData]) {
             NSLog(@"Current image exists in userActivity. Removing it...");
@@ -1028,7 +1029,7 @@ NSInteger const CellHeight = 140; // height of cell
      * locator. Will make this go back to Images segment. However, this may be better handled by a delegate -
      * need to investigate.
      */
-    if ([[self getSelectedSegmentTitle] isEqualToString:@"Cafes"]) {
+    if ([[self getSelectedSegmentTitle] isEqualToString:CAFES]) {
         NSLog(@"ViewDidAppear - Cafes!!");
         self.imageRecipeSegmentedControl.selectedSegmentIndex = 0;
         //[self.myCollectionView reloadData];

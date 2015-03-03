@@ -20,13 +20,13 @@
 
 @implementation CKManager
 
-NSString *const ImageName = @"ImageName";
+/*NSString *const ImageName = @"ImageName";
 NSString *const ImageBelongsToUser = @"ImageBelongsToUser";
 NSString *const ImageDescription = @"ImageDescription";
 NSString *const UserID = @"UserID";
 NSString *const Recipe = @"Recipe";
 NSString *const Image = @"Image";
-NSString *const CoffeeImageDataRecordType = @"CoffeeImageData";
+NSString *const CoffeeImageDataRecordType = @"CoffeeImageData";*/
 
 // Default initializer - instantiates the public and private databases
 - (instancetype)init {
@@ -54,16 +54,16 @@ NSString *const CoffeeImageDataRecordType = @"CoffeeImageData";
     //NSUInteger randomNumber = arc4random() % 100;
     //CKRecordID *wellKnownID = [[CKRecordID alloc] initWithRecordName:[NSString stringWithFormat:@"recordID%ld", (long)randomNumber]];
     //CKRecord *CIDRecord = [[CKRecord alloc] initWithRecordType:@"CoffeeImageData" recordID:wellKnownID];
-    CKRecord *CIDRecord = [[CKRecord alloc] initWithRecordType:CoffeeImageDataRecordType];
+    CKRecord *CIDRecord = [[CKRecord alloc] initWithRecordType:COFFEE_IMAGE_DATA_RECORD_TYPE];
     
-    CIDRecord[ImageBelongsToUser] = [NSNumber numberWithBool:coffeeImageData.imageBelongsToCurrentUser];
+    CIDRecord[IMAGE_BELONGS_TO_USER] = [NSNumber numberWithBool:coffeeImageData.imageBelongsToCurrentUser];
     //CIDRecord[@"ImageName"] = [NSString stringWithFormat:coffeeImageData.imageName, @"%d", randomNumber];
-    CIDRecord[ImageName] = coffeeImageData.imageName;
-    CIDRecord[ImageDescription] = coffeeImageData.imageDescription;
-    CIDRecord[UserID] = coffeeImageData.userID;
-    CIDRecord[Recipe] = [NSNumber numberWithBool:coffeeImageData.isRecipe];
+    CIDRecord[IMAGE_NAME] = coffeeImageData.imageName;
+    CIDRecord[IMAGE_DESCRIPTION] = coffeeImageData.imageDescription;
+    CIDRecord[USER_ID] = coffeeImageData.userID;
+    CIDRecord[RECIPE] = [NSNumber numberWithBool:coffeeImageData.isRecipe];
     CKAsset *photoAsset = [[CKAsset alloc] initWithFileURL:coffeeImageData.imageURL];
-    CIDRecord[Image] = photoAsset;
+    CIDRecord[IMAGE] = photoAsset;
     
     return CIDRecord;
 }
