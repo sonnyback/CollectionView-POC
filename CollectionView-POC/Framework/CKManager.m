@@ -62,6 +62,7 @@ NSString *const CoffeeImageDataRecordType = @"CoffeeImageData";*/
     CIDRecord[IMAGE_DESCRIPTION] = coffeeImageData.imageDescription;
     CIDRecord[USER_ID] = coffeeImageData.userID;
     CIDRecord[RECIPE] = [NSNumber numberWithBool:coffeeImageData.isRecipe];
+    CIDRecord[LIKED] = [NSNumber numberWithBool:coffeeImageData.isLiked];
     CKAsset *photoAsset = [[CKAsset alloc] initWithFileURL:coffeeImageData.imageURL];
     CIDRecord[IMAGE] = photoAsset;
     

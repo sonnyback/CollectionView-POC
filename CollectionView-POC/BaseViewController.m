@@ -392,7 +392,7 @@ NSInteger const CellHeight = 140; // height of cell
 #define LIKE_BUTTON_HEIGHT 38.0
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
     
-    //CoffeeViewCell *selectedCell = (CoffeeViewCell *)[collectionView cellForItemAtIndexPath:indexPath];
+    CoffeeViewCell *selectedCell = (CoffeeViewCell *)[collectionView cellForItemAtIndexPath:indexPath];
     NSLog(@"didSelectItemAtIndexPath");
     self.fullScreenImage = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width-10, self.view.bounds.size.height-15)];
     self.fullScreenImage.contentMode = UIViewContentModeScaleAspectFit;
@@ -420,15 +420,15 @@ NSInteger const CellHeight = 140; // height of cell
     [likeButton addTarget:self action:@selector(likeButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
     
     // get the CoffeeImageData object for this cell
-    CoffeeImageData *coffeeImageData = [self.imageLoadManager coffeeImageDataForCell:indexPath.row];
-    //CoffeeImageData *coffeeImageData = self.imageLoadManager.coffeeImageDataArray[indexPath.row];
+    //CoffeeImageData *coffeeImageData = [self.imageLoadManager coffeeImageDataForCell:indexPath.row];
+    CoffeeImageData *coffeeImageData = self.imageLoadManager.coffeeImageDataArray[indexPath.row];
     
-    //selectedCell.imageIsLiked = coffeeImageData.isLiked;
+    selectedCell.imageIsLiked = coffeeImageData.isLiked;
     //likeButton.selected = selectedCell.imageIsLiked;
     likeButton.selected = coffeeImageData.isLiked;
-    NSLog(@"image is liked? %d", coffeeImageData.isLiked);
+    
     // Check to see if image is currently liked or not and display the correct heart image
-    if (coffeeImageData.isLiked) {
+    if (selectedCell.imageIsLiked) {
         //[likeButton setImage:[UIImage imageNamed:@"heart_blue_solid"] forState:UIControlStateNormal|UIControlStateSelected];
         // above line caused bug
         [likeButton setImage:[UIImage imageNamed:HEART_BLUE_SOLID] forState:UIControlStateNormal];
