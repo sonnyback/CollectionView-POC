@@ -16,9 +16,12 @@
 - (instancetype)initImagesForSelection:(NSString *)selectionType;
 - (CoffeeImageData *)coffeeImageDataForCell:(NSUInteger)index;
 - (void)addCIDForNewUserImage:(CoffeeImageData *)newImageData;
+- (void)updateUserLikeActivityAtIndex:(NSUInteger)index;
+- (BOOL)lookupRecordIDInUserData:(NSString *)recordID;
 // imagesArray and imageNames array will go away. Replaced by coffeeImageDataArray
 //@property (strong, nonatomic) NSArray *imagesArray; // of UIImage (array of images)
 //@property (strong, nonatomic) NSArray *imageNames; // of NSString (name of the images)
 //@property (strong, nonatomic) CoffeeImageData *coffeeImageData;
 @property (strong, nonatomic) NSMutableArray *coffeeImageDataArray; // of CoffeeImageData
+@property (strong, nonatomic) NSMutableDictionary *userActivityDictionary;
 @end

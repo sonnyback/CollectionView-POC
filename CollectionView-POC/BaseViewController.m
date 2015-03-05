@@ -151,7 +151,7 @@ NSInteger const CellHeight = 140; // height of cell
     dataForNewImage.userID = @"current user"; // will come from cloudkit
     //dataForNewImage.userID = self.ckManager.userRecordID.description;
     dataForNewImage.imageBelongsToCurrentUser = YES; // user took this photo
-    dataForNewImage.liked = YES;
+    dataForNewImage.liked = NO; // should always be NO for the public data. Will only be set to YES in code if there is a reference in user's data
     /** THIS IS NULL. NEED TO USE SDWEBIMAGE cache **/
     //dataForNewImage.imageURL = info[UIImagePickerControllerReferenceURL];
     //NSLog(@"CID.imageURL: %@", dataForNewImage.imageURL);
@@ -286,68 +286,77 @@ NSInteger const CellHeight = 140; // height of cell
         /********************************************************/
         CoffeeImageData *coffeeImageData = self.imageLoadManager.coffeeImageDataArray[indexPath.row];
         
-        if ([self.allCacheKeys count] > 0) { // check to see if the cacheKeys arrays contains any keys (URLs)
+        if (coffeeImageData) {
+            // check to see if the recordID of the current CID is userActivityDictionary. If so, it's in the user's private
+            // data so set liked value = YES
+            if ([self.imageLoadManager lookupRecordIDInUserData:coffeeImageData.recordID]) {
+                NSLog(@"RecordID found in userActivityDictiontary!");
+                coffeeImageData.liked = YES;
+            }
             
-            NSString *cacheKey = self.allCacheKeys[indexPath.row];
-            if (cacheKey) {
-                NSLog(@"cacheKey found!");
-                [self.imageCache queryDiskCacheForKey:cacheKey done:^(UIImage *image, SDImageCacheType cacheType) {
-                    if (image) { // image is found in the cache
-                        NSLog(@"Image found in cache!");
-                        cell.coffeeImageView.image = image;
-                    } else {
-                        NSLog(@"Image not found in cache, getting image from CID!");
-                        if (coffeeImageData.imageURL.path) {
-                            cell.coffeeImageView.image = [UIImage imageWithContentsOfFile:coffeeImageData.imageURL.path];
+            if ([self.allCacheKeys count] > 0) { // check to see if the cacheKeys arrays contains any keys (URLs)
+                
+                NSString *cacheKey = self.allCacheKeys[indexPath.row];
+                if (cacheKey) {
+                    NSLog(@"cacheKey found!");
+                    [self.imageCache queryDiskCacheForKey:cacheKey done:^(UIImage *image, SDImageCacheType cacheType) {
+                        if (image) { // image is found in the cache
+                            NSLog(@"Image found in cache!");
+                            cell.coffeeImageView.image = image;
+                        } else {
+                            NSLog(@"Image not found in cache, getting image from CID!");
+                            if (coffeeImageData.imageURL.path) {
+                                cell.coffeeImageView.image = [UIImage imageWithContentsOfFile:coffeeImageData.imageURL.path];
+                            }
                         }
+                    }];
+                } else {
+                    NSLog(@"cacheKey NOT found!");
+                    if (coffeeImageData.imageURL.path) {
+                        cell.coffeeImageView.image = [UIImage imageWithContentsOfFile:coffeeImageData.imageURL.path];
                     }
-                }];
-            } else {
-                NSLog(@"cacheKey NOT found!");
+                }
+            } else { // if not, get the image data from the CID object
+                NSLog(@"allCacheKeys array is empty, getting image from CID!");
                 if (coffeeImageData.imageURL.path) {
                     cell.coffeeImageView.image = [UIImage imageWithContentsOfFile:coffeeImageData.imageURL.path];
                 }
             }
-        } else { // if not, get the image data from the CID object
-            NSLog(@"allCacheKeys array is empty, getting image from CID!");
-            if (coffeeImageData.imageURL.path) {
-                cell.coffeeImageView.image = [UIImage imageWithContentsOfFile:coffeeImageData.imageURL.path];
-            }
+            
+            
+            /*if (coffeeImageData.imageURL.path) {
+             cell.coffeeImageView.image = [UIImage imageWithContentsOfFile:coffeeImageData.imageURL.path];
+             //[cell setNeedsLayout];
+             } else {
+             // if imageURL is nil, then image is coming in from the camera as opposed to the cloud
+             cell.coffeeImageView.image = coffeeImageData.image;
+             //cell.coffeeImageView.image = [UIImage imageNamed:@"placeholder.png"];
+             //[cell setNeedsLayout];
+             }*/
+            /********************************************************/
+            //CGRect originalImageFrame = cell.coffeeImageView.frame;
+            
+            //cell.coffeeImageView.frame = CGRectMake(originalImageFrame.origin.x, originalImageFrame.origin.y, originalImageFrame.size.width, originalImageFrame.size.height - 25);
+            
+            //NSString *imageNameForLabel = [self.imageNames objectAtIndex:indexPath.row];
+            //NSString *imageNameForLabel = coffeeImageData.imageName;
+            //NSLog(@"imageNameforLabel %@", imageNameForLabel);
+            
+            //cell.coffeeImageView.image = coffeeImageData.image; // original code without thumbnail
+            //cell.coffeeImageView.image = [UIImage imageWithContentsOfFile:coffeeImageData.imageURL.path];
+            
+            //UIImage *image = [UIImage imageWithData:[NSData dataWithContentsOfURL:coffeeImageData.imageURL]];
+            //NSLog(@"image size height: %f, %fwidth", cell.coffeeImageView.image.size.height, cell.coffeeImageView.image.size.width);
+            /* use the following to scale the image down for a thumbnail image - !!!issue with scroll lag though!!!*/
+            //UIImage *thumbnailImage = coffeeImageData.image;
+            //cell.coffeeImageView.image = [thumbnailImage imageByScalingToSize:CGSizeMake(ITEM_SIZE, ITEM_SIZE)];
+            
+            //cell.coffeeImageView.clipsToBounds = YES;
+            //cell.coffeeImageLabel.text = imageNameForLabel;
+            
+            cell.coffeeImageLabel.alpha = 0.3; // set the label to be semi transparent
+            cell.coffeeImageLabel.hidden = YES; // just for toggling on/off until this label is completely removed
         }
-        
-        
-        /*if (coffeeImageData.imageURL.path) {
-            cell.coffeeImageView.image = [UIImage imageWithContentsOfFile:coffeeImageData.imageURL.path];
-            //[cell setNeedsLayout];
-        } else {
-            // if imageURL is nil, then image is coming in from the camera as opposed to the cloud
-            cell.coffeeImageView.image = coffeeImageData.image;
-            //cell.coffeeImageView.image = [UIImage imageNamed:@"placeholder.png"];
-            //[cell setNeedsLayout];
-        }*/
-        /********************************************************/
-        //CGRect originalImageFrame = cell.coffeeImageView.frame;
-        
-        //cell.coffeeImageView.frame = CGRectMake(originalImageFrame.origin.x, originalImageFrame.origin.y, originalImageFrame.size.width, originalImageFrame.size.height - 25);
-        
-        //NSString *imageNameForLabel = [self.imageNames objectAtIndex:indexPath.row];
-        //NSString *imageNameForLabel = coffeeImageData.imageName;
-        //NSLog(@"imageNameforLabel %@", imageNameForLabel);
-        
-        //cell.coffeeImageView.image = coffeeImageData.image; // original code without thumbnail
-        //cell.coffeeImageView.image = [UIImage imageWithContentsOfFile:coffeeImageData.imageURL.path];
-        
-        //UIImage *image = [UIImage imageWithData:[NSData dataWithContentsOfURL:coffeeImageData.imageURL]];
-        //NSLog(@"image size height: %f, %fwidth", cell.coffeeImageView.image.size.height, cell.coffeeImageView.image.size.width);
-        /* use the following to scale the image down for a thumbnail image - !!!issue with scroll lag though!!!*/
-        //UIImage *thumbnailImage = coffeeImageData.image;
-        //cell.coffeeImageView.image = [thumbnailImage imageByScalingToSize:CGSizeMake(ITEM_SIZE, ITEM_SIZE)];
-        
-        //cell.coffeeImageView.clipsToBounds = YES;
-        //cell.coffeeImageLabel.text = imageNameForLabel;
-        
-        cell.coffeeImageLabel.alpha = 0.3; // set the label to be semi transparent
-        cell.coffeeImageLabel.hidden = YES; // just for toggling on/off until this label is completely removed
     }
     
     return cell;
@@ -655,53 +664,6 @@ NSInteger const CellHeight = 140; // height of cell
 #pragma mark - Helper Methods
 
 /**
- * Method for preparing a CKRecord before saving to CloudKit. 
- * CKRecord will contain recent photo taken and prepared as CID object.
- *
- * @param CoffeeImageData*
- * @return CKRecord*
- */
-/*- (CKRecord *)createCKRecordForImage:(CoffeeImageData *)coffeeImageData {
-    
-    NSLog(@"Entered createCKRecordForImage...");
-    //NSUInteger randomNumber = arc4random() % 100;
-    //CKRecordID *wellKnownID = [[CKRecordID alloc] initWithRecordName:[NSString stringWithFormat:@"recordID%ld", (long)randomNumber]];
-    //CKRecord *CIDRecord = [[CKRecord alloc] initWithRecordType:@"CoffeeImageData" recordID:wellKnownID];
-    CKRecord *CIDRecord = [[CKRecord alloc] initWithRecordType:@"CoffeeImageData"];
-    
-    CIDRecord[@"ImageBelongsToUser"] = [NSNumber numberWithBool:coffeeImageData.imageBelongsToCurrentUser];
-    //CIDRecord[@"ImageName"] = [NSString stringWithFormat:coffeeImageData.imageName, @"%d", randomNumber];
-    CIDRecord[@"ImageName"] = coffeeImageData.imageName;
-    CIDRecord[@"ImageDescription"] = coffeeImageData.imageDescription;
-    CIDRecord[@"UserID"] = coffeeImageData.userID;
-    CIDRecord[@"Recipe"] = [NSNumber numberWithBool:coffeeImageData.isRecipe];
-    CKAsset *photoAsset = [[CKAsset alloc] initWithFileURL:coffeeImageData.imageURL];
-    CIDRecord[@"Image"] = photoAsset;
-    
-    return CIDRecord;
-}*/
-
-/**
- * Method to save a CKRecord to CloudKit
- *
- *
- */
-/*- (void)saveRecord:(CKRecord *)record {
-    
-    NSLog(@"Entered saveRecord...");
-    CKDatabase *publicDatabase = [[CKContainer defaultContainer] publicCloudDatabase];
-    
-    // save the record
-    [publicDatabase saveRecord:record completionHandler:^(CKRecord *record, NSError *error) {
-        if (error) {
-            NSLog(@"Error saving record to cloud...%@", error.localizedDescription);
-        } else {
-            NSLog(@"Record saved successfully!");
-        }
-    }];
-}*/
-
-/**
  * Method to do the initial loading of CK records to populate the CV.
  * This will eventually be moved out of the ViewController and back into ImageLoadManager
  * CKManager.
@@ -779,8 +741,43 @@ NSInteger const CellHeight = 140; // height of cell
             }
         }
     }];
-    
+    [self getUserActivityPrivateData];
     NSLog(@"beginLoadingCloudKitData...ended!");
+}
+
+- (void)getUserActivityPrivateData {
+    
+    NSLog(@"Entered getUserActivityPrivateData");
+    CKDatabase *privateDatabase = [[CKContainer defaultContainer] privateCloudDatabase];
+    NSPredicate *predicate = [NSPredicate predicateWithValue:true]; // give all results
+    CKQuery *query = [[CKQuery alloc] initWithRecordType:USER_ACTIVITY_RECORD_TYPE predicate:predicate];
+    
+    [privateDatabase performQuery:query inZoneWithID:nil completionHandler:^(NSArray *results, NSError *error) {
+        if (error) {
+            NSLog(@"Error: there was an error fetching user's private data... %@", error.localizedDescription);
+        } else {
+            if ([results count] > 0) { // if results, we have user activity from their private database
+                @synchronized(self){
+                    NSLog(@"We have private data!!!");
+                    for (CKRecord *record in results) {
+                        CoffeeImageData *coffeeImageData = [[CoffeeImageData alloc] init];
+                        CKAsset *imageAsset = record[IMAGE];
+                        coffeeImageData.imageURL = imageAsset.fileURL;
+                        coffeeImageData.imageName = record[IMAGE_NAME];
+                        coffeeImageData.imageDescription = record[IMAGE_DESCRIPTION];
+                        coffeeImageData.userID = record[USER_ID];
+                        coffeeImageData.imageBelongsToCurrentUser = [record[IMAGE_BELONGS_TO_USER] boolValue];
+                        coffeeImageData.recipe = [record[RECIPE] boolValue];
+                        coffeeImageData.liked = [record[LIKED] boolValue];
+                        coffeeImageData.recordID = record[RECORD_ID]; // recordID of the owner record, NOT the reference object!
+                        NSLog(@"Reference recordID %@", coffeeImageData.recordID);
+                        [self.imageLoadManager.userActivityDictionary setObject:coffeeImageData forKey:coffeeImageData.recordID];
+                    }
+                }
+            }
+        }
+    }];
+    
 }
 
 /**

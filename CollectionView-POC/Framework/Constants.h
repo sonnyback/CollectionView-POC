@@ -25,12 +25,14 @@ extern NSString *const SEARCH_FOR_COFFEE;
 
 // CoffeeImageData
 extern NSString *const IMAGE_NAME;
-extern NSString *const IMAGE_BELONGS_TO_USER; // will be interpreted as BOOL
+extern NSString *const IMAGE_BELONGS_TO_USER;
 extern NSString *const IMAGE_DESCRIPTION;
 extern NSString *const USER_ID;
-extern NSString *const RECIPE; // will be interpreted as BOOL
-extern NSString *const IMAGE; // CKAsset
+extern NSString *const RECIPE;
+extern NSString *const IMAGE;
 extern NSString *const LIKED;
 extern NSString *const COFFEE_IMAGE_DATA_RECORD_TYPE;
+extern NSString *const USER_ACTIVITY_RECORD_TYPE;
+extern NSString *const RECORD_ID;
 
 @end

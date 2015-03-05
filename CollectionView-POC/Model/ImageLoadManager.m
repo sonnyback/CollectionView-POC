@@ -14,7 +14,6 @@
 
 @implementation ImageLoadManager
 
-
 // lazy instantiate coffeeImageDataArray getter
 - (NSMutableArray *)coffeeImageDataArray {
     
@@ -23,6 +22,15 @@
     }
     
     return _coffeeImageDataArray;
+}
+
+// lazy instantiate userActivityDictionary
+- (NSMutableDictionary *)userActivityDictionary {
+    
+    if (!_userActivityDictionary) {
+        _userActivityDictionary = [[NSMutableDictionary alloc] init];
+    }
+    return _userActivityDictionary;
 }
 
 - (instancetype)init {
@@ -213,6 +221,26 @@
     [self.coffeeImageDataArray insertObject:newImageData atIndex:0];
     
     NSLog(@"CoffeeImageDataArray size %lu", (unsigned long)[self.coffeeImageDataArray count]);
+}
+
+
+- (BOOL)lookupRecordIDInUserData:(NSString *)recordID {
+    
+    NSLog(@"Entered lookupRecordIDInUserData for recordID: %@", recordID);
+    
+    if ([self.userActivityDictionary objectForKey:recordID]) {
+        return TRUE;
+    } else {
+        return FALSE;
+    }
+        
+}
+
+- (void)updateUserLikeActivityAtIndex:(NSUInteger)index {
+    
+    NSLog(@"Entered updateUserLikeActivity...");
+    CoffeeImageData *cid = [self coffeeImageDataForCell:index];
+    NSLog(@"Like value for current CID %d", cid.isLiked);
 }
 
 /**
