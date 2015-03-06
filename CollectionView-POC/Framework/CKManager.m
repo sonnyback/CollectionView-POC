@@ -70,7 +70,25 @@ NSString *const CoffeeImageDataRecordType = @"CoffeeImageData";*/
 }
 
 /**
- * Method to save a CKRecord to CloudKit
+ * Method for preparing a CKRecord before saving to user's private database in CloudKit.
+ * Creates a CKReference to the CID record from the public CoffeeImageData record type.
+ *
+ * @param CoffeeImageData*
+ * @return CKRecord*
+ */
+- (CKRecord *)createCKRecordForUserActivity:(CoffeeImageData *)coffeeImageData {
+    
+    NSLog(@"Entered createCKRecordForUserActivity...");
+    CKRecord *userActivityRecord = [[CKRecord alloc] initWithRecordType:USER_ACTIVITY_RECORD_TYPE];
+    CKReference *cidReference = [[CKReference alloc] initWithRecordID:[[CKRecordID alloc] initWithRecordName:coffeeImageData.recordID] action:CKReferenceActionDeleteSelf];
+    userActivityRecord[COFFEE_IMAGE_DATA_RECORD_TYPE] = cidReference;
+    userActivityRecord[RECORD_ID] = coffeeImageData.recordID;
+    
+    return userActivityRecord;
+}
+
+/**
+ * Method to save a public CKRecord to CloudKit
  *
  * @param CKRecord *
  * @return void
@@ -91,6 +109,29 @@ NSString *const CoffeeImageDataRecordType = @"CoffeeImageData";*/
         }];
     } else {
         NSLog(@"WARN: The CKRecord passed was not valid or could not be saved!");
+    }
+}
+
+/**
+ * Method to save a private CKRecord to CloudKit in the user's private database.
+ *
+ * @param CKRecord *
+ * @return void
+ */
+- (void)saveRecordForPrivateData:(CKRecord *)record {
+    
+    NSLog(@"Entered saveRecordForPrivateData...");
+    
+    if (record) {
+        [self.privateDatabase saveRecord:record completionHandler:^(CKRecord *record, NSError *error) {
+            if (error) {
+                NSLog(@"Error saving record to user's private database...%@", error.localizedDescription);
+            } else {
+                NSLog(@"Private UserActivity Record saved successfully!");
+            }
+        }];
+    } else {
+        NSLog(@"WARN: The CKRecord passed was not valid or could not be saved to the user's private database!");
     }
 }
 

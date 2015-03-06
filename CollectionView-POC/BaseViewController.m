@@ -910,6 +910,11 @@ NSInteger const CellHeight = 140; // height of cell
         NSLog(@"Added liked image to userActivity!");
         // add liked image to userActivity array so it can be stored in CloudKit
         [self.userActivity addObject:currentImageData];
+        // look up the recordID in userActivityDictionary. If it's already there, we do not need to save it user's private data as it already exists
+        // in this scenario, the user must have already liked it and saved the record, then unliked it and reliked it in the same session
+        if (![self.imageLoadManager lookupRecordIDInUserData:currentImageData.recordID]) {
+            [self.ckManager saveRecordForPrivateData:[self.ckManager createCKRecordForUserActivity:currentImageData]];
+        }
     } else {
         //NSLog(@"image is NOT liked");
         [button setImage:[UIImage imageNamed:HEART_BLUE] forState:UIControlStateNormal];

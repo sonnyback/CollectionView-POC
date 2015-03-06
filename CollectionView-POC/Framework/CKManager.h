@@ -26,7 +26,9 @@ extern NSString *const CoffeeImageDataRecordType;*/
 
 // public methods
 - (CKRecord *)createCKRecordForImage:(CoffeeImageData *)coffeeImageData;
+- (CKRecord *)createCKRecordForUserActivity:(CoffeeImageData *)coffeeImageData;
 - (void)saveRecord:(CKRecord *)record;
+- (void)saveRecordForPrivateData:(CKRecord *)record;
 - (CKAccountStatus)getUsersCKStatus;
 
 @end
