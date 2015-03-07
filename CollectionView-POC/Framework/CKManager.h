@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import "CoffeeImageData.h"
+#import "UserActivity.h"
 @import CloudKit;
 
 @interface CKManager : NSObject
@@ -29,6 +30,7 @@ extern NSString *const CoffeeImageDataRecordType;*/
 - (CKRecord *)createCKRecordForUserActivity:(CoffeeImageData *)coffeeImageData;
 - (void)saveRecord:(CKRecord *)record;
 - (void)saveRecordForPrivateData:(CKRecord *)record;
+- (void)deleteUserActivityRecord:(UserActivity *)userActivityRecord;
 - (CKAccountStatus)getUsersCKStatus;
 
 @end

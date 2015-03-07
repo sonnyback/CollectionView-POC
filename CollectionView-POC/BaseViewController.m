@@ -19,6 +19,7 @@
 #import <CloudKit/CloudKit.h>
 #import "SDImageCache.h"
 #import "CKManager.h"
+#import "UserActivity.h"
 
 @interface BaseViewController()
 @property (weak, nonatomic) IBOutlet UICollectionView *myCollectionView;
@@ -290,7 +291,7 @@ NSInteger const CellHeight = 140; // height of cell
             // check to see if the recordID of the current CID is userActivityDictionary. If so, it's in the user's private
             // data so set liked value = YES
             if ([self.imageLoadManager lookupRecordIDInUserData:coffeeImageData.recordID]) {
-                NSLog(@"RecordID found in userActivityDictiontary!");
+                //NSLog(@"RecordID found in userActivityDictiontary!");
                 coffeeImageData.liked = YES;
             }
             
@@ -752,6 +753,12 @@ NSInteger const CellHeight = 140; // height of cell
     NSPredicate *predicate = [NSPredicate predicateWithValue:true]; // give all results
     CKQuery *query = [[CKQuery alloc] initWithRecordType:USER_ACTIVITY_RECORD_TYPE predicate:predicate];
     
+    // userActivityDictionary should be empty, but check to ensure
+    if ([self.imageLoadManager.userActivityDictionary count] > 0) {
+        NSLog(@"Removing all objects user userActivityDictionary!");
+        [self.imageLoadManager.userActivityDictionary removeAllObjects];
+    }
+    
     [privateDatabase performQuery:query inZoneWithID:nil completionHandler:^(NSArray *results, NSError *error) {
         if (error) {
             NSLog(@"Error: there was an error fetching user's private data... %@", error.localizedDescription);
@@ -761,6 +768,7 @@ NSInteger const CellHeight = 140; // height of cell
                     NSLog(@"We have private data!!!");
                     for (CKRecord *record in results) {
                         CoffeeImageData *coffeeImageData = [[CoffeeImageData alloc] init];
+                        UserActivity *userActivityRecord = [[UserActivity alloc] init];
                         CKAsset *imageAsset = record[IMAGE];
                         coffeeImageData.imageURL = imageAsset.fileURL;
                         coffeeImageData.imageName = record[IMAGE_NAME];
@@ -770,8 +778,13 @@ NSInteger const CellHeight = 140; // height of cell
                         coffeeImageData.recipe = [record[RECIPE] boolValue];
                         coffeeImageData.liked = [record[LIKED] boolValue];
                         coffeeImageData.recordID = record[RECORD_ID]; // recordID of the owner record, NOT the reference object!
-                        NSLog(@"Reference recordID %@", coffeeImageData.recordID);
-                        [self.imageLoadManager.userActivityDictionary setObject:coffeeImageData forKey:coffeeImageData.recordID];
+                        userActivityRecord.cidReference = coffeeImageData; // this is the CKReference of the CID object
+                        userActivityRecord.recordID = record.recordID.recordName; // recordID of the actual UA record which contains CID CKReference record
+                        userActivityRecord.userActivityRecordID = record.recordID.recordName; // recordID of the actual UA record which contains CID CKReference record
+                        NSLog(@"Reference recordID %@, UA recordID: %@", userActivityRecord.cidReference.recordID, userActivityRecord.userActivityRecordID);
+                        
+                        [self.imageLoadManager.userActivityDictionary setObject:userActivityRecord forKey:userActivityRecord.cidReference.recordID];
+                        //[self.imageLoadManager.userActivityDictionary setObject:userActivityRecord forKey:userActivityRecord.userActivityRecordID];
                     }
                 }
             }
@@ -905,23 +918,33 @@ NSInteger const CellHeight = 140; // height of cell
     // update the liked value in the model based on the user hitting the like button on the image
     currentImageData.liked = selectedCell.imageIsLiked;
     if (currentImageData.isLiked) {
-        //NSLog(@"image is liked");
+        NSLog(@"image is liked");
         [button setImage:[UIImage imageNamed:HEART_BLUE_SOLID] forState:UIControlStateNormal];
         NSLog(@"Added liked image to userActivity!");
         // add liked image to userActivity array so it can be stored in CloudKit
-        [self.userActivity addObject:currentImageData];
+        //[self.userActivity addObject:currentImageData];
         // look up the recordID in userActivityDictionary. If it's already there, we do not need to save it user's private data as it already exists
         // in this scenario, the user must have already liked it and saved the record, then unliked it and reliked it in the same session
         if (![self.imageLoadManager lookupRecordIDInUserData:currentImageData.recordID]) {
+            // add current CID to userActivityDictionary so we can
+            [self.imageLoadManager.userActivityDictionary setObject:currentImageData forKey:currentImageData.recordID];
             [self.ckManager saveRecordForPrivateData:[self.ckManager createCKRecordForUserActivity:currentImageData]];
+            //[self getUserActivityPrivateData]; // refresh the userActivityData
         }
     } else {
-        //NSLog(@"image is NOT liked");
+        NSLog(@"image is NOT liked");
         [button setImage:[UIImage imageNamed:HEART_BLUE] forState:UIControlStateNormal];
         // if the user is unliking the image, check to see if it's currently in userActivity. If so, remove it
-        if ([self.userActivity containsObject:currentImageData]) {
+        /*if ([self.userActivity containsObject:currentImageData]) {
             NSLog(@"Current image exists in userActivity. Removing it...");
             [self.userActivity removeObject:currentImageData];
+        }*/
+        if ([self.imageLoadManager lookupRecordIDInUserData:currentImageData.recordID]) {
+            NSLog(@"User is unliking an image...prepare for deletion!");
+            // delete the record from the user's private database
+            [self.ckManager deleteUserActivityRecord:[self.imageLoadManager.userActivityDictionary objectForKey:currentImageData.recordID]];
+            // remove this record from the userActivityDictionary. *NOTE: Move this to CKManager once ILM object is there!
+            [self.imageLoadManager removeUserActivityDataFromDictionary:currentImageData.recordID];
         }
     }
     

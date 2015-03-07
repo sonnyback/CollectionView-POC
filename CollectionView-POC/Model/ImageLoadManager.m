@@ -229,8 +229,10 @@
     NSLog(@"Entered lookupRecordIDInUserData for recordID: %@", recordID);
     
     if ([self.userActivityDictionary objectForKey:recordID]) {
+        NSLog(@"RecordID %@ found in userActivityDictionary!", recordID);
         return TRUE;
     } else {
+        NSLog(@"RecordID %@ NOT found in userActivityDictionary!", recordID);
         return FALSE;
     }
         
@@ -241,6 +243,17 @@
     NSLog(@"Entered updateUserLikeActivity...");
     CoffeeImageData *cid = [self coffeeImageDataForCell:index];
     NSLog(@"Like value for current CID %d", cid.isLiked);
+}
+
+- (void)removeUserActivityDataFromDictionary:(NSString *)recordID {
+    
+    NSLog(@"Entered removeUserActivityDataFromDictionary...");
+    if ([self lookupRecordIDInUserData:recordID]) {
+        [self.userActivityDictionary removeObjectForKey:recordID];
+        if (![self lookupRecordIDInUserData:recordID]) {
+            NSLog(@"Successfully removed data from userActivityDictionary for recordID: %@", recordID);
+        }
+    }
 }
 
 /**

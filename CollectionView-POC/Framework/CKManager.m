@@ -135,6 +135,20 @@ NSString *const CoffeeImageDataRecordType = @"CoffeeImageData";*/
     }
 }
 
+- (void)deleteUserActivityRecord:(UserActivity *)userActivityRecord {
+    
+    NSLog(@"Entered deleteUserActivityRecord...");
+    NSLog(@"Preparing deletion for UA recordID: %@", userActivityRecord.recordID);
+    //NSLog(@"Preparing deletion for UA recordID: %@", userActivityRecord.userActivityRecordID);
+    [self.privateDatabase deleteRecordWithID:[[CKRecordID alloc] initWithRecordName:userActivityRecord.recordID] completionHandler:^(CKRecordID *recordID, NSError *error) {
+        if (error) {
+            NSLog(@"Error: Error encountered while trying to delete UA record from user's private database: %@", error.localizedDescription);
+        } else {
+            NSLog(@"UA record successfully deleted from user's private database!");
+        }
+    }];
+}
+
 /**
  * Method to get the user's current iCloud status. Also fetches userRecordID if logged in and
  * not already retrieved.
