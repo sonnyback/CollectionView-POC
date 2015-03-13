@@ -39,14 +39,13 @@
 @property (strong, nonatomic) SDImageCache *imageCache;
 @property (strong, nonatomic) NSMutableArray *allCacheKeys; // holds all the image URL strings from the cache
 @property (strong, nonatomic) CKManager *ckManager; // CloudKitManager class
-@property (strong, nonatomic) NSMutableArray *userActivity; // tracks images user likes and stores CID objects to be saved in CloudKit
 @end
 
 @implementation BaseViewController
 
 NSInteger const CellWidth = 140; // width of cell
 NSInteger const CellHeight = 140; // height of cell
-
+dispatch_queue_t queue;
 
 //#define ITEM_SIZE 290.0 // item size for the cell **SHOULD ALWAYS MATCH CellWidth constant!
 #define ITEM_SIZE 140.0 // item size for the cell **SHOULD ALWAYS MATCH CellWidth constant!
@@ -109,16 +108,6 @@ NSInteger const CellHeight = 140; // height of cell
     return _allCacheKeys;
 }
 
-// lazy instantiate userActivity
-- (NSMutableArray *)userActivity {
-    
-    if (!_userActivity) {
-        _userActivity = [[NSMutableArray alloc] init];
-    }
-    
-    return _userActivity;
-}
-
 // return the value for globalColor ro
 - (UIColor *)globalColor {
     
@@ -149,8 +138,7 @@ NSInteger const CellHeight = 140; // height of cell
     dataForNewImage.image = image;
     dataForNewImage.imageName = @"temporary name"; // i think this will be an image file URL
     dataForNewImage.imageDescription = @"description";
-    dataForNewImage.userID = @"current user"; // will come from cloudkit
-    //dataForNewImage.userID = self.ckManager.userRecordID.description;
+    dataForNewImage.userID = self.ckManager.userRecordID.recordName;
     dataForNewImage.imageBelongsToCurrentUser = YES; // user took this photo
     dataForNewImage.liked = NO; // should always be NO for the public data. Will only be set to YES in code if there is a reference in user's data
     /** THIS IS NULL. NEED TO USE SDWEBIMAGE cache **/
@@ -674,7 +662,7 @@ NSInteger const CellHeight = 140; // height of cell
  */
 - (void)beginLoadingCloudKitData {
     
-    NSLog(@"beginLoadingCloudKitData...started!");
+    NSLog(@"INFO: beginLoadingCloudKitData...started!");
     
     CKDatabase *publicDatabase = [[CKContainer defaultContainer] publicCloudDatabase];
     //NSPredicate *predicate = [NSPredicate predicateWithFormat:@"ImageDescription = 'description'"];
@@ -694,12 +682,12 @@ NSInteger const CellHeight = 140; // height of cell
                 // number of items is based on number of records returned from CK query
                 self.numberOfItemsInSection = [results count];
                 @synchronized(self){
-                    NSLog(@"Success querying the cloud for %lu results!!!", (unsigned long)[results count]);
+                    NSLog(@"INFO: Success querying the cloud for %lu results!!!", (unsigned long)[results count]);
                     for (CKRecord *record in results) {
                         //NSLog(@"Image: %@", record[@"Image"]);
                         //NSLog(@"ImageBelongsToUser? %@", record[@"ImageBelongsToUser"]);
                         //NSLog(@"Image name: %@", record[IMAGE_NAME]);
-                        //NSLog(@"userid: %@", record[@"UserID"]);
+                        NSLog(@"userid: %@", record[@"UserID"]);
                         //NSLog(@"Image description: %@", record[@"ImageDescription"]);
                         //NSLog(@"isRecipe? %@", record[@"Recipe"]);
                         //NSLog(@"isLiked? %@", record[Liked]);
@@ -745,19 +733,19 @@ NSInteger const CellHeight = 140; // height of cell
         }
     }];
     [self getUserActivityPrivateData];
-    NSLog(@"beginLoadingCloudKitData...ended!");
+    NSLog(@"INFO: beginLoadingCloudKitData...ended!");
 }
 
 - (void)getUserActivityPrivateData {
     
-    NSLog(@"Entered getUserActivityPrivateData");
+    NSLog(@"INFO: Entered getUserActivityPrivateData");
     CKDatabase *privateDatabase = [[CKContainer defaultContainer] privateCloudDatabase];
     NSPredicate *predicate = [NSPredicate predicateWithValue:true]; // give all results
     CKQuery *query = [[CKQuery alloc] initWithRecordType:USER_ACTIVITY_RECORD_TYPE predicate:predicate];
     
     // userActivityDictionary should be empty, but check to ensure
     if ([self.imageLoadManager.userActivityDictionary count] > 0) {
-        NSLog(@"Removing all objects user userActivityDictionary!");
+        NSLog(@"INFO: Removing all objects user userActivityDictionary!");
         [self.imageLoadManager.userActivityDictionary removeAllObjects];
     }
     
@@ -767,7 +755,7 @@ NSInteger const CellHeight = 140; // height of cell
         } else {
             if ([results count] > 0) { // if results, we have user activity from their private database
                 @synchronized(self){
-                    NSLog(@"We have private data!!!");
+                    NSLog(@"INFO: Data found in user's private CK database.");
                     for (CKRecord *record in results) {
                         UserActivity *userActivity = [[UserActivity alloc] init];
                         CKReference *cidReference = [[CKReference alloc] initWithRecord:record[COFFEE_IMAGE_DATA_RECORD_TYPE] action:CKReferenceActionNone];
@@ -776,7 +764,7 @@ NSInteger const CellHeight = 140; // height of cell
                         userActivity.cidReference = coffeeImageData;
                         //userActivity.recordID = cidReference.recordID.recordName;
                         userActivity.recordID = record.recordID.recordName;
-                        NSLog(@"Reference recordID %@, UA recordID: %@", cidReference.recordID.recordName, userActivity.recordID);
+                        NSLog(@"INFO: Reference recordID %@, UA recordID: %@", cidReference.recordID.recordName, userActivity.recordID);
                         [self.imageLoadManager.userActivityDictionary setObject:userActivity forKey:cidReference.recordID.recordName];
                     }
                 }
@@ -911,7 +899,7 @@ NSInteger const CellHeight = 140; // height of cell
     // update the liked value in the model based on the user hitting the like button on the image
     currentImageData.liked = selectedCell.imageIsLiked;
     if (currentImageData.isLiked) {
-        NSLog(@"image is liked");
+        NSLog(@"INFO: image is liked");
         [button setImage:[UIImage imageNamed:HEART_BLUE_SOLID] forState:UIControlStateNormal];
         NSLog(@"Added liked image to userActivity!");
         // look up the recordID in userActivityDictionary. If it's already there, we do not need to save it user's private data as it already exists
@@ -925,27 +913,26 @@ NSInteger const CellHeight = 140; // height of cell
             [self.ckManager saveRecordForPrivateData:[self.ckManager createCKRecordForUserActivity:newUserActivity]];
             // delay refreshing UA data to allow time for record to be saved first
             double delayInSeconds = 3.0;
-            dispatch_queue_t fetchQ = dispatch_queue_create("refresh UA data", NULL);
-            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, delayInSeconds * NSEC_PER_SEC), fetchQ, ^{
-                NSLog(@"Refreshing UA data...");
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, delayInSeconds * NSEC_PER_SEC), queue, ^{
+                NSLog(@"INFO: Refreshing UA data...");
                 [self getUserActivityPrivateData];
             });
         }
     } else {
-        NSLog(@"image is NOT liked");
+        NSLog(@"INFO: image is NOT liked");
         [button setImage:[UIImage imageNamed:HEART_BLUE] forState:UIControlStateNormal];
         // if the user is unliking the image, check to see if it's currently in userActivity. If so, remove it
         if ([self.imageLoadManager lookupRecordIDInUserData:currentImageData.recordID]) {
             UserActivity *currentUARecord = [self.imageLoadManager.userActivityDictionary objectForKey:currentImageData.recordID];
-            NSLog(@"User is unliking an image. Preparing to delete recordID: %@", currentUARecord.recordID);
+            NSLog(@"INFO: User is unliking an image. Preparing to delete recordID: %@", currentUARecord.recordID);
             if ([currentUARecord isKindOfClass:[UserActivity class]]) {
-                NSLog(@"UserActivity record for deletion!!!");
+                NSLog(@"INFO: UserActivity record for deletion!!!");
                 // delete the record from the user's private database
                 [self.ckManager deleteUserActivityRecord:[self.imageLoadManager.userActivityDictionary objectForKey:currentImageData.recordID]];
                 // remove this record from the userActivityDictionary. *NOTE: Move this to CKManager once ILM object is there!
                 [self.imageLoadManager removeUserActivityDataFromDictionary:currentImageData.recordID];
             } else {
-                NSLog(@"Object passed is NOT a UserActivity record!");
+                NSLog(@"INFO: Object passed is NOT a UserActivity record!");
             }
         }
     }
@@ -960,12 +947,12 @@ NSInteger const CellHeight = 140; // height of cell
  * @return void
  */
 - (IBAction)cameraBarButtonPressed:(UIBarButtonItem *)sender {
-    NSLog(@"Entered cameraBarButtonPressed");
+    NSLog(@"INFO: Entered cameraBarButtonPressed");
     
     CKAccountStatus userAccountStatus; // will return values 0-3. 1 is what we're looking for
     
     userAccountStatus = [self.ckManager getUsersCKStatus];
-    NSLog(@"cameraBarButtonPressed userAccountStatus: %ld", userAccountStatus);
+    NSLog(@"INFO: cameraBarButtonPressed userAccountStatus: %ld", userAccountStatus);
         
     if (userAccountStatus == CKAccountStatusAvailable) { // status = 1
         //NSLog(@"User is logged into CK - user can upload pics!");
@@ -1023,6 +1010,9 @@ NSInteger const CellHeight = 140; // height of cell
 {
     NSLog(@"viewDidLoad...");
     [super viewDidLoad];
+    
+    // create the queue
+    queue = dispatch_queue_create("com.drivethruu.CollectionView-POC",nil);
     
     // clear the cache
     [self.imageCache clearMemory];

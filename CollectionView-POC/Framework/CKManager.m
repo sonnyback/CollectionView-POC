@@ -199,7 +199,7 @@ NSString *const CoffeeImageDataRecordType = @"CoffeeImageData";*/
                                 NSLog(@"Error: Error encountered while getting userRecordID: %@", error.localizedDescription);
                             } else {
                                 self.userRecordID = recordID;
-                                NSLog(@"userRecordID: %@", self.userRecordID);
+                                NSLog(@"INFO: userID: %@", self.userRecordID.recordName);
                             }
                         }];
                     } else {
