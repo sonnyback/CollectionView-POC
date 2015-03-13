@@ -566,6 +566,8 @@ NSInteger const CellHeight = 140; // height of cell
     [self.myCollectionView setShowsVerticalScrollIndicator:YES];
     //[self.myCollectionView setBackgroundColor:[UIColor colorWithRed:0.227 green:0.349 blue:0.478 alpha:1]]; // ok color
     [self.myCollectionView setBackgroundColor:[UIColor colorWithRed:0.62 green:0.651 blue:0.686 alpha:1]];
+    //[self.myCollectionView setBackgroundColor:[UIColor colorWithPatternImage:[UIImage imageNamed:@"blue_gradient_3_iphone6.jpg"]]];
+    //[self.myCollectionView setBackgroundColor:[UIColor colorWithPatternImage:[UIImage imageNamed:@"orange_gradient_iphone6.jpg"]]];
     self.myCollectionView.multipleTouchEnabled = NO; // don't allow multiple cells to be selected at the same time
     //[self.myCollectionView setBackgroundColor:[UIColor whiteColor]];
     //[self.myCollectionView setPagingEnabled:YES]; // don't use since using CustomFlowLayout.targetContentOffsetForProposedContentOffset
@@ -767,24 +769,15 @@ NSInteger const CellHeight = 140; // height of cell
                 @synchronized(self){
                     NSLog(@"We have private data!!!");
                     for (CKRecord *record in results) {
-                        CoffeeImageData *coffeeImageData = [[CoffeeImageData alloc] init];
-                        UserActivity *userActivityRecord = [[UserActivity alloc] init];
-                        CKAsset *imageAsset = record[IMAGE];
-                        coffeeImageData.imageURL = imageAsset.fileURL;
-                        coffeeImageData.imageName = record[IMAGE_NAME];
-                        coffeeImageData.imageDescription = record[IMAGE_DESCRIPTION];
-                        coffeeImageData.userID = record[USER_ID];
-                        coffeeImageData.imageBelongsToCurrentUser = [record[IMAGE_BELONGS_TO_USER] boolValue];
-                        coffeeImageData.recipe = [record[RECIPE] boolValue];
-                        coffeeImageData.liked = [record[LIKED] boolValue];
-                        coffeeImageData.recordID = record[RECORD_ID]; // recordID of the owner record, NOT the reference object!
-                        userActivityRecord.cidReference = coffeeImageData; // this is the CKReference of the CID object
-                        userActivityRecord.recordID = record.recordID.recordName; // recordID of the actual UA record which contains CID CKReference record
-                        userActivityRecord.userActivityRecordID = record.recordID.recordName; // recordID of the actual UA record which contains CID CKReference record
-                        NSLog(@"Reference recordID %@, UA recordID: %@", userActivityRecord.cidReference.recordID, userActivityRecord.userActivityRecordID);
-                        
-                        [self.imageLoadManager.userActivityDictionary setObject:userActivityRecord forKey:userActivityRecord.cidReference.recordID];
-                        //[self.imageLoadManager.userActivityDictionary setObject:userActivityRecord forKey:userActivityRecord.userActivityRecordID];
+                        UserActivity *userActivity = [[UserActivity alloc] init];
+                        CKReference *cidReference = [[CKReference alloc] initWithRecord:record[COFFEE_IMAGE_DATA_RECORD_TYPE] action:CKReferenceActionNone];
+                        //NSLog(@"RecordID of cidReference: %@", cidReference.recordID.recordName);
+                        CoffeeImageData *coffeeImageData = (CoffeeImageData *)cidReference;
+                        userActivity.cidReference = coffeeImageData;
+                        //userActivity.recordID = cidReference.recordID.recordName;
+                        userActivity.recordID = record.recordID.recordName;
+                        NSLog(@"Reference recordID %@, UA recordID: %@", cidReference.recordID.recordName, userActivity.recordID);
+                        [self.imageLoadManager.userActivityDictionary setObject:userActivity forKey:cidReference.recordID.recordName];
                     }
                 }
             }
@@ -921,30 +914,39 @@ NSInteger const CellHeight = 140; // height of cell
         NSLog(@"image is liked");
         [button setImage:[UIImage imageNamed:HEART_BLUE_SOLID] forState:UIControlStateNormal];
         NSLog(@"Added liked image to userActivity!");
-        // add liked image to userActivity array so it can be stored in CloudKit
-        //[self.userActivity addObject:currentImageData];
         // look up the recordID in userActivityDictionary. If it's already there, we do not need to save it user's private data as it already exists
         // in this scenario, the user must have already liked it and saved the record, then unliked it and reliked it in the same session
         if (![self.imageLoadManager lookupRecordIDInUserData:currentImageData.recordID]) {
-            // add current CID to userActivityDictionary so we can
-            [self.imageLoadManager.userActivityDictionary setObject:currentImageData forKey:currentImageData.recordID];
-            [self.ckManager saveRecordForPrivateData:[self.ckManager createCKRecordForUserActivity:currentImageData]];
-            //[self getUserActivityPrivateData]; // refresh the userActivityData
+            // add current UserActivity to userActivityDictionary so we can keep track of it
+            //[self.imageLoadManager.userActivityDictionary setObject:currentImageData forKey:currentImageData.recordID];
+            UserActivity *newUserActivity = [[UserActivity alloc] init];
+            newUserActivity.cidReference = currentImageData;
+            [self.imageLoadManager.userActivityDictionary setObject:newUserActivity forKey:currentImageData.recordID];
+            [self.ckManager saveRecordForPrivateData:[self.ckManager createCKRecordForUserActivity:newUserActivity]];
+            // delay refreshing UA data to allow time for record to be saved first
+            double delayInSeconds = 3.0;
+            dispatch_queue_t fetchQ = dispatch_queue_create("refresh UA data", NULL);
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, delayInSeconds * NSEC_PER_SEC), fetchQ, ^{
+                NSLog(@"Refreshing UA data...");
+                [self getUserActivityPrivateData];
+            });
         }
     } else {
         NSLog(@"image is NOT liked");
         [button setImage:[UIImage imageNamed:HEART_BLUE] forState:UIControlStateNormal];
         // if the user is unliking the image, check to see if it's currently in userActivity. If so, remove it
-        /*if ([self.userActivity containsObject:currentImageData]) {
-            NSLog(@"Current image exists in userActivity. Removing it...");
-            [self.userActivity removeObject:currentImageData];
-        }*/
         if ([self.imageLoadManager lookupRecordIDInUserData:currentImageData.recordID]) {
-            NSLog(@"User is unliking an image...prepare for deletion!");
-            // delete the record from the user's private database
-            [self.ckManager deleteUserActivityRecord:[self.imageLoadManager.userActivityDictionary objectForKey:currentImageData.recordID]];
-            // remove this record from the userActivityDictionary. *NOTE: Move this to CKManager once ILM object is there!
-            [self.imageLoadManager removeUserActivityDataFromDictionary:currentImageData.recordID];
+            UserActivity *currentUARecord = [self.imageLoadManager.userActivityDictionary objectForKey:currentImageData.recordID];
+            NSLog(@"User is unliking an image. Preparing to delete recordID: %@", currentUARecord.recordID);
+            if ([currentUARecord isKindOfClass:[UserActivity class]]) {
+                NSLog(@"UserActivity record for deletion!!!");
+                // delete the record from the user's private database
+                [self.ckManager deleteUserActivityRecord:[self.imageLoadManager.userActivityDictionary objectForKey:currentImageData.recordID]];
+                // remove this record from the userActivityDictionary. *NOTE: Move this to CKManager once ILM object is there!
+                [self.imageLoadManager removeUserActivityDataFromDictionary:currentImageData.recordID];
+            } else {
+                NSLog(@"Object passed is NOT a UserActivity record!");
+            }
         }
     }
     
@@ -1033,6 +1035,7 @@ NSInteger const CellHeight = 140; // height of cell
     //self.toolBar.barTintColor = [UIColor colorWithRed:0.112 green:0.234 blue:0.4 alpha:1];
     //self.navigationController.navigationBar.barTintColor = self.globalColor; // set the background color of the navigation bar
     self.navigationController.navigationBar.barTintColor = [UIColor colorWithRed:0.112 green:0.234 blue:0.4 alpha:1];
+    //self.navigationController.navigationBar.barTintColor = [UIColor colorWithPatternImage:[UIImage imageNamed:@"orange_gradient.jpg"]];
     // below is just a test. colors provided by Otha and are displaying correct color through helper method
     //self.navigationController.navigationBar.barTintColor = [Helper colorFromRed:112.0 Green:234.0 Blue:4.0 Alpha:1.0];
     //[self setupButtons]; // setup the buttons - not needed since changed to uisegmentedcontrol

@@ -76,16 +76,28 @@ NSString *const CoffeeImageDataRecordType = @"CoffeeImageData";*/
  * @param CoffeeImageData*
  * @return CKRecord*
  */
-- (CKRecord *)createCKRecordForUserActivity:(CoffeeImageData *)coffeeImageData {
+/*- (CKRecord *)createCKRecordForUserActivity:(CoffeeImageData *)coffeeImageData {
     
     NSLog(@"Entered createCKRecordForUserActivity...");
     CKRecord *userActivityRecord = [[CKRecord alloc] initWithRecordType:USER_ACTIVITY_RECORD_TYPE];
     CKReference *cidReference = [[CKReference alloc] initWithRecordID:[[CKRecordID alloc] initWithRecordName:coffeeImageData.recordID] action:CKReferenceActionDeleteSelf];
     userActivityRecord[COFFEE_IMAGE_DATA_RECORD_TYPE] = cidReference;
-    userActivityRecord[RECORD_ID] = coffeeImageData.recordID;
+    //userActivityRecord[RECORD_ID] = coffeeImageData.recordID;
+    
+    return userActivityRecord;
+}*/
+
+- (CKRecord *)createCKRecordForUserActivity:(UserActivity *)userActivity {
+    
+    NSLog(@"Entered createCKRecordForUserActivity...");
+    CKRecord *userActivityRecord = [[CKRecord alloc] initWithRecordType:USER_ACTIVITY_RECORD_TYPE];
+    CKReference *cidReference = [[CKReference alloc] initWithRecordID:[[CKRecordID alloc] initWithRecordName:userActivity.cidReference.recordID] action:CKReferenceActionDeleteSelf];
+    userActivityRecord[COFFEE_IMAGE_DATA_RECORD_TYPE] = cidReference;
+    //userActivityRecord[RECORD_ID] = coffeeImageData.recordID;
     
     return userActivityRecord;
 }
+
 
 /**
  * Method to save a public CKRecord to CloudKit
@@ -138,15 +150,19 @@ NSString *const CoffeeImageDataRecordType = @"CoffeeImageData";*/
 - (void)deleteUserActivityRecord:(UserActivity *)userActivityRecord {
     
     NSLog(@"Entered deleteUserActivityRecord...");
-    NSLog(@"Preparing deletion for UA recordID: %@", userActivityRecord.recordID);
-    //NSLog(@"Preparing deletion for UA recordID: %@", userActivityRecord.userActivityRecordID);
-    [self.privateDatabase deleteRecordWithID:[[CKRecordID alloc] initWithRecordName:userActivityRecord.recordID] completionHandler:^(CKRecordID *recordID, NSError *error) {
-        if (error) {
-            NSLog(@"Error: Error encountered while trying to delete UA record from user's private database: %@", error.localizedDescription);
-        } else {
-            NSLog(@"UA record successfully deleted from user's private database!");
-        }
-    }];
+    
+    if (userActivityRecord) {
+        NSLog(@"Preparing deletion for UA recordID: %@", userActivityRecord.recordID);
+        [self.privateDatabase deleteRecordWithID:[[CKRecordID alloc] initWithRecordName:userActivityRecord.recordID] completionHandler:^(CKRecordID *recordID, NSError *error) {
+            if (error) {
+                NSLog(@"Error: Error encountered while trying to delete UA record from user's private database: %@", error.localizedDescription);
+            } else {
+                NSLog(@"INFO: UA record successfully deleted from user's private database!");
+            }
+        }];
+    } else {
+        NSLog(@"WARN: UserActivity record for deletion is nil!");
+    }
 }
 
 /**

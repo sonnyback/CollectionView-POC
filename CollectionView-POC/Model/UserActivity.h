@@ -12,7 +12,7 @@
 @interface UserActivity : NSObject
 
 @property (strong, nonatomic) CoffeeImageData *cidReference; // CKReference
-@property (strong, nonatomic) NSString *recordID; // recordID of the cid record
-@property (strong, nonatomic) NSString *userActivityRecordID;
+@property (strong, nonatomic) NSString *recordID; // recordID of the UA record
+//@property (strong, nonatomic) NSString *userActivityRecordID;
 
 @end
