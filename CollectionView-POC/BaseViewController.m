@@ -39,6 +39,7 @@
 @property (strong, nonatomic) SDImageCache *imageCache;
 @property (strong, nonatomic) NSMutableArray *allCacheKeys; // holds all the image URL strings from the cache
 @property (strong, nonatomic) CKManager *ckManager; // CloudKitManager class
+@property (nonatomic) CKAccountStatus userAccountStatus; // for tracking user's iCloud login status
 @end
 
 @implementation BaseViewController
@@ -139,7 +140,7 @@ dispatch_queue_t queue;
     dataForNewImage.imageName = @"temporary name"; // i think this will be an image file URL
     dataForNewImage.imageDescription = @"description";
     dataForNewImage.userID = self.ckManager.userRecordID.recordName;
-    dataForNewImage.imageBelongsToCurrentUser = YES; // user took this photo
+    dataForNewImage.imageBelongsToCurrentUser = NO; // user took this photo but should be set to NO initially
     dataForNewImage.liked = NO; // should always be NO for the public data. Will only be set to YES in code if there is a reference in user's data
     /** THIS IS NULL. NEED TO USE SDWEBIMAGE cache **/
     //dataForNewImage.imageURL = info[UIImagePickerControllerReferenceURL];
@@ -281,6 +282,11 @@ dispatch_queue_t queue;
             if ([self.imageLoadManager lookupRecordIDInUserData:coffeeImageData.recordID]) {
                 //NSLog(@"RecordID found in userActivityDictiontary!");
                 coffeeImageData.liked = YES;
+            }
+            // check to see if this image was submitted by the current user
+            if ([self.ckManager.userRecordID.recordName isEqualToString:coffeeImageData.userID]) {
+                NSLog(@"This image belongs to user: %@", self.ckManager.userRecordID.recordName);
+                coffeeImageData.imageBelongsToCurrentUser = YES;
             }
             
             if ([self.allCacheKeys count] > 0) { // check to see if the cacheKeys arrays contains any keys (URLs)
@@ -687,7 +693,7 @@ dispatch_queue_t queue;
                         //NSLog(@"Image: %@", record[@"Image"]);
                         //NSLog(@"ImageBelongsToUser? %@", record[@"ImageBelongsToUser"]);
                         //NSLog(@"Image name: %@", record[IMAGE_NAME]);
-                        NSLog(@"userid: %@", record[@"UserID"]);
+                        //NSLog(@"userid: %@", record[@"UserID"]);
                         //NSLog(@"Image description: %@", record[@"ImageDescription"]);
                         //NSLog(@"isRecipe? %@", record[@"Recipe"]);
                         //NSLog(@"isLiked? %@", record[Liked]);
@@ -743,7 +749,7 @@ dispatch_queue_t queue;
     NSPredicate *predicate = [NSPredicate predicateWithValue:true]; // give all results
     CKQuery *query = [[CKQuery alloc] initWithRecordType:USER_ACTIVITY_RECORD_TYPE predicate:predicate];
     
-    // userActivityDictionary should be empty, but check to ensure
+    // clear all objects before (re)loading it
     if ([self.imageLoadManager.userActivityDictionary count] > 0) {
         NSLog(@"INFO: Removing all objects user userActivityDictionary!");
         [self.imageLoadManager.userActivityDictionary removeAllObjects];
@@ -768,6 +774,8 @@ dispatch_queue_t queue;
                         [self.imageLoadManager.userActivityDictionary setObject:userActivity forKey:cidReference.recordID.recordName];
                     }
                 }
+            } else {
+                NSLog(@"INFO: User has no private data!");
             }
         }
     }];
@@ -797,21 +805,21 @@ dispatch_queue_t queue;
  */
 - (void)getAllCacheKeys {
     
-    NSLog(@"Entered getAllCacheKeys...");
+    //NSLog(@"INFO: Entered getAllCacheKeys...");
     
     if (self.allCacheKeys) {
-        NSLog(@"Ready to set the cache keys!");
+        //NSLog(@"Ready to set the cache keys!");
         // go through the CID objecs in the array and get the URL string for each corresponding image
         for (CoffeeImageData *cid in self.imageLoadManager.coffeeImageDataArray) {
             NSString *url = cid.imageURL.absoluteString;
-            NSLog(@"URL key being stored: %@", url);
+            NSLog(@"INFO: URL key being stored: %@", url);
             // check to make sure the URL is not already in the array
             if (![self.allCacheKeys containsObject:url]) {
                 NSLog(@"INFO: Adding URL to cacheKeys array...");
                 [self.allCacheKeys addObject:url];
             }
         }
-        NSLog(@"allCacheKeys array size: %lu", (unsigned long)[self.allCacheKeys count]);
+        //NSLog(@"INFO: allCacheKeys array size: %lu", (unsigned long)[self.allCacheKeys count]);
     }
 }
 
@@ -911,7 +919,7 @@ dispatch_queue_t queue;
             newUserActivity.cidReference = currentImageData;
             [self.imageLoadManager.userActivityDictionary setObject:newUserActivity forKey:currentImageData.recordID];
             [self.ckManager saveRecordForPrivateData:[self.ckManager createCKRecordForUserActivity:newUserActivity]];
-            // delay refreshing UA data to allow time for record to be saved first
+            // delay refreshing UA data to allow time for UA record to be saved first
             double delayInSeconds = 3.0;
             dispatch_after(dispatch_time(DISPATCH_TIME_NOW, delayInSeconds * NSEC_PER_SEC), queue, ^{
                 NSLog(@"INFO: Refreshing UA data...");
@@ -949,12 +957,11 @@ dispatch_queue_t queue;
 - (IBAction)cameraBarButtonPressed:(UIBarButtonItem *)sender {
     NSLog(@"INFO: Entered cameraBarButtonPressed");
     
-    CKAccountStatus userAccountStatus; // will return values 0-3. 1 is what we're looking for
-    
-    userAccountStatus = [self.ckManager getUsersCKStatus];
-    NSLog(@"INFO: cameraBarButtonPressed userAccountStatus: %ld", userAccountStatus);
+    // need to check user's iCloud status before allowing the camera in case they logged out of iCloud
+    self.userAccountStatus = [self.ckManager getUsersCKStatus]; // will return values 0-3. 1 is what we're looking for
+    NSLog(@"INFO: cameraBarButtonPressed userAccountStatus: %ld", self.userAccountStatus);
         
-    if (userAccountStatus == CKAccountStatusAvailable) { // status = 1
+    if (self.userAccountStatus == CKAccountStatusAvailable) { // status = 1
         //NSLog(@"User is logged into CK - user can upload pics!");
         UIImagePickerController *cameraUI = [[UIImagePickerController alloc] init];
         cameraUI.delegate = self; // set the deleage for the ImagePickerController
@@ -974,19 +981,19 @@ dispatch_queue_t queue;
         dispatch_async(dispatch_get_main_queue(), ^{ // show the camera on main thread to avoid latency
             [self presentViewController:cameraUI animated:YES completion:nil]; // show the camera with animation
         });
-    } else if (userAccountStatus == CKAccountStatusNoAccount) { // status = 3
+    } else if (self.userAccountStatus == CKAccountStatusNoAccount) { // status = 3
         //NSLog(@"User is not logged into CK - Camera not available!");
         UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"iCloud Not Available" message:@"You must be logged into your iCloud account to submit photos and recipes. Go into iCloud under Settings on your device to login." delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil, nil];
         dispatch_async(dispatch_get_main_queue(), ^{
             [alert show];
         });
-    } else if (userAccountStatus == CKAccountStatusRestricted) { // status = 2
+    } else if (self.userAccountStatus == CKAccountStatusRestricted) { // status = 2
         NSLog(@"User CK account is RESTRICTED !");
         UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"iCloud Status Restricted" message:@"Your iCloud account is listed as Restricted. Saving to CloudKit databases is not allowed on restricted accounts. Try a different iCloud account if you have one." delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil, nil];
         dispatch_async(dispatch_get_main_queue(), ^{
             [alert show];
         });
-    } else if (userAccountStatus == CKAccountStatusCouldNotDetermine) { // status = 0
+    } else if (self.userAccountStatus == CKAccountStatusCouldNotDetermine) { // status = 0
         UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"iCloud Status Undetermined" message:@"We could not determine your iCloud status. You must be logged into your iCloud account to submit photos and recipes. Go into iCloud under Settings on your device to login." delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil, nil];
         dispatch_async(dispatch_get_main_queue(), ^{
             [alert show];
@@ -1017,6 +1024,8 @@ dispatch_queue_t queue;
     // clear the cache
     [self.imageCache clearMemory];
     [self.imageCache clearDisk];
+    
+    self.userAccountStatus = [self.ckManager getUsersCKStatus]; // get the user's iCloud login status
     
     [self beginLoadingCloudKitData]; // call method to trigger CK query
     

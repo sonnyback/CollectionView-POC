@@ -193,7 +193,7 @@ NSString *const CoffeeImageDataRecordType = @"CoffeeImageData";*/
                     userAccountStatus = CKAccountStatusAvailable;
                     // since user is logged into iCloud, check to see if we already have the userRecordID. if not, fetch it
                     if (self.userRecordID == nil) {
-                        NSLog(@"userRecordID is nil!");
+                        //NSLog(@"userRecordID is nil!");
                         [self.container fetchUserRecordIDWithCompletionHandler:^(CKRecordID *recordID, NSError *error) {
                             if (error) {
                                 NSLog(@"Error: Error encountered while getting userRecordID: %@", error.localizedDescription);
