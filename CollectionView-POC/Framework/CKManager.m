@@ -41,6 +41,20 @@ NSString *const CoffeeImageDataRecordType = @"CoffeeImageData";*/
     return self;
 }
 
+- (void)loadCloudKitDataWithCompletionHandler:(void (^)(NSArray *, NSError *))completionHandler {
+    NSLog(@"INFO: Entered loadInitialCloudKitDataWithCompletionHandler...");
+    
+    // just for initial testing...give me all records
+    NSPredicate *predicate = [NSPredicate predicateWithValue:true];
+    //create the query
+    CKQuery *query = [[CKQuery alloc] initWithRecordType:COFFEE_IMAGE_DATA_RECORD_TYPE predicate:predicate];
+    
+    // execute the query
+    [self.publicDatabase performQuery:query inZoneWithID:nil completionHandler:^(NSArray *results, NSError *error) {
+        completionHandler(results, error);
+    }];
+}
+
 /**
  * Method for preparing a CKRecord before saving to CloudKit.
  * CKRecord will contain recent photo taken and prepared as CID object.

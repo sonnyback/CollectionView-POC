@@ -670,14 +670,61 @@ dispatch_queue_t queue;
     
     NSLog(@"INFO: beginLoadingCloudKitData...started!");
     
-    CKDatabase *publicDatabase = [[CKContainer defaultContainer] publicCloudDatabase];
+    [self.ckManager loadCloudKitDataWithCompletionHandler:^(NSArray *results, NSError *error) {
+        if (!error) {
+            if ([results count] > 0) {
+                self.numberOfItemsInSection = [results count];
+                NSLog(@"INFO: Success querying the cloud for %lu results!!!", (unsigned long)[results count]);
+                for (CKRecord *record in results) {
+                    // create CoffeeImageData object to store data in the array for each image
+                    CoffeeImageData *coffeeImageData = [[CoffeeImageData alloc] init];
+                    CKAsset *imageAsset = record[IMAGE];
+                    coffeeImageData.imageURL = imageAsset.fileURL;
+                    //NSLog(@"asset URL: %@", coffeeImageData.imageURL);
+                    coffeeImageData.imageName = record[IMAGE_NAME];
+                    coffeeImageData.imageDescription = record[IMAGE_DESCRIPTION];
+                    coffeeImageData.userID = record[USER_ID];
+                    coffeeImageData.imageBelongsToCurrentUser = [record[IMAGE_BELONGS_TO_USER] boolValue];
+                    coffeeImageData.recipe = [record[RECIPE] boolValue];
+                    coffeeImageData.liked = [record[LIKED] boolValue]; // 0 = No, 1 = Yes
+                    coffeeImageData.recordID = record.recordID.recordName;
+                    // add the CID object to the array
+                    [self.imageLoadManager.coffeeImageDataArray addObject:coffeeImageData];
+                    
+                    // cache the image with the string representation of the absolute URL as the cache key
+                    if (coffeeImageData.imageURL) { // make sure there's an image URL to cache
+                        if (self.imageCache) {
+                            [self.imageCache storeImage:[UIImage imageWithContentsOfFile:coffeeImageData.imageURL.path] forKey:coffeeImageData.imageURL.absoluteString toDisk:YES];
+                            //NSLog(@"Printing cache: %@", [[SDImageCache sharedImageCache] description]);
+                        }
+                    } else {
+                        NSLog(@"WARN: CID imageURL is nil...cannot cache.");
+                    }
+                }
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [self.myCollectionView reloadData]; // reload the collectionview after getting all the data from CK
+                });
+                NSLog(@"CoffeeImageDataArray size %lu", (unsigned long)[self.imageLoadManager.coffeeImageDataArray count]);
+            }
+            // load the keys to be used for cache look up
+            [self getAllCacheKeys];
+        } else {
+            NSLog(@"Error: there was an error fetching cloud data... %@", error.localizedDescription);
+            UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"iCloud Data Not Able to be Loaded" message:@"There was an error trying to load the image data from iCloud." delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil, nil];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [alert show];
+            });
+        }
+    }];
+    
+    /*CKDatabase *publicDatabase = [[CKContainer defaultContainer] publicCloudDatabase];
     //NSPredicate *predicate = [NSPredicate predicateWithFormat:@"ImageDescription = 'description'"];
     // just for initial testing...give me all records
     NSPredicate *predicate = [NSPredicate predicateWithValue:true];
     //create the query
     CKQuery *query = [[CKQuery alloc] initWithRecordType:COFFEE_IMAGE_DATA_RECORD_TYPE predicate:predicate];
     
-    // execute the queary
+    // execute the query
     [publicDatabase performQuery:query inZoneWithID:nil completionHandler:^(NSArray *results, NSError *error) {
         // handle the error
         if (error) {
@@ -711,7 +758,7 @@ dispatch_queue_t queue;
                         coffeeImageData.liked = [record[LIKED] boolValue]; // 0 = No, 1 = Yes
                         coffeeImageData.recordID = record.recordID.recordName;
                         
-                        /* below lines is not needed, but not removing it yet */
+                        // below lines is not needed, but not removing it yet
                         //coffeeImageData.image = [UIImage imageWithContentsOfFile:imageAsset.fileURL.path];
                         //coffeeImageData.image = [UIImage imageWithData:[NSData dataWithContentsOfURL:coffeeImageData.imageURL]];
                         //NSLog(@"image size height:%f, width:%f", coffeeImageData.image.size.height, coffeeImageData.image.size.width);
@@ -737,7 +784,7 @@ dispatch_queue_t queue;
                 [self getAllCacheKeys];
             }
         }
-    }];
+    }];*/
     [self getUserActivityPrivateData];
     NSLog(@"INFO: beginLoadingCloudKitData...ended!");
 }
