@@ -33,6 +33,7 @@
     return _userActivityDictionary;
 }
 
+
 - (instancetype)init {
     NSLog(@"Loading ImageLoadManager...");
     self = [super init];

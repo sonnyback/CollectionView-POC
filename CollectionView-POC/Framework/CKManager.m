@@ -41,7 +41,7 @@ NSString *const CoffeeImageDataRecordType = @"CoffeeImageData";*/
     return self;
 }
 
-- (void)loadCloudKitDataWithCompletionHandler:(void (^)(NSArray *, NSError *))completionHandler {
+- (void)loadCloudKitDataWithCompletionHandler:(void (^)(NSArray *results, NSError *error))completionHandler {
     NSLog(@"INFO: Entered loadInitialCloudKitDataWithCompletionHandler...");
     
     // just for initial testing...give me all records
@@ -51,6 +51,18 @@ NSString *const CoffeeImageDataRecordType = @"CoffeeImageData";*/
     
     // execute the query
     [self.publicDatabase performQuery:query inZoneWithID:nil completionHandler:^(NSArray *results, NSError *error) {
+        completionHandler(results, error);
+    }];
+}
+
+- (void)getUserActivityPrivateDataWithCompletionHandler:(void (^)(NSArray *results, NSError *error))completionHandler {
+    NSLog(@"INFO: Entered getUserActivityPrivateDataWithCompletionHandler...");
+    
+    NSPredicate *predicate = [NSPredicate predicateWithValue:true]; // give all results
+    CKQuery *query = [[CKQuery alloc] initWithRecordType:USER_ACTIVITY_RECORD_TYPE predicate:predicate];
+    
+    // execute the query
+    [self.privateDatabase performQuery:query inZoneWithID:nil completionHandler:^(NSArray *results, NSError *error) {
         completionHandler(results, error);
     }];
 }

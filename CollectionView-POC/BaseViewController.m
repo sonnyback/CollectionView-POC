@@ -682,6 +682,7 @@ dispatch_queue_t queue;
                     coffeeImageData.imageURL = imageAsset.fileURL;
                     //NSLog(@"asset URL: %@", coffeeImageData.imageURL);
                     coffeeImageData.imageName = record[IMAGE_NAME];
+                    //NSLog(@"Image name: %@", coffeeImageData.imageName);
                     coffeeImageData.imageDescription = record[IMAGE_DESCRIPTION];
                     coffeeImageData.userID = record[USER_ID];
                     coffeeImageData.imageBelongsToCurrentUser = [record[IMAGE_BELONGS_TO_USER] boolValue];
@@ -710,7 +711,7 @@ dispatch_queue_t queue;
             [self getAllCacheKeys];
         } else {
             NSLog(@"Error: there was an error fetching cloud data... %@", error.localizedDescription);
-            UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"iCloud Data Not Able to be Loaded" message:@"There was an error trying to load the image data from iCloud." delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil, nil];
+            UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"iCloud Data Not Able to be Loaded" message:@"There was an error trying to load the image data from iCloud. Please try again." delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil, nil];
             dispatch_async(dispatch_get_main_queue(), ^{
                 [alert show];
             });
@@ -792,9 +793,9 @@ dispatch_queue_t queue;
 - (void)getUserActivityPrivateData {
     
     NSLog(@"INFO: Entered getUserActivityPrivateData");
-    CKDatabase *privateDatabase = [[CKContainer defaultContainer] privateCloudDatabase];
-    NSPredicate *predicate = [NSPredicate predicateWithValue:true]; // give all results
-    CKQuery *query = [[CKQuery alloc] initWithRecordType:USER_ACTIVITY_RECORD_TYPE predicate:predicate];
+    //CKDatabase *privateDatabase = [[CKContainer defaultContainer] privateCloudDatabase];
+    //NSPredicate *predicate = [NSPredicate predicateWithValue:true]; // give all results
+    //CKQuery *query = [[CKQuery alloc] initWithRecordType:USER_ACTIVITY_RECORD_TYPE predicate:predicate];
     
     // clear all objects before (re)loading it
     if ([self.imageLoadManager.userActivityDictionary count] > 0) {
@@ -802,7 +803,36 @@ dispatch_queue_t queue;
         [self.imageLoadManager.userActivityDictionary removeAllObjects];
     }
     
-    [privateDatabase performQuery:query inZoneWithID:nil completionHandler:^(NSArray *results, NSError *error) {
+    [self.ckManager getUserActivityPrivateDataWithCompletionHandler:^(NSArray *results, NSError *error) {
+        if (error) {
+            NSLog(@"Error: there was an error fetching user's private data... %@", error.localizedDescription);
+            UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Saved Data Could Not Be Loaded" message:@"There was an error trying to load your saved data. We will not be able to show you the coffee you liked." delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil, nil];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [alert show];
+            });
+        } else {
+            if ([results count] > 0) { // if results, we have user activity from their private database
+                @synchronized(self){
+                    NSLog(@"INFO: Data found in user's private CK database.");
+                    for (CKRecord *record in results) {
+                        UserActivity *userActivity = [[UserActivity alloc] init];
+                        CKReference *cidReference = [[CKReference alloc] initWithRecord:record[COFFEE_IMAGE_DATA_RECORD_TYPE] action:CKReferenceActionNone];
+                        //NSLog(@"RecordID of cidReference: %@", cidReference.recordID.recordName);
+                        CoffeeImageData *coffeeImageData = (CoffeeImageData *)cidReference;
+                        userActivity.cidReference = coffeeImageData;
+                        //userActivity.recordID = cidReference.recordID.recordName;
+                        userActivity.recordID = record.recordID.recordName;
+                        NSLog(@"INFO: Reference recordID %@, UA recordID: %@", cidReference.recordID.recordName, userActivity.recordID);
+                        [self.imageLoadManager.userActivityDictionary setObject:userActivity forKey:cidReference.recordID.recordName];
+                    }
+                }
+            } else {
+                NSLog(@"INFO: User has no private data!");
+            }
+        }
+    }];
+    
+    /*[privateDatabase performQuery:query inZoneWithID:nil completionHandler:^(NSArray *results, NSError *error) {
         if (error) {
             NSLog(@"Error: there was an error fetching user's private data... %@", error.localizedDescription);
         } else {
@@ -825,7 +855,7 @@ dispatch_queue_t queue;
                 NSLog(@"INFO: User has no private data!");
             }
         }
-    }];
+    }];*/
     
 }
 
@@ -862,7 +892,7 @@ dispatch_queue_t queue;
             NSLog(@"INFO: URL key being stored: %@", url);
             // check to make sure the URL is not already in the array
             if (![self.allCacheKeys containsObject:url]) {
-                NSLog(@"INFO: Adding URL to cacheKeys array...");
+                //NSLog(@"INFO: Adding URL to cacheKeys array...");
                 [self.allCacheKeys addObject:url];
             }
         }

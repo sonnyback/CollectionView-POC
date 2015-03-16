@@ -26,7 +26,8 @@ extern NSString *const CoffeeImageDataRecordType;*/
 @property (strong, nonatomic) CKRecordID *userRecordID; // unique user identifier
 
 // public methods
-- (void)loadCloudKitDataWithCompletionHandler:(void (^)(NSArray *result, NSError *error))completionHandler;
+- (void)loadCloudKitDataWithCompletionHandler:(void (^)(NSArray *results, NSError *error))completionHandler;
+- (void)getUserActivityPrivateDataWithCompletionHandler:(void (^)(NSArray *results, NSError *error))completionHandler;
 - (CKRecord *)createCKRecordForImage:(CoffeeImageData *)coffeeImageData;
 //- (CKRecord *)createCKRecordForUserActivity:(CoffeeImageData *)coffeeImageData;
 - (CKRecord *)createCKRecordForUserActivity:(UserActivity *)userActivity;
