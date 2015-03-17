@@ -156,7 +156,7 @@ dispatch_queue_t queue;
     dataForNewImage.imageURL = localURL;
     NSLog(@"CID.imageURL: %@", dataForNewImage.imageURL);
     
-    [self.imageLoadManager addCIDForNewUserImage:dataForNewImage]; // update the model with the new image
+    
     //NSLog(@"Display CID info for new image: %@", dataForNewImage.description);
     
     [self dismissViewControllerAnimated:YES completion:nil];
@@ -168,7 +168,19 @@ dispatch_queue_t queue;
      */
     // prepare the CKRecord and save it
     //[self saveRecord:[self createCKRecordForImage:dataForNewImage]];
-    [self.ckManager saveRecord:[self.ckManager createCKRecordForImage:dataForNewImage]];
+    //[self.ckManager saveRecord:[self.ckManager createCKRecordForImage:dataForNewImage]];
+    [self.ckManager saveRecord:[self.ckManager createCKRecordForImage:dataForNewImage] withCompletionHandler:^(CKRecord *record, NSError *error) {
+        if (!error) {
+            if (record) {
+                NSLog(@"INFO: Record saved successfully for recordID: %@", record.recordID.recordName);
+                // need to get the recordID of the just saved record before adding the CID to the CIDArray
+                dataForNewImage.recordID = record.recordID.recordName;
+                [self.imageLoadManager addCIDForNewUserImage:dataForNewImage]; // update the model with the new image
+            }
+        } else {
+            NSLog(@"ERROR: Error saving record to cloud...%@", error.localizedDescription);
+        }
+    }];
     
     // store the image in SDWebImage cache
     [self.imageCache storeImage:image forKey:dataForNewImage.imageURL.absoluteString];
@@ -963,7 +975,8 @@ dispatch_queue_t queue;
 }
 
 /**
- * Method to toggle liked button and also update liked value in the model
+ * Method to toggle liked button. Also updates the model for the CID object. For liked images,
+ * it will also call CKManager to save the record to the user's private database in CloudKit.
  *
  * @param sender (UIButton)
  * @return void
@@ -995,13 +1008,26 @@ dispatch_queue_t queue;
             UserActivity *newUserActivity = [[UserActivity alloc] init];
             newUserActivity.cidReference = currentImageData;
             [self.imageLoadManager.userActivityDictionary setObject:newUserActivity forKey:currentImageData.recordID];
-            [self.ckManager saveRecordForPrivateData:[self.ckManager createCKRecordForUserActivity:newUserActivity]];
-            // delay refreshing UA data to allow time for UA record to be saved first
-            double delayInSeconds = 3.0;
-            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, delayInSeconds * NSEC_PER_SEC), queue, ^{
-                NSLog(@"INFO: Refreshing UA data...");
-                [self getUserActivityPrivateData];
-            });
+            //[self.ckManager saveRecordForPrivateData:[self.ckManager createCKRecordForUserActivity:newUserActivity]];
+            [self.ckManager saveRecordForPrivateData:[self.ckManager createCKRecordForUserActivity:newUserActivity] withCompletionHandler:^(CKRecord *record, NSError *error) {
+                if (error) {
+                    NSLog(@"ERROR: Error saving record to user's private database...%@", error.localizedDescription);
+                    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Yikes!" message:@"There was a problem trying to save this coffee drink to your preferences. Try clicking the heart button again." delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil, nil];
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        [alert show];
+                    });
+                } else {
+                    if (record) {
+                        NSLog(@"INFO: Private UserActivity Record saved successfully for recordID: %@!", record.recordID.recordName);
+                        // delay refreshing UA data to allow time for UA record to be saved first
+                        double delayInSeconds = 3.0;
+                        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, delayInSeconds * NSEC_PER_SEC), queue, ^{
+                            NSLog(@"INFO: Refreshing UA data...");
+                            [self getUserActivityPrivateData];
+                        });
+                    }
+                }
+            }];
         }
     } else {
         NSLog(@"INFO: image is NOT liked");
@@ -1021,8 +1047,6 @@ dispatch_queue_t queue;
             }
         }
     }
-    
-    //NSLog(@"image liked for indexpath %ld", (long)indexPath.row);
 }
 
 /**

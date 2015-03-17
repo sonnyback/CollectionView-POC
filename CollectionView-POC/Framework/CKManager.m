@@ -131,7 +131,7 @@ NSString *const CoffeeImageDataRecordType = @"CoffeeImageData";*/
  * @param CKRecord *
  * @return void
  */
-- (void)saveRecord:(CKRecord *)record {
+- (void)saveRecord:(CKRecord *)record withCompletionHandler:(void (^)(CKRecord *record, NSError *error))completionHandler{
     
     NSLog(@"Entered saveRecord...");
     
@@ -139,11 +139,12 @@ NSString *const CoffeeImageDataRecordType = @"CoffeeImageData";*/
     if (record) {
         // save the record
         [self.publicDatabase saveRecord:record completionHandler:^(CKRecord *record, NSError *error) {
-            if (error) {
+            completionHandler(record, error);
+            /*if (error) {
                 NSLog(@"Error saving record to cloud...%@", error.localizedDescription);
             } else {
                 NSLog(@"Record saved successfully!");
-            }
+            }*/
         }];
     } else {
         NSLog(@"WARN: The CKRecord passed was not valid or could not be saved!");
@@ -156,17 +157,18 @@ NSString *const CoffeeImageDataRecordType = @"CoffeeImageData";*/
  * @param CKRecord *
  * @return void
  */
-- (void)saveRecordForPrivateData:(CKRecord *)record {
+- (void)saveRecordForPrivateData:(CKRecord *)record withCompletionHandler:(void (^)(CKRecord *record, NSError *error))completionHandler {
     
     NSLog(@"Entered saveRecordForPrivateData...");
     
     if (record) {
         [self.privateDatabase saveRecord:record completionHandler:^(CKRecord *record, NSError *error) {
-            if (error) {
+            completionHandler(record, error);
+            /*if (error) {
                 NSLog(@"Error saving record to user's private database...%@", error.localizedDescription);
             } else {
                 NSLog(@"Private UserActivity Record saved successfully!");
-            }
+            }*/
         }];
     } else {
         NSLog(@"WARN: The CKRecord passed was not valid or could not be saved to the user's private database!");

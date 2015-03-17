@@ -31,8 +31,8 @@ extern NSString *const CoffeeImageDataRecordType;*/
 - (CKRecord *)createCKRecordForImage:(CoffeeImageData *)coffeeImageData;
 //- (CKRecord *)createCKRecordForUserActivity:(CoffeeImageData *)coffeeImageData;
 - (CKRecord *)createCKRecordForUserActivity:(UserActivity *)userActivity;
-- (void)saveRecord:(CKRecord *)record;
-- (void)saveRecordForPrivateData:(CKRecord *)record;
+- (void)saveRecord:(CKRecord *)record withCompletionHandler:(void (^)(CKRecord *record, NSError *error))completionHandler;
+- (void)saveRecordForPrivateData:(CKRecord *)record withCompletionHandler:(void (^)(CKRecord *record, NSError *error))completionHandler;
 - (void)deleteUserActivityRecord:(UserActivity *)userActivityRecord;
 - (CKAccountStatus)getUsersCKStatus;
 
