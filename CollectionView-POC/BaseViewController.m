@@ -129,7 +129,7 @@ dispatch_queue_t queue;
 // handles photos taken with camera
 - (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info {
     
-    NSLog(@"didFinishPickingMediaWithInfo");
+    NSLog(@"INFO: didFinishPickingMediaWithInfo... ");
     
     UIImage *image = info[UIImagePickerControllerEditedImage]; // see if the image was edited
     if (!image) image = info[UIImagePickerControllerOriginalImage]; // use original if image not edited
@@ -147,7 +147,7 @@ dispatch_queue_t queue;
     //NSLog(@"CID.imageURL: %@", dataForNewImage.imageURL);
     
     // write the image to local cache directory - will later convert this to SDWebImage cache
-    NSData *data = UIImageJPEGRepresentation(image, 0.75);
+    NSData *data = UIImageJPEGRepresentation(image, 1.0); // 1.0 = no compression
     NSURL *cacheDirectory = [[NSFileManager defaultManager] URLForDirectory:NSCachesDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:YES error:nil];
     NSString *temporaryName = [[NSUUID UUID].UUIDString stringByAppendingPathExtension:JPEG];
     NSURL *localURL = [cacheDirectory URLByAppendingPathComponent:temporaryName];
@@ -254,7 +254,7 @@ dispatch_queue_t queue;
     
     static NSString *CellIdentifier = @"CoffeeCell"; // string value identifier for cell reuse
     CoffeeViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:CellIdentifier forIndexPath:indexPath];
-    NSLog(@"cellForItemAtIndexPath: section:%ld row:%ld", (long)indexPath.section, (long)indexPath.row);
+    NSLog(@"INFO: cellForItemAtIndexPath: section:%ld row:%ld", (long)indexPath.section, (long)indexPath.row);
     if (cell) {
         
         [self.spinner stopAnimating]; // images should be loaded, so stop spinner
@@ -544,7 +544,8 @@ dispatch_queue_t queue;
     NSLog(@"updateUI...");
     
     [self.myCollectionView reloadData]; // reload data for new user taken images
-    //[self.view layoutIfNeeded];
+    // make sure collectionview is automatically scrolled back to the top
+    [self.myCollectionView setContentOffset:CGPointZero animated:YES];
 }
 
 /**
@@ -723,9 +724,8 @@ dispatch_queue_t queue;
             [self getAllCacheKeys];
         } else {
             NSLog(@"Error: there was an error fetching cloud data... %@", error.localizedDescription);
-            UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"iCloud Data Not Able to be Loaded" message:@"There was an error trying to load the image data from iCloud. Please try again." delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil, nil];
             dispatch_async(dispatch_get_main_queue(), ^{
-                [alert show];
+                [self alertWithTitle:@"Coffee Images could not be Loaded" andMessage:@"There was an error trying to load the coffee images from iCloud. Please try again."];
             });
         }
     }];
@@ -798,7 +798,7 @@ dispatch_queue_t queue;
             }
         }
     }];*/
-    [self getUserActivityPrivateData];
+    
     NSLog(@"INFO: beginLoadingCloudKitData...ended!");
 }
 
@@ -818,9 +818,8 @@ dispatch_queue_t queue;
     [self.ckManager getUserActivityPrivateDataWithCompletionHandler:^(NSArray *results, NSError *error) {
         if (error) {
             NSLog(@"Error: there was an error fetching user's private data... %@", error.localizedDescription);
-            UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Saved Data Could Not Be Loaded" message:@"There was an error trying to load your saved data. We will not be able to show you the coffee you liked." delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil, nil];
             dispatch_async(dispatch_get_main_queue(), ^{
-                [alert show];
+                [self alertWithTitle:@"Saved Data Could Not Be Loaded" andMessage:@"There was an error trying to load your saved coffee. We will not be able to show which images and recipes you liked."];
             });
         } else {
             if ([results count] > 0) { // if results, we have user activity from their private database
@@ -915,6 +914,29 @@ dispatch_queue_t queue;
 #pragma mark - Action Methods
 
 /**
+ * Helper method to alert user of info and errors. Takes a title and message parameters.
+ *
+ * @param NSString *title - title of the error/info
+ * @param NSString *msg - message to be displayed to user
+ *
+ */
+- (void)alertWithTitle:(NSString *)title andMessage:(NSString *)msg {
+    
+    [[[UIAlertView alloc] initWithTitle:title
+                                message:msg
+                               delegate:nil
+                      cancelButtonTitle:nil
+                      otherButtonTitles:@"OK", nil] show];
+    
+    /* NOTE: This is the iOS 8 way of handling alerts. UIAlertView has been deprecated for iOS 8*/
+    /*UIAlertController *alert = [UIAlertController alertControllerWithTitle:title message:msg preferredStyle:UIAlertControllerStyleAlert];
+    UIAlertAction* defaultAction = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault
+                                                          handler:^(UIAlertAction * action) {}];
+    [alert addAction:defaultAction];
+    [self presentViewController:alert animated:YES completion:nil];*/
+}
+
+/**
  * Action Method to track the segmented control being changed
  *
  * @param UISegmentedControl* sender
@@ -999,7 +1021,6 @@ dispatch_queue_t queue;
     if (currentImageData.isLiked) {
         NSLog(@"INFO: image is liked");
         [button setImage:[UIImage imageNamed:HEART_BLUE_SOLID] forState:UIControlStateNormal];
-        NSLog(@"Added liked image to userActivity!");
         // look up the recordID in userActivityDictionary. If it's already there, we do not need to save it user's private data as it already exists
         // in this scenario, the user must have already liked it and saved the record, then unliked it and reliked it in the same session
         if (![self.imageLoadManager lookupRecordIDInUserData:currentImageData.recordID]) {
@@ -1008,24 +1029,22 @@ dispatch_queue_t queue;
             UserActivity *newUserActivity = [[UserActivity alloc] init];
             newUserActivity.cidReference = currentImageData;
             [self.imageLoadManager.userActivityDictionary setObject:newUserActivity forKey:currentImageData.recordID];
+            NSLog(@"INFO: Added liked image to userActivity!");
             //[self.ckManager saveRecordForPrivateData:[self.ckManager createCKRecordForUserActivity:newUserActivity]];
             [self.ckManager saveRecordForPrivateData:[self.ckManager createCKRecordForUserActivity:newUserActivity] withCompletionHandler:^(CKRecord *record, NSError *error) {
-                if (error) {
-                    NSLog(@"ERROR: Error saving record to user's private database...%@", error.localizedDescription);
-                    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Yikes!" message:@"There was a problem trying to save this coffee drink to your preferences. Try clicking the heart button again." delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil, nil];
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        [alert show];
+                if (!error && record) {
+                    NSLog(@"INFO: Private UserActivity Record saved successfully for recordID: %@!", record.recordID.recordName);
+                    // delay refreshing UA data to allow time for UA record to be saved first
+                    double delayInSeconds = 3.0;
+                    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, delayInSeconds * NSEC_PER_SEC), queue, ^{
+                        NSLog(@"INFO: Refreshing UA data...");
+                        [self getUserActivityPrivateData];
                     });
                 } else {
-                    if (record) {
-                        NSLog(@"INFO: Private UserActivity Record saved successfully for recordID: %@!", record.recordID.recordName);
-                        // delay refreshing UA data to allow time for UA record to be saved first
-                        double delayInSeconds = 3.0;
-                        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, delayInSeconds * NSEC_PER_SEC), queue, ^{
-                            NSLog(@"INFO: Refreshing UA data...");
-                            [self getUserActivityPrivateData];
-                        });
-                    }
+                    NSLog(@"ERROR: Error saving record to user's private database...%@", error.localizedDescription);
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        [self alertWithTitle:@"Yikes!" andMessage:@"There was a problem trying to save this coffee drink to your preferences. Try clicking the heart button again."];
+                    });
                 }
             }];
         }
@@ -1050,7 +1069,7 @@ dispatch_queue_t queue;
 }
 
 /**
- * Action method that invokes the camera
+ * Action method that invokes the camera after making sure the user is authorized to take photos.
  * 
  * @param UIBarButtonItem *sender
  * @return void
@@ -1083,28 +1102,35 @@ dispatch_queue_t queue;
             [self presentViewController:cameraUI animated:YES completion:nil]; // show the camera with animation
         });
     } else if (self.userAccountStatus == CKAccountStatusNoAccount) { // status = 3
-        //NSLog(@"User is not logged into CK - Camera not available!");
-        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"iCloud Not Available" message:@"You must be logged into your iCloud account to submit photos and recipes. Go into iCloud under Settings on your device to login." delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil, nil];
+        NSLog(@"INFO: User is not logged into CK - Camera not available!");
         dispatch_async(dispatch_get_main_queue(), ^{
-            [alert show];
+            [self alertWithTitle:@"iCloud Not Available" andMessage:@"You must be logged into your iCloud account to submit photos and recipes. Go into iCloud under Settings on your device to login."];
         });
     } else if (self.userAccountStatus == CKAccountStatusRestricted) { // status = 2
-        NSLog(@"User CK account is RESTRICTED !");
-        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"iCloud Status Restricted" message:@"Your iCloud account is listed as Restricted. Saving to CloudKit databases is not allowed on restricted accounts. Try a different iCloud account if you have one." delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil, nil];
+        NSLog(@"INFO: User CK account is RESTRICTED!");
         dispatch_async(dispatch_get_main_queue(), ^{
-            [alert show];
+            [self alertWithTitle:@"iCloud Status Restricted" andMessage:@"Your iCloud account is listed as Restricted. Saving to CloudKit databases is not allowed on restricted accounts. Try a different iCloud account if you have one or contact your system administrator."];
         });
     } else if (self.userAccountStatus == CKAccountStatusCouldNotDetermine) { // status = 0
-        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"iCloud Status Undetermined" message:@"We could not determine your iCloud status. You must be logged into your iCloud account to submit photos and recipes. Go into iCloud under Settings on your device to login." delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil, nil];
+        NSLog(@"INFO: User CK status could not be determined!");
         dispatch_async(dispatch_get_main_queue(), ^{
-            [alert show];
+            [self alertWithTitle:@"iCloud Status Undetermined" andMessage:@"We could not determine your iCloud status. You must be logged into your iCloud account to submit photos and recipes. Go into iCloud under Settings on your device to login."];
         });
     } else { // did not get back one of the above values so show the Could Not Determine message
-        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"iCloud Status Undetermined" message:@"We could not determine your iCloud status. You must be logged into your iCloud account to submit photos and recipes. Go into iCloud under Settings on your device to login." delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil, nil];
+        NSLog(@"INFO: User CK status could not be determined!");
         dispatch_async(dispatch_get_main_queue(), ^{
-            [alert show];
+            [self alertWithTitle:@"iCloud Status Undetermined" andMessage:@"We could not determine your iCloud status. You must be logged into your iCloud account to submit photos and recipes. Go into iCloud under Settings on your device to login."];
         });
     }
+    
+    /*UIActionSheet *actionSheet = [[UIActionSheet alloc]
+                                  initWithTitle:@"What do you want to do?"
+                                  delegate:nil
+                                  cancelButtonTitle:@"Cancel"
+                                  destructiveButtonTitle:nil
+                                  otherButtonTitles:@"Camera", @"Photos", nil];
+    actionSheet.actionSheetStyle = UIActionSheetStyleBlackOpaque;
+    [actionSheet showInView:self.view];*/
 }
 
 #pragma mark - VC Lifecyle Methods
@@ -1127,6 +1153,10 @@ dispatch_queue_t queue;
     [self.imageCache clearDisk];
     
     self.userAccountStatus = [self.ckManager getUsersCKStatus]; // get the user's iCloud login status
+    // check to see if user has any user activity data saved in their private database if they're logged into iCloud
+    if (self.userAccountStatus == 1) {
+        [self getUserActivityPrivateData];
+    }
     
     [self beginLoadingCloudKitData]; // call method to trigger CK query
     
