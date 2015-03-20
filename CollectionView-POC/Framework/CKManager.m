@@ -115,7 +115,7 @@ NSString *const CoffeeImageDataRecordType = @"CoffeeImageData";*/
 
 - (CKRecord *)createCKRecordForUserActivity:(UserActivity *)userActivity {
     
-    NSLog(@"Entered createCKRecordForUserActivity...");
+    NSLog(@"INFO: Entered createCKRecordForUserActivity...");
     CKRecord *userActivityRecord = [[CKRecord alloc] initWithRecordType:USER_ACTIVITY_RECORD_TYPE];
     CKReference *cidReference = [[CKReference alloc] initWithRecordID:[[CKRecordID alloc] initWithRecordName:userActivity.cidReference.recordID] action:CKReferenceActionDeleteSelf];
     userActivityRecord[COFFEE_IMAGE_DATA_RECORD_TYPE] = cidReference;
@@ -133,7 +133,7 @@ NSString *const CoffeeImageDataRecordType = @"CoffeeImageData";*/
  */
 - (void)saveRecord:(CKRecord *)record withCompletionHandler:(void (^)(CKRecord *record, NSError *error))completionHandler{
     
-    NSLog(@"Entered saveRecord...");
+    NSLog(@"INFO: Entered saveRecord...");
     
     // make sure there is a record to be saved!
     if (record) {
@@ -159,7 +159,7 @@ NSString *const CoffeeImageDataRecordType = @"CoffeeImageData";*/
  */
 - (void)saveRecordForPrivateData:(CKRecord *)record withCompletionHandler:(void (^)(CKRecord *record, NSError *error))completionHandler {
     
-    NSLog(@"Entered saveRecordForPrivateData...");
+    NSLog(@"INFO: Entered saveRecordForPrivateData...");
     
     if (record) {
         [self.privateDatabase saveRecord:record completionHandler:^(CKRecord *record, NSError *error) {
@@ -177,10 +177,10 @@ NSString *const CoffeeImageDataRecordType = @"CoffeeImageData";*/
 
 - (void)deleteUserActivityRecord:(UserActivity *)userActivityRecord {
     
-    NSLog(@"Entered deleteUserActivityRecord...");
+    NSLog(@"INFO: Entered deleteUserActivityRecord...");
     
     if (userActivityRecord) {
-        NSLog(@"Preparing deletion for UA recordID: %@", userActivityRecord.recordID);
+        NSLog(@"INFO: Preparing deletion for UA recordID: %@", userActivityRecord.recordID);
         [self.privateDatabase deleteRecordWithID:[[CKRecordID alloc] initWithRecordName:userActivityRecord.recordID] completionHandler:^(CKRecordID *recordID, NSError *error) {
             if (error) {
                 NSLog(@"Error: Error encountered while trying to delete UA record from user's private database: %@", error.localizedDescription);
@@ -205,7 +205,7 @@ NSString *const CoffeeImageDataRecordType = @"CoffeeImageData";*/
  */
 - (CKAccountStatus)getUsersCKStatus {
     
-    NSLog(@"Entered getUsersCKStatus...");
+    NSLog(@"INFO: Entered getUsersCKStatus...");
     __block CKAccountStatus userAccountStatus; // assignable in block
     // use semaphore so this will be a synchronous call to get back the user's icloud status to pass back to calling method in VC
     dispatch_semaphore_t sema = dispatch_semaphore_create(0);
@@ -249,7 +249,7 @@ NSString *const CoffeeImageDataRecordType = @"CoffeeImageData";*/
     });
     dispatch_semaphore_wait(sema, DISPATCH_TIME_FOREVER);
     
-    NSLog(@"CKAccountStatus: %ld", userAccountStatus);
+    NSLog(@"INFO: CKAccountStatus: %ld", userAccountStatus);
     
     return userAccountStatus;
 }

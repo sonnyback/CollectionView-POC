@@ -683,52 +683,54 @@ dispatch_queue_t queue;
     
     NSLog(@"INFO: beginLoadingCloudKitData...started!");
     
-    [self.ckManager loadCloudKitDataWithCompletionHandler:^(NSArray *results, NSError *error) {
-        if (!error) {
-            if ([results count] > 0) {
-                self.numberOfItemsInSection = [results count];
-                NSLog(@"INFO: Success querying the cloud for %lu results!!!", (unsigned long)[results count]);
-                for (CKRecord *record in results) {
-                    // create CoffeeImageData object to store data in the array for each image
-                    CoffeeImageData *coffeeImageData = [[CoffeeImageData alloc] init];
-                    CKAsset *imageAsset = record[IMAGE];
-                    coffeeImageData.imageURL = imageAsset.fileURL;
-                    //NSLog(@"asset URL: %@", coffeeImageData.imageURL);
-                    coffeeImageData.imageName = record[IMAGE_NAME];
-                    //NSLog(@"Image name: %@", coffeeImageData.imageName);
-                    coffeeImageData.imageDescription = record[IMAGE_DESCRIPTION];
-                    coffeeImageData.userID = record[USER_ID];
-                    coffeeImageData.imageBelongsToCurrentUser = [record[IMAGE_BELONGS_TO_USER] boolValue];
-                    coffeeImageData.recipe = [record[RECIPE] boolValue];
-                    coffeeImageData.liked = [record[LIKED] boolValue]; // 0 = No, 1 = Yes
-                    coffeeImageData.recordID = record.recordID.recordName;
-                    // add the CID object to the array
-                    [self.imageLoadManager.coffeeImageDataArray addObject:coffeeImageData];
-                    
-                    // cache the image with the string representation of the absolute URL as the cache key
-                    if (coffeeImageData.imageURL) { // make sure there's an image URL to cache
-                        if (self.imageCache) {
-                            [self.imageCache storeImage:[UIImage imageWithContentsOfFile:coffeeImageData.imageURL.path] forKey:coffeeImageData.imageURL.absoluteString toDisk:YES];
-                            //NSLog(@"Printing cache: %@", [[SDImageCache sharedImageCache] description]);
+    dispatch_async(queue, ^{
+        [self.ckManager loadCloudKitDataWithCompletionHandler:^(NSArray *results, NSError *error) {
+            if (!error) {
+                if ([results count] > 0) {
+                    self.numberOfItemsInSection = [results count];
+                    NSLog(@"INFO: Success querying the cloud for %lu results!!!", (unsigned long)[results count]);
+                    for (CKRecord *record in results) {
+                        // create CoffeeImageData object to store data in the array for each image
+                        CoffeeImageData *coffeeImageData = [[CoffeeImageData alloc] init];
+                        CKAsset *imageAsset = record[IMAGE];
+                        coffeeImageData.imageURL = imageAsset.fileURL;
+                        //NSLog(@"asset URL: %@", coffeeImageData.imageURL);
+                        coffeeImageData.imageName = record[IMAGE_NAME];
+                        //NSLog(@"Image name: %@", coffeeImageData.imageName);
+                        coffeeImageData.imageDescription = record[IMAGE_DESCRIPTION];
+                        coffeeImageData.userID = record[USER_ID];
+                        coffeeImageData.imageBelongsToCurrentUser = [record[IMAGE_BELONGS_TO_USER] boolValue];
+                        coffeeImageData.recipe = [record[RECIPE] boolValue];
+                        coffeeImageData.liked = [record[LIKED] boolValue]; // 0 = No, 1 = Yes
+                        coffeeImageData.recordID = record.recordID.recordName;
+                        // add the CID object to the array
+                        [self.imageLoadManager.coffeeImageDataArray addObject:coffeeImageData];
+                        
+                        // cache the image with the string representation of the absolute URL as the cache key
+                        if (coffeeImageData.imageURL) { // make sure there's an image URL to cache
+                            if (self.imageCache) {
+                                [self.imageCache storeImage:[UIImage imageWithContentsOfFile:coffeeImageData.imageURL.path] forKey:coffeeImageData.imageURL.absoluteString toDisk:YES];
+                                //NSLog(@"Printing cache: %@", [[SDImageCache sharedImageCache] description]);
+                            }
+                        } else {
+                            NSLog(@"WARN: CID imageURL is nil...cannot cache.");
                         }
-                    } else {
-                        NSLog(@"WARN: CID imageURL is nil...cannot cache.");
                     }
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        [self.myCollectionView reloadData]; // reload the collectionview after getting all the data from CK
+                    });
+                    NSLog(@"CoffeeImageDataArray size %lu", (unsigned long)[self.imageLoadManager.coffeeImageDataArray count]);
                 }
+                // load the keys to be used for cache look up
+                [self getAllCacheKeys];
+            } else {
+                NSLog(@"Error: there was an error fetching cloud data... %@", error.localizedDescription);
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    [self.myCollectionView reloadData]; // reload the collectionview after getting all the data from CK
+                    [self alertWithTitle:@"Coffee Images could not be Loaded" andMessage:@"There was an error trying to load the coffee images from iCloud. Please try again."];
                 });
-                NSLog(@"CoffeeImageDataArray size %lu", (unsigned long)[self.imageLoadManager.coffeeImageDataArray count]);
             }
-            // load the keys to be used for cache look up
-            [self getAllCacheKeys];
-        } else {
-            NSLog(@"Error: there was an error fetching cloud data... %@", error.localizedDescription);
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [self alertWithTitle:@"Coffee Images could not be Loaded" andMessage:@"There was an error trying to load the coffee images from iCloud. Please try again."];
-            });
-        }
-    }];
+        }];
+    });
     
     /*CKDatabase *publicDatabase = [[CKContainer defaultContainer] publicCloudDatabase];
     //NSPredicate *predicate = [NSPredicate predicateWithFormat:@"ImageDescription = 'description'"];
@@ -918,7 +920,7 @@ dispatch_queue_t queue;
  *
  * @param NSString *title - title of the error/info
  * @param NSString *msg - message to be displayed to user
- *
+ * @return void
  */
 - (void)alertWithTitle:(NSString *)title andMessage:(NSString *)msg {
     
@@ -1024,13 +1026,12 @@ dispatch_queue_t queue;
         // look up the recordID in userActivityDictionary. If it's already there, we do not need to save it user's private data as it already exists
         // in this scenario, the user must have already liked it and saved the record, then unliked it and reliked it in the same session
         if (![self.imageLoadManager lookupRecordIDInUserData:currentImageData.recordID]) {
-            // add current UserActivity to userActivityDictionary so we can keep track of it
-            //[self.imageLoadManager.userActivityDictionary setObject:currentImageData forKey:currentImageData.recordID];
             UserActivity *newUserActivity = [[UserActivity alloc] init];
             newUserActivity.cidReference = currentImageData;
-            [self.imageLoadManager.userActivityDictionary setObject:newUserActivity forKey:currentImageData.recordID];
+            // add current UserActivity to userActivityDictionary so we can keep track of it
+            //[self.imageLoadManager.userActivityDictionary setObject:newUserActivity forKey:currentImageData.recordID];
             NSLog(@"INFO: Added liked image to userActivity!");
-            //[self.ckManager saveRecordForPrivateData:[self.ckManager createCKRecordForUserActivity:newUserActivity]];
+            // save the liked image to the user's private database in iCloud
             [self.ckManager saveRecordForPrivateData:[self.ckManager createCKRecordForUserActivity:newUserActivity] withCompletionHandler:^(CKRecord *record, NSError *error) {
                 if (!error && record) {
                     NSLog(@"INFO: Private UserActivity Record saved successfully for recordID: %@!", record.recordID.recordName);
@@ -1056,7 +1057,7 @@ dispatch_queue_t queue;
             UserActivity *currentUARecord = [self.imageLoadManager.userActivityDictionary objectForKey:currentImageData.recordID];
             NSLog(@"INFO: User is unliking an image. Preparing to delete recordID: %@", currentUARecord.recordID);
             if ([currentUARecord isKindOfClass:[UserActivity class]]) {
-                NSLog(@"INFO: UserActivity record for deletion!!!");
+                NSLog(@"INFO: UserActivity record for deletion!");
                 // delete the record from the user's private database
                 [self.ckManager deleteUserActivityRecord:[self.imageLoadManager.userActivityDictionary objectForKey:currentImageData.recordID]];
                 // remove this record from the userActivityDictionary. *NOTE: Move this to CKManager once ILM object is there!
