@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		E03A9BFE195CC04700316D6E /* FooterViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = E03A9BFD195CC04700316D6E /* FooterViewCell.m */; };
 		E03A9C00195DB77500316D6E /* footer_banner.png in Resources */ = {isa = PBXBuildFile; fileRef = E03A9BFF195DB77500316D6E /* footer_banner.png */; };
 		E03B8A6F199EB5E200F53C41 /* CoffeeImageData.m in Sources */ = {isa = PBXBuildFile; fileRef = E03B8A6E199EB5E200F53C41 /* CoffeeImageData.m */; };
 		E03E745D1978B11F00A3AE0F /* Helper.m in Sources */ = {isa = PBXBuildFile; fileRef = E03E745C1978B11F00A3AE0F /* Helper.m */; };
@@ -61,8 +60,6 @@
 		59E5354F5A4B056E2AC02126 /* libPods-CollectionView-POC.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-CollectionView-POC.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		665186018E079FE9E1B28D80 /* Pods-CollectionView-POC.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CollectionView-POC.debug.xcconfig"; path = "Pods/Target Support Files/Pods-CollectionView-POC/Pods-CollectionView-POC.debug.xcconfig"; sourceTree = "<group>"; };
 		67C90E36B97F8843437E45ED /* Pods-CollectionView-POC.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CollectionView-POC.release.xcconfig"; path = "Pods/Target Support Files/Pods-CollectionView-POC/Pods-CollectionView-POC.release.xcconfig"; sourceTree = "<group>"; };
-		E03A9BFC195CC04700316D6E /* FooterViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FooterViewCell.h; sourceTree = "<group>"; };
-		E03A9BFD195CC04700316D6E /* FooterViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FooterViewCell.m; sourceTree = "<group>"; };
 		E03A9BFF195DB77500316D6E /* footer_banner.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = footer_banner.png; sourceTree = "<group>"; };
 		E03B8A6D199EB5E200F53C41 /* CoffeeImageData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CoffeeImageData.h; path = Model/CoffeeImageData.h; sourceTree = "<group>"; };
 		E03B8A6E199EB5E200F53C41 /* CoffeeImageData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CoffeeImageData.m; path = Model/CoffeeImageData.m; sourceTree = "<group>"; };
@@ -209,8 +206,6 @@
 				E0E9A23118FBFC3D00043A84 /* CustomFlowLayout.m */,
 				E064B92018E50B60006193E8 /* CoffeeViewCell.h */,
 				E064B92118E50B60006193E8 /* CoffeeViewCell.m */,
-				E03A9BFC195CC04700316D6E /* FooterViewCell.h */,
-				E03A9BFD195CC04700316D6E /* FooterViewCell.m */,
 				E064B90018E4C2A1006193E8 /* BaseViewController.h */,
 				E064B90118E4C2A1006193E8 /* BaseViewController.m */,
 				E08329791928F3E100A8E9DF /* DrinkDetailViewController.h */,
@@ -448,7 +443,6 @@
 				E0CA9AD41AA9F0DE001D5C0E /* UserActivity.m in Sources */,
 				E064B8FC18E4C2A1006193E8 /* BaseAppDelegate.m in Sources */,
 				E09DEAC71975C74600B85A5C /* CafeLocatorTableViewController.m in Sources */,
-				E03A9BFE195CC04700316D6E /* FooterViewCell.m in Sources */,
 				E083297B1928F3E100A8E9DF /* DrinkDetailViewController.m in Sources */,
 				E03E745D1978B11F00A3AE0F /* Helper.m in Sources */,
 				E0896A9C19D4B80C00B12C7A /* UIImage+CS193p.m in Sources */,

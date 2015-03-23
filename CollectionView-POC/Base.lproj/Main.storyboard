@@ -21,8 +21,8 @@
                             <collectionView autoresizesSubviews="NO" opaque="NO" clipsSubviews="YES" contentMode="scaleAspectFit" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" minimumZoomScale="0.0" maximumZoomScale="0.0" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="JVU-z8-YUF">
                                 <rect key="frame" x="0.0" y="106" width="320" height="418"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="0.0" minimumInteritemSpacing="0.0" id="4ec-Go-iWi">
-                                    <size key="itemSize" width="250" height="250"/>
+                                <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="10" minimumInteritemSpacing="10" id="p2S-Az-zuy">
+                                    <size key="itemSize" width="50" height="50"/>
                                     <size key="headerReferenceSize" width="0.0" height="0.0"/>
                                     <size key="footerReferenceSize" width="0.0" height="0.0"/>
                                     <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
@@ -135,34 +135,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="x5A-6p-PRh" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-4979" y="-3020"/>
-        </scene>
-        <!--Drink Detail View Controller-->
-        <scene sceneID="cJH-em-JW3">
-            <objects>
-                <viewController id="lEj-AM-u1I" customClass="DrinkDetailViewController" sceneMemberID="viewController">
-                    <layoutGuides>
-                        <viewControllerLayoutGuide type="top" id="mM7-cl-kIq"/>
-                        <viewControllerLayoutGuide type="bottom" id="MWt-ek-Hu1"/>
-                    </layoutGuides>
-                    <view key="view" contentMode="scaleToFill" id="cba-uq-RzT">
-                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                        <subviews>
-                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="7Vz-kd-oQ4">
-                                <rect key="frame" x="0.0" y="64" width="320" height="464"/>
-                            </imageView>
-                        </subviews>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
-                    </view>
-                    <navigationItem key="navigationItem" id="Iqk-R0-qsH"/>
-                    <connections>
-                        <outlet property="imageViewOutlet" destination="7Vz-kd-oQ4" id="RzO-Gn-gLj"/>
-                    </connections>
-                </viewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="uHB-CN-0xO" userLabel="First Responder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="-5389" y="-2372"/>
+            <point key="canvasLocation" x="-5169" y="-3066"/>
         </scene>
         <!--Cafe Locator Table View Controller-->
         <scene sceneID="cD1-IN-lfZ">
@@ -191,7 +164,7 @@
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="r1z-2L-wxt" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-4603" y="-3029"/>
+            <point key="canvasLocation" x="-4759" y="-3100"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="Jrl-Ue-T3r">
@@ -209,7 +182,7 @@
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="ujA-tH-kEJ" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-5377" y="-3005"/>
+            <point key="canvasLocation" x="-5591" y="-3037"/>
         </scene>
     </scenes>
     <simulatedMetricsContainer key="defaultSimulatedMetrics">

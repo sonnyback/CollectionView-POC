@@ -49,7 +49,8 @@ NSInteger const CellHeight = 140; // height of cell
 dispatch_queue_t queue;
 
 //#define ITEM_SIZE 290.0 // item size for the cell **SHOULD ALWAYS MATCH CellWidth constant!
-#define ITEM_SIZE 140.0 // item size for the cell **SHOULD ALWAYS MATCH CellWidth constant!
+//#define ITEM_SIZE 140.0 // item size for the cell - use this size for 2 columns of cells
+#define ITEM_SIZE 90.0 // item size for the cell - use this for 3 columns of cells
 
 #pragma mark - Lazy Instantiation
 
@@ -302,7 +303,7 @@ dispatch_queue_t queue;
             }
             
             if ([self.allCacheKeys count] > 0) { // check to see if the cacheKeys arrays contains any keys (URLs)
-                
+                // get the URL of the current indexes images from cache
                 NSString *cacheKey = self.allCacheKeys[indexPath.row];
                 if (cacheKey) {
                     NSLog(@"cacheKey found!");
@@ -557,13 +558,11 @@ dispatch_queue_t queue;
     NSLog(@"setupCollectionView");
     [self.spinner startAnimating];
     
-    //UICollectionViewFlowLayout *flowLayout=[[UICollectionViewFlowLayout alloc] init];
+    UICollectionViewFlowLayout *flowLayout=[[UICollectionViewFlowLayout alloc] init];
     //CustomFlowLayout *flowLayout = [[CustomFlowLayout alloc] init];
-    //flowLayout.itemSize = CGSizeMake(ITEM_SIZE, ITEM_SIZE); // globally sets the item (cell) size
-    //[flowLayout setScrollDirection:UICollectionViewScrollDirectionHorizontal]; // set scroll direction to horizontal*/
-    self.flowLayout = [[CustomFlowLayout alloc] init];
-    self.flowLayout.itemSize = CGSizeMake(ITEM_SIZE, ITEM_SIZE);
-    //[self.flowLayout setScrollDirection:UICollectionViewScrollDirectionHorizontal];
+    flowLayout.itemSize = CGSizeMake(ITEM_SIZE, ITEM_SIZE); // globally sets the item (cell) size
+    //self.flowLayout = [[CustomFlowLayout alloc] init];
+    //self.flowLayout.itemSize = CGSizeMake(ITEM_SIZE, ITEM_SIZE);
     
     
     //flowLayout.itemSize = CGSizeMake(80, 100);
@@ -583,9 +582,9 @@ dispatch_queue_t queue;
     //self.myCollectionView.delegate = self; // not needed since done in storyboard
     //self.myCollectionView.dataSource = self; // not needed since done in storyboard
     
-    //[self.myCollectionView setCollectionViewLayout:flowLayout];
+    [self.myCollectionView setCollectionViewLayout:flowLayout];
     
-    [self.myCollectionView setCollectionViewLayout:self.flowLayout];
+    //[self.myCollectionView setCollectionViewLayout:self.flowLayout];
 }
 
 #define BUTTON_WIDTH 105.0
@@ -1105,7 +1104,7 @@ dispatch_queue_t queue;
     } else if (self.userAccountStatus == CKAccountStatusNoAccount) { // status = 3
         NSLog(@"INFO: User is not logged into CK - Camera not available!");
         dispatch_async(dispatch_get_main_queue(), ^{
-            [self alertWithTitle:@"iCloud Not Available" andMessage:@"You must be logged into your iCloud account to submit photos and recipes. Go into iCloud under Settings on your device to login."];
+            [self alertWithTitle:@"iCloud Login Required" andMessage:@"You must be logged into your iCloud account to submit photos and recipes. Go into iCloud under Settings on your device to login."];
         });
     } else if (self.userAccountStatus == CKAccountStatusRestricted) { // status = 2
         NSLog(@"INFO: User CK account is RESTRICTED!");
