@@ -20,6 +20,7 @@
 #import "SDImageCache.h"
 #import "CKManager.h"
 #import "UserActivity.h"
+#import "CustomActionSheet.h"
 
 @interface BaseViewController()
 @property (weak, nonatomic) IBOutlet UICollectionView *myCollectionView;
@@ -40,6 +41,7 @@
 @property (strong, nonatomic) NSMutableArray *allCacheKeys; // holds all the image URL strings from the cache
 @property (strong, nonatomic) CKManager *ckManager; // CloudKitManager class
 @property (nonatomic) CKAccountStatus userAccountStatus; // for tracking user's iCloud login status
+@property (strong, nonatomic) CustomActionSheet *customActionSheet;
 @end
 
 @implementation BaseViewController
@@ -156,9 +158,6 @@ dispatch_queue_t queue;
     
     dataForNewImage.imageURL = localURL;
     NSLog(@"CID.imageURL: %@", dataForNewImage.imageURL);
-    
-    
-    //NSLog(@"Display CID info for new image: %@", dataForNewImage.description);
     
     [self dismissViewControllerAnimated:YES completion:nil];
     // update number of items since array set has increased from new photo taken
@@ -439,6 +438,7 @@ dispatch_queue_t queue;
     // get the CoffeeImageData object for this cell
     //CoffeeImageData *coffeeImageData = [self.imageLoadManager coffeeImageDataForCell:indexPath.row];
     CoffeeImageData *coffeeImageData = self.imageLoadManager.coffeeImageDataArray[indexPath.row];
+    NSLog(@"DEBUG: Image selected for recordID: %@", coffeeImageData.recordID);
     
     selectedCell.imageIsLiked = coffeeImageData.isLiked;
     //likeButton.selected = selectedCell.imageIsLiked;
@@ -716,7 +716,8 @@ dispatch_queue_t queue;
                         }
                     }
                     dispatch_async(dispatch_get_main_queue(), ^{
-                        [self.myCollectionView reloadData]; // reload the collectionview after getting all the data from CK
+                        //[self.myCollectionView reloadData]; // reload the collectionview after getting all the data from CK
+                        [self updateUI];
                     });
                     NSLog(@"CoffeeImageDataArray size %lu", (unsigned long)[self.imageLoadManager.coffeeImageDataArray count]);
                 }
@@ -725,7 +726,7 @@ dispatch_queue_t queue;
             } else {
                 NSLog(@"Error: there was an error fetching cloud data... %@", error.localizedDescription);
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    [self alertWithTitle:@"Coffee Images could not be Loaded" andMessage:@"There was an error trying to load the coffee images from iCloud. Please try again."];
+                    [self alertWithTitle:@"Yikes!" andMessage:@"There was an error trying to load the coffee images from the Cloud. Please try again."];
                 });
             }
         }];
@@ -1080,10 +1081,36 @@ dispatch_queue_t queue;
     // need to check user's iCloud status before allowing the camera in case they logged out of iCloud
     self.userAccountStatus = [self.ckManager getUsersCKStatus]; // will return values 0-3. 1 is what we're looking for
     NSLog(@"INFO: cameraBarButtonPressed userAccountStatus: %ld", self.userAccountStatus);
-        
+    
     if (self.userAccountStatus == CKAccountStatusAvailable) { // status = 1
         //NSLog(@"User is logged into CK - user can upload pics!");
-        UIImagePickerController *cameraUI = [[UIImagePickerController alloc] init];
+        UIImagePickerController *picker = [[UIImagePickerController alloc] init];
+        picker.delegate = self; // set the deleage for the ImagePickerController
+        self.customActionSheet = [[CustomActionSheet alloc] initWithTitle:@"How would you like to submit your coffee pic?" delegate:nil cancelButtonTitle:@"Cancel" destructiveButtonTitle:nil otherButtonTitles:@"Camera", @"Photo Library", nil];
+        
+        [self.customActionSheet showInView:self.view withCompletionHandler:^(NSString *buttonTitle, NSInteger buttonIndex) {
+            NSLog(@"You tapped button in index %ld", (long)buttonIndex);
+            NSLog(@"Your selection is %@", buttonTitle);
+            if ([buttonTitle isEqualToString:@"Camera"]) {
+                picker.sourceType = UIImagePickerControllerSourceTypeCamera;
+                [picker setAllowsEditing:YES]; // let the user edit the photo
+                // set the camera presentation style
+                picker.modalPresentationStyle = UIModalPresentationCurrentContext;
+                
+                dispatch_async(dispatch_get_main_queue(), ^{ // show the camera on main thread to avoid latency
+                    [self presentViewController:picker animated:YES completion:nil]; // show the camera with animation
+                });
+            } else if ([buttonTitle isEqualToString:@"Photo Library"]) {
+                picker.sourceType = UIImagePickerControllerSourceTypeSavedPhotosAlbum;
+                picker.modalPresentationStyle = UIModalPresentationCurrentContext;
+                
+                dispatch_async(dispatch_get_main_queue(), ^{ // show the camera on main thread to avoid latency
+                    [self presentViewController:picker animated:YES completion:nil]; // show the camera with animation
+                });
+            }
+        }];
+        
+        /*UIImagePickerController *cameraUI = [[UIImagePickerController alloc] init];
         cameraUI.delegate = self; // set the deleage for the ImagePickerController
             
         // check to see if the camera is available as source type, else check for photo album
@@ -1100,7 +1127,7 @@ dispatch_queue_t queue;
             
         dispatch_async(dispatch_get_main_queue(), ^{ // show the camera on main thread to avoid latency
             [self presentViewController:cameraUI animated:YES completion:nil]; // show the camera with animation
-        });
+        });*/
     } else if (self.userAccountStatus == CKAccountStatusNoAccount) { // status = 3
         NSLog(@"INFO: User is not logged into CK - Camera not available!");
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -1122,15 +1149,6 @@ dispatch_queue_t queue;
             [self alertWithTitle:@"iCloud Status Undetermined" andMessage:@"We could not determine your iCloud status. You must be logged into your iCloud account to submit photos and recipes. Go into iCloud under Settings on your device to login."];
         });
     }
-    
-    /*UIActionSheet *actionSheet = [[UIActionSheet alloc]
-                                  initWithTitle:@"What do you want to do?"
-                                  delegate:nil
-                                  cancelButtonTitle:@"Cancel"
-                                  destructiveButtonTitle:nil
-                                  otherButtonTitles:@"Camera", @"Photos", nil];
-    actionSheet.actionSheetStyle = UIActionSheetStyleBlackOpaque;
-    [actionSheet showInView:self.view];*/
 }
 
 #pragma mark - VC Lifecyle Methods
