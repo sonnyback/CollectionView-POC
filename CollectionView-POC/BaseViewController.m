@@ -255,6 +255,10 @@ dispatch_queue_t queue;
     static NSString *CellIdentifier = @"CoffeeCell"; // string value identifier for cell reuse
     CoffeeViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:CellIdentifier forIndexPath:indexPath];
     NSLog(@"INFO: cellForItemAtIndexPath: section:%ld row:%ld", (long)indexPath.section, (long)indexPath.row);
+    /*Uncomment below 2 lines if lag issues with scrolling the collectionview*/
+    //cell.layer.shouldRasterize = YES;
+    //cell.layer.rasterizationScale = [UIScreen mainScreen].scale;
+    
     if (cell) {
         
         [self.spinner stopAnimating]; // images should be loaded, so stop spinner
@@ -265,8 +269,8 @@ dispatch_queue_t queue;
         
         /* UIViewContentMode options from here....*/
         //cell.coffeeImageView.contentMode = UIViewContentModeScaleToFill; // distorts the image
-        //cell.coffeeImageView.contentMode = UIViewContentModeScaleAspectFill; // fills out image area, but image is cropped
-        cell.coffeeImageView.contentMode = UIViewContentModeScaleAspectFit; // maintains aspect, but does not always fill image area
+        cell.coffeeImageView.contentMode = UIViewContentModeScaleAspectFill; // fills out image area, but image is cropped
+        //cell.coffeeImageView.contentMode = UIViewContentModeScaleAspectFit; // maintains aspect, but does not always fill image area
         /*...to here...*/
         
         // load placeholder image. will only been seen if loading from very weak signal or during scrolling after being idle
@@ -309,6 +313,8 @@ dispatch_queue_t queue;
                     [self.imageCache queryDiskCacheForKey:cacheKey done:^(UIImage *image, SDImageCacheType cacheType) {
                         if (image) { // image is found in the cache
                             NSLog(@"Image found in cache!");
+                            //UIImage *thumbnail = [Helper imageWithImage:image scaledToWidth:ITEM_SIZE];
+                            //cell.coffeeImageView.image = thumbnail;
                             cell.coffeeImageView.image = image;
                         } else {
                             NSLog(@"Image not found in cache, getting image from CID!");
@@ -358,7 +364,7 @@ dispatch_queue_t queue;
             //UIImage *thumbnailImage = coffeeImageData.image;
             //cell.coffeeImageView.image = [thumbnailImage imageByScalingToSize:CGSizeMake(ITEM_SIZE, ITEM_SIZE)];
             
-            //cell.coffeeImageView.clipsToBounds = YES;
+            cell.coffeeImageView.clipsToBounds = YES;
             //cell.coffeeImageLabel.text = imageNameForLabel;
             
             cell.coffeeImageLabel.alpha = 0.3; // set the label to be semi transparent
@@ -1235,6 +1241,8 @@ dispatch_queue_t queue;
         ddvc.drinkImage = [self.imagesArray objectAtIndex:indexPath.row];
     } else*/ if ([segue.identifier isEqualToString:[self getSelectedSegmentTitle]]) { // identifer & segment tile = "Cafes"
         NSLog(@"Segue to Cafe locator!");
+    } else if ([segue.identifier isEqualToString:@"View Photo Results"]) {
+        NSLog(@"Segueing to view photo results!");
     }
 }
 
