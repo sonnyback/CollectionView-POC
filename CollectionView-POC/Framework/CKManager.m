@@ -9,6 +9,7 @@
 #import "CKManager.h"
 #import "ImageLoadManager.h"
 #import "CoffeeImageData.h"
+#import <CoreLocation/CoreLocation.h>
 
 @interface CKManager()
 
@@ -81,7 +82,7 @@ NSString *const CoffeeImageDataRecordType = @"CoffeeImageData";*/
     //CKRecordID *wellKnownID = [[CKRecordID alloc] initWithRecordName:[NSString stringWithFormat:@"recordID%ld", (long)randomNumber]];
     //CKRecord *CIDRecord = [[CKRecord alloc] initWithRecordType:@"CoffeeImageData" recordID:wellKnownID];
     CKRecord *CIDRecord = [[CKRecord alloc] initWithRecordType:COFFEE_IMAGE_DATA_RECORD_TYPE];
-    
+    CLLocation *cidLocation = [[CLLocation alloc] initWithLatitude:[coffeeImageData.latitude doubleValue] longitude:[coffeeImageData.longitude doubleValue]];
     CIDRecord[IMAGE_BELONGS_TO_USER] = [NSNumber numberWithBool:coffeeImageData.imageBelongsToCurrentUser];
     //CIDRecord[@"ImageName"] = [NSString stringWithFormat:coffeeImageData.imageName, @"%d", randomNumber];
     CIDRecord[IMAGE_NAME] = coffeeImageData.imageName;
@@ -89,6 +90,7 @@ NSString *const CoffeeImageDataRecordType = @"CoffeeImageData";*/
     CIDRecord[USER_ID] = coffeeImageData.userID;
     CIDRecord[RECIPE] = [NSNumber numberWithBool:coffeeImageData.isRecipe];
     CIDRecord[LIKED] = [NSNumber numberWithBool:coffeeImageData.isLiked];
+    CIDRecord[LOCATION] = cidLocation;
     CKAsset *photoAsset = [[CKAsset alloc] initWithFileURL:coffeeImageData.imageURL];
     CIDRecord[IMAGE] = photoAsset;
     

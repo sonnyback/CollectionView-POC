@@ -9,7 +9,7 @@
 #import "BaseViewController.h"
 #import "CoffeeViewCell.h"
 #import "CustomFlowLayout.h"
-#import "DrinkDetailViewController.h"
+#import "NewPhotoResultsViewController.h"
 #import "CafeLocatorTableViewController.h"
 #import "ImageLoadManager.h"
 #import "CoffeeImageData.h"
@@ -34,7 +34,7 @@
 @property (weak, nonatomic) IBOutlet UIToolbar *toolBar;
 @property (strong, nonatomic) UIImageView *fullScreenImage;
 @property (strong, nonatomic) CustomFlowLayout *flowLayout;
-//@property (strong, nonatomic) CoffeeImageData *coffeeImageData;
+@property (strong, nonatomic) CoffeeImageData *coffeeImageDataAddedFromCamera;
 @property (weak, nonatomic) IBOutlet UIActivityIndicatorView *spinner;
 @property (nonatomic) NSInteger numberOfItemsInSection; // property for number of items in collectionview
 @property (strong, nonatomic) SDImageCache *imageCache;
@@ -42,6 +42,7 @@
 @property (strong, nonatomic) CKManager *ckManager; // CloudKitManager class
 @property (nonatomic) CKAccountStatus userAccountStatus; // for tracking user's iCloud login status
 @property (strong, nonatomic) CustomActionSheet *customActionSheet;
+//@property (strong, nonatomic) UIImage *photoFromCamera;
 @end
 
 @implementation BaseViewController
@@ -136,15 +137,24 @@ dispatch_queue_t queue;
     
     UIImage *image = info[UIImagePickerControllerEditedImage]; // see if the image was edited
     if (!image) image = info[UIImagePickerControllerOriginalImage]; // use original if image not edited
+    //self.photoFromCamera = image;
     
     // set the CID info for the new image
-    CoffeeImageData *dataForNewImage = [[CoffeeImageData alloc] init];
+    self.coffeeImageDataAddedFromCamera = [[CoffeeImageData alloc] init];
+    self.coffeeImageDataAddedFromCamera.image = image;
+    self.coffeeImageDataAddedFromCamera.imageName = DEFAULT_NAME; // i think this will be an image file URL
+    self.coffeeImageDataAddedFromCamera.imageDescription = @"description";
+    self.coffeeImageDataAddedFromCamera.userID = self.ckManager.userRecordID.recordName;
+    self.coffeeImageDataAddedFromCamera.imageBelongsToCurrentUser = NO; // user took this photo but should be set to NO initially
+    self.coffeeImageDataAddedFromCamera.liked = NO; // should always be NO for the public data. Will only be set to YES in code if there is a reference in user's data
+    /*CoffeeImageData *dataForNewImage = [[CoffeeImageData alloc] init];
     dataForNewImage.image = image;
     dataForNewImage.imageName = @"temporary name"; // i think this will be an image file URL
     dataForNewImage.imageDescription = @"description";
     dataForNewImage.userID = self.ckManager.userRecordID.recordName;
     dataForNewImage.imageBelongsToCurrentUser = NO; // user took this photo but should be set to NO initially
     dataForNewImage.liked = NO; // should always be NO for the public data. Will only be set to YES in code if there is a reference in user's data
+     */
     /** THIS IS NULL. NEED TO USE SDWEBIMAGE cache **/
     //dataForNewImage.imageURL = info[UIImagePickerControllerReferenceURL];
     //NSLog(@"CID.imageURL: %@", dataForNewImage.imageURL);
@@ -156,38 +166,42 @@ dispatch_queue_t queue;
     NSURL *localURL = [cacheDirectory URLByAppendingPathComponent:temporaryName];
     [data writeToURL:localURL atomically:YES];
     
-    dataForNewImage.imageURL = localURL;
-    NSLog(@"CID.imageURL: %@", dataForNewImage.imageURL);
-    
-    [self dismissViewControllerAnimated:YES completion:nil];
-    // update number of items since array set has increased from new photo taken
-    self.numberOfItemsInSection = [self.imageLoadManager.coffeeImageDataArray count];
+    //dataForNewImage.imageURL = localURL;
+    //NSLog(@"CID.imageURL: %@", dataForNewImage.imageURL);
+    self.coffeeImageDataAddedFromCamera.imageURL = localURL;
+    NSLog(@"CIDAddedFromCamera.imageURL: %@", self.coffeeImageDataAddedFromCamera.imageURL);
     
     /* NOTE: This is just for initial testing...will need to segue or use action sheet to confirm the user wants
      * save the image!
      */
     // prepare the CKRecord and save it
-    //[self saveRecord:[self createCKRecordForImage:dataForNewImage]];
-    //[self.ckManager saveRecord:[self.ckManager createCKRecordForImage:dataForNewImage]];
-    [self.ckManager saveRecord:[self.ckManager createCKRecordForImage:dataForNewImage] withCompletionHandler:^(CKRecord *record, NSError *error) {
+    /*[self.ckManager saveRecord:[self.ckManager createCKRecordForImage:self.coffeeImageDataAddedFromCamera] withCompletionHandler:^(CKRecord *record, NSError *error) {
         if (!error) {
             if (record) {
                 NSLog(@"INFO: Record saved successfully for recordID: %@", record.recordID.recordName);
                 // need to get the recordID of the just saved record before adding the CID to the CIDArray
-                dataForNewImage.recordID = record.recordID.recordName;
-                [self.imageLoadManager addCIDForNewUserImage:dataForNewImage]; // update the model with the new image
+                self.coffeeImageDataAddedFromCamera.recordID = record.recordID.recordName;
+                //[self.imageLoadManager addCIDForNewUserImage:self.coffeeImageDataAddedFromCamera]; // update the model with the new image
             }
         } else {
             NSLog(@"ERROR: Error saving record to cloud...%@", error.localizedDescription);
         }
     }];
     
-    // store the image in SDWebImage cache
-    [self.imageCache storeImage:image forKey:dataForNewImage.imageURL.absoluteString];
-    // insert the new key (image URL) into the cacheKeys array
-    [self.allCacheKeys insertObject:dataForNewImage.imageURL.absoluteString atIndex:0];
+    [self.imageLoadManager addCIDForNewUserImage:self.coffeeImageDataAddedFromCamera]; // update the model with the new image
+    // update number of items since array set has increased from new photo taken
+    self.numberOfItemsInSection = [self.imageLoadManager.coffeeImageDataArray count];
     
-    [self updateUI]; // updateUI to reload collectionview data
+    // store the image in SDWebImage cache
+    [self.imageCache storeImage:image forKey:self.coffeeImageDataAddedFromCamera.imageURL.absoluteString];
+    // insert the new key (image URL) into the cacheKeys array
+    [self.allCacheKeys insertObject:self.coffeeImageDataAddedFromCamera.imageURL.absoluteString atIndex:0];*/
+    
+    [self dismissViewControllerAnimated:YES completion:nil];
+    
+    [self performSegueWithIdentifier:@"Add New Photo" sender:self];
+    //[self updateUI]; // updateUI to reload collectionview data
+    //self.coffeeImageDataAddedFromCamera = nil;
 }
 
 - (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker {
@@ -1115,25 +1129,6 @@ dispatch_queue_t queue;
                 });
             }
         }];
-        
-        /*UIImagePickerController *cameraUI = [[UIImagePickerController alloc] init];
-        cameraUI.delegate = self; // set the deleage for the ImagePickerController
-            
-        // check to see if the camera is available as source type, else check for photo album
-        if ([UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera]) {
-            cameraUI.sourceType = UIImagePickerControllerSourceTypeCamera;
-        } else if ([UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeSavedPhotosAlbum]) {
-            cameraUI.sourceType = UIImagePickerControllerSourceTypeSavedPhotosAlbum;
-        }
-            
-        [cameraUI setAllowsEditing:YES]; // let the user edit the photo
-        // set the camera presentation style
-        //cameraUI.modalPresentationStyle = UIModalPresentationFullScreen;
-        cameraUI.modalPresentationStyle = UIModalPresentationCurrentContext;
-            
-        dispatch_async(dispatch_get_main_queue(), ^{ // show the camera on main thread to avoid latency
-            [self presentViewController:cameraUI animated:YES completion:nil]; // show the camera with animation
-        });*/
     } else if (self.userAccountStatus == CKAccountStatusNoAccount) { // status = 3
         NSLog(@"INFO: User is not logged into CK - Camera not available!");
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -1206,6 +1201,7 @@ dispatch_queue_t queue;
 
 - (void)viewDidAppear:(BOOL)animated {
     
+    [super viewDidAppear:animated];
     /* Need to make sure when coming *back* from CafeLocatorTableVC segue that Cafes does not stay selected.
      * Otherwise, user has to manually tap another segment control, then tap Cafes again to go back to cafe
      * locator. Will make this go back to Images segment. However, this may be better handled by a delegate -
@@ -1220,12 +1216,68 @@ dispatch_queue_t queue;
 
 - (void)viewWillDisappear:(BOOL)animated {
     
-    NSLog(@"viewWillDisappear");
+    [super viewWillDisappear:animated];
+    //NSLog(@"viewWillDisappear");
 }
 
 - (void)viewDidDisappear:(BOOL)animated {
     
-    NSLog(@"viewDidDisappear");
+    [super viewDidDisappear:animated];
+    //NSLog(@"viewDidDisappear");
+}
+
+#pragma mark - Segue Methods
+
+/**
+ * Method for unwinding segue from NewPhotoResultsVC. This method will receive the CID object
+ * passed back and should add it to the CIDArray and display it in the collectionview. It will also
+ * call the CKManager class to prepare the record and save it to CloudKit.
+ *
+ * @param UIStoryboardSegue *segue (from NewPhotoResultsVC)
+ */
+- (IBAction)addedPhoto:(UIStoryboardSegue *)segue {
+    
+    NSLog(@"INFO: Entered addedPhoto ");
+    //self.coffeeImageDataAddedFromCamera = nil; // wipe out the previous object
+    if ([segue.sourceViewController isKindOfClass:[NewPhotoResultsViewController class]]) {
+        NSLog(@"SourceVC is correct! ");
+        NewPhotoResultsViewController *newPhotoResultsVC = (NewPhotoResultsViewController *)segue.sourceViewController;
+        //CoffeeImageData *coffeeImageData = newPhotoResultsVC.coffeeImageData;
+        self.coffeeImageDataAddedFromCamera = newPhotoResultsVC.coffeeImageData;
+        
+        if (self.coffeeImageDataAddedFromCamera) {
+            NSLog(@"Yay! We have a CID from Unwinding!");
+            
+            //NSLog(@"image url %@", self.coffeeImageDataAddedFromCamera.imageURL);
+            // prepare the CKRecord and save it
+            [self.ckManager saveRecord:[self.ckManager createCKRecordForImage:self.coffeeImageDataAddedFromCamera] withCompletionHandler:^(CKRecord *record, NSError *error) {
+                if (!error && record) {
+                    NSLog(@"INFO: Record saved successfully for recordID: %@", record.recordID.recordName);
+                    // need to get the recordID of the just saved record before adding the CID to the CIDArray
+                    self.coffeeImageDataAddedFromCamera.recordID = record.recordID.recordName;
+                    [self.imageLoadManager addCIDForNewUserImage:self.coffeeImageDataAddedFromCamera]; // update the model with the new image
+                    // update number of items since array set has increased from new photo taken
+                    self.numberOfItemsInSection = [self.imageLoadManager.coffeeImageDataArray count];
+                } else {
+                    NSLog(@"ERROR: Error saving record to cloud...%@", error.localizedDescription);
+                }
+            }];
+             
+            //[self.imageLoadManager addCIDForNewUserImage:self.coffeeImageDataAddedFromCamera]; // update the model with the new image
+            // update number of items since array set has increased from new photo taken
+            //self.numberOfItemsInSection = [self.imageLoadManager.coffeeImageDataArray count];
+             
+            // store the image in SDWebImage cache
+            [self.imageCache storeImage:self.coffeeImageDataAddedFromCamera.image forKey:self.coffeeImageDataAddedFromCamera.imageURL.absoluteString];
+            // insert the new key (image URL) into the cacheKeys array
+            [self.allCacheKeys insertObject:self.coffeeImageDataAddedFromCamera.imageURL.absoluteString atIndex:0];
+            
+            [self alertWithTitle:@"Coffee Photo Added!" andMessage:@"Your coffee was successfully added!"];
+            [self updateUI];
+        } else {
+            NSLog(@"Unwinding did not work properly :(");
+        }
+    }
 }
 
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
@@ -1241,8 +1293,13 @@ dispatch_queue_t queue;
         ddvc.drinkImage = [self.imagesArray objectAtIndex:indexPath.row];
     } else*/ if ([segue.identifier isEqualToString:[self getSelectedSegmentTitle]]) { // identifer & segment tile = "Cafes"
         NSLog(@"Segue to Cafe locator!");
-    } else if ([segue.identifier isEqualToString:@"View Photo Results"]) {
+    } else if ([segue.identifier isEqualToString:@"Add New Photo"] &&
+               [segue.destinationViewController isKindOfClass:[NewPhotoResultsViewController class]]) {
         NSLog(@"Segueing to view photo results!");
+        NewPhotoResultsViewController *newPhotoResultsVC = (NewPhotoResultsViewController *)segue.destinationViewController;
+        //newPhotoResultsVC.drinkImage = self.photoFromCamera;
+        newPhotoResultsVC.coffeeImageData = self.coffeeImageDataAddedFromCamera;
+        //self.coffeeImageDataAddedFromCamera = nil;
     }
 }
 

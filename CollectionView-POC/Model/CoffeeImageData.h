@@ -16,6 +16,8 @@
 @property (strong, nonatomic) NSString *userID; // image owner's ID
 @property (strong, nonatomic) NSString *recordID; // will come from CloudKit
 @property (strong, nonatomic) NSURL *imageURL; // local file on disk
+@property (strong, nonatomic) NSNumber *latitude; // from CLLocation
+@property (strong, nonatomic) NSNumber *longitude; // from CLLocation
 @property (nonatomic, getter = isRecipe) BOOL recipe;
 @property (nonatomic, getter = isLiked) BOOL liked;
 @property (nonatomic) BOOL imageBelongsToCurrentUser;

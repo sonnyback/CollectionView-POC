@@ -34,5 +34,7 @@ NSString *const LIKED                           = @"Liked";
 NSString *const COFFEE_IMAGE_DATA_RECORD_TYPE   = @"CoffeeImageData";
 NSString *const USER_ACTIVITY_RECORD_TYPE       = @"UserActivity";
 NSString *const RECORD_ID                       = @"RecordID";
+NSString *const LOCATION                        = @"Location";
+NSString *const DEFAULT_NAME                    = @"Default Name";
 
 @end

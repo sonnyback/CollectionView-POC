@@ -88,7 +88,7 @@
                                     <barButtonItem systemItem="camera" id="dDH-r1-7Lx">
                                         <color key="tintColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
                                         <connections>
-                                            <action selector="cameraBarButtonPressed:" destination="vXZ-lx-hvc" id="5Y2-5K-ObL"/>
+                                            <action selector="cameraBarButtonPressed:" destination="vXZ-lx-hvc" id="NFp-n4-H5E"/>
                                         </connections>
                                     </barButtonItem>
                                 </items>
@@ -131,6 +131,7 @@
                         <outlet property="spinner" destination="54p-Xr-gam" id="mIw-uh-NUV"/>
                         <outlet property="toolBar" destination="HFB-yh-hZe" id="uvl-wC-LZz"/>
                         <segue destination="WUI-KS-5Q7" kind="push" identifier="Cafes" id="jYd-0r-8g6"/>
+                        <segue destination="LI1-wF-NTg" kind="modal" identifier="Add New Photo" id="ikY-c8-ZRZ"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="x5A-6p-PRh" sceneMemberID="firstResponder"/>
@@ -166,10 +167,10 @@
             </objects>
             <point key="canvasLocation" x="-4974" y="-3117"/>
         </scene>
-        <!--View Controller-->
+        <!--New Photo Results View Controller-->
         <scene sceneID="UDJ-as-bG7">
             <objects>
-                <viewController id="LI1-wF-NTg" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="Add New Photo" id="LI1-wF-NTg" customClass="NewPhotoResultsViewController" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="feG-Xb-Y2j"/>
                         <viewControllerLayoutGuide type="bottom" id="eur-up-Cqt"/>
@@ -177,12 +178,40 @@
                     <view key="view" contentMode="scaleToFill" id="rzW-1e-C53">
                         <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="6ix-1S-CoE">
+                                <rect key="frame" x="0.0" y="58" width="320" height="582"/>
+                            </imageView>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="dzW-SB-xFm">
+                                <rect key="frame" x="215" y="20" width="89" height="30"/>
+                                <state key="normal" title="Use Photo">
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="useButtonPressed:" destination="LI1-wF-NTg" eventType="touchUpInside" id="bJZ-t0-wFQ"/>
+                                    <segue destination="Bwp-gi-Eby" kind="unwind" identifier="Do Add Photo" unwindAction="addedPhoto:" id="h6h-v2-aEz"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="4H9-rc-g0o">
+                                <rect key="frame" x="16" y="20" width="58" height="30"/>
+                                <state key="normal" title="Cancel">
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="cancelButtonPressed:" destination="LI1-wF-NTg" eventType="touchUpInside" id="mj1-ZV-OGX"/>
+                                </connections>
+                            </button>
+                        </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                     </view>
+                    <connections>
+                        <outlet property="imageViewOutlet" destination="6ix-1S-CoE" id="r4X-RE-Nvi"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="ji4-CG-E0b" userLabel="First Responder" sceneMemberID="firstResponder"/>
+                <exit id="Bwp-gi-Eby" userLabel="Exit" sceneMemberID="exit"/>
             </objects>
-            <point key="canvasLocation" x="-5392" y="-2469"/>
+            <point key="canvasLocation" x="-5392" y="-2372"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="Jrl-Ue-T3r">
