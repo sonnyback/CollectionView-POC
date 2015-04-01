@@ -51,7 +51,7 @@
 
 - (IBAction)cancelButtonPressed:(UIButton *)sender {
     
-    NSLog(@"INFO: cancelButtonPressed!");
+    NSLog(@"INFO: Cancelling NewPhotoResultsViewController!");
     self.coffeeImageData = nil; // get rid of the CID object
     [self.presentingViewController dismissViewControllerAnimated:YES completion:NULL];
 }
@@ -113,7 +113,7 @@
 // In a storyboard-based application, you will often want to do a little preparation before navigation
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
 {
-    if ([segue.identifier isEqualToString:@"Do Add Photo"]) {
+    if ([segue.identifier isEqualToString:DO_ADD_PHOTO_SEGUE]) {
         //CoffeeImageData *addedCID = [[CoffeeImageData alloc] init];
         //self.coffeeImageData.userID = @"SonnyB!"; // just for testing
         //NSLog(@"CID userid from NPRVC: %@", self.coffeeImageData.userID);

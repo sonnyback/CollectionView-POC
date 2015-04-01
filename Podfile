@@ -3,6 +3,7 @@
 
 target 'CollectionView-POC' do
 pod 'SDWebImage', '~>3.6'
+pod 'MRProgress'
 
 end
 

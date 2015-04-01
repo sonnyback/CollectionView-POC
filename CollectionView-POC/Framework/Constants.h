@@ -14,6 +14,8 @@ extern NSString *const NAME_SPACE_IMAGE_CACHE;
 extern NSString *const JPEG;
 extern NSString *const COFFEE_CELL;
 extern NSString *const CAFES;
+extern NSString *const CAMERA;
+extern NSString *const PHOTO_LIBRARY;
 
 // images
 extern NSString *const PLACE_HOLDER;
@@ -37,4 +39,16 @@ extern NSString *const RECORD_ID;
 extern NSString *const LOCATION;
 extern NSString *const DEFAULT_NAME;
 
+// segue
+extern NSString *const ADD_NEW_PHOTO_SEGUE;
+extern NSString *const DO_ADD_PHOTO_SEGUE;
+
+// messages, errors and titles
+extern NSString *const YIKES_TITLE;
+extern NSString *const NO_SAVED_DATA_TITLE;
+extern NSString *const ERROR_LOADING_SAVED_DATA_MSG;
+extern NSString *const ERROR_LOADING_CK_DATA_MSG;
+extern NSString *const ERROR_SAVING_LIKED_IMAGE_MSG;
+extern NSString *const CANCEL_BUTTON;
+extern NSString *const TRY_AGAIN_BUTTON;
 @end

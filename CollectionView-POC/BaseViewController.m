@@ -21,6 +21,7 @@
 #import "CKManager.h"
 #import "UserActivity.h"
 #import "CustomActionSheet.h"
+#import "MRProgress.h"
 
 @interface BaseViewController()
 @property (weak, nonatomic) IBOutlet UICollectionView *myCollectionView;
@@ -43,6 +44,7 @@
 @property (nonatomic) CKAccountStatus userAccountStatus; // for tracking user's iCloud login status
 @property (strong, nonatomic) CustomActionSheet *customActionSheet;
 //@property (strong, nonatomic) UIImage *photoFromCamera;
+@property (strong, nonatomic) MRProgressOverlayView *hud;
 @end
 
 @implementation BaseViewController
@@ -746,80 +748,14 @@ dispatch_queue_t queue;
             } else {
                 NSLog(@"Error: there was an error fetching cloud data... %@", error.localizedDescription);
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    [self alertWithTitle:@"Yikes!" andMessage:@"There was an error trying to load the coffee images from the Cloud. Please try again."];
+                    //[self alertWithTitle:@"Yikes!" andMessage:@"There was an error trying to load the coffee images from the Cloud. Please try again."];
+                    UIAlertView *reloadAlert = [[UIAlertView alloc] initWithTitle:YIKES_TITLE message:ERROR_LOADING_CK_DATA_MSG delegate:nil cancelButtonTitle:CANCEL_BUTTON otherButtonTitles:TRY_AGAIN_BUTTON, nil];
+                    reloadAlert.delegate = self;
+                    [reloadAlert show];
                 });
             }
         }];
     });
-    
-    /*CKDatabase *publicDatabase = [[CKContainer defaultContainer] publicCloudDatabase];
-    //NSPredicate *predicate = [NSPredicate predicateWithFormat:@"ImageDescription = 'description'"];
-    // just for initial testing...give me all records
-    NSPredicate *predicate = [NSPredicate predicateWithValue:true];
-    //create the query
-    CKQuery *query = [[CKQuery alloc] initWithRecordType:COFFEE_IMAGE_DATA_RECORD_TYPE predicate:predicate];
-    
-    // execute the query
-    [publicDatabase performQuery:query inZoneWithID:nil completionHandler:^(NSArray *results, NSError *error) {
-        // handle the error
-        if (error) {
-            NSLog(@"Error: there was an error fetching cloud data... %@", error.localizedDescription);
-        } else {
-            // any results?
-            if ([results count] > 0) {
-                // number of items is based on number of records returned from CK query
-                self.numberOfItemsInSection = [results count];
-                @synchronized(self){
-                    NSLog(@"INFO: Success querying the cloud for %lu results!!!", (unsigned long)[results count]);
-                    for (CKRecord *record in results) {
-                        //NSLog(@"Image: %@", record[@"Image"]);
-                        //NSLog(@"ImageBelongsToUser? %@", record[@"ImageBelongsToUser"]);
-                        //NSLog(@"Image name: %@", record[IMAGE_NAME]);
-                        //NSLog(@"userid: %@", record[@"UserID"]);
-                        //NSLog(@"Image description: %@", record[@"ImageDescription"]);
-                        //NSLog(@"isRecipe? %@", record[@"Recipe"]);
-                        //NSLog(@"isLiked? %@", record[Liked]);
-                        //NSLog(@"recordID: %@", record.recordID.recordName);
-                        // create CoffeeImageData object to store data in the array for each image
-                        CoffeeImageData *coffeeImageData = [[CoffeeImageData alloc] init];
-                        CKAsset *imageAsset = record[IMAGE];
-                        coffeeImageData.imageURL = imageAsset.fileURL;
-                        //NSLog(@"asset URL: %@", coffeeImageData.imageURL);
-                        coffeeImageData.imageName = record[IMAGE_NAME];
-                        coffeeImageData.imageDescription = record[IMAGE_DESCRIPTION];
-                        coffeeImageData.userID = record[USER_ID];
-                        coffeeImageData.imageBelongsToCurrentUser = [record[IMAGE_BELONGS_TO_USER] boolValue];
-                        coffeeImageData.recipe = [record[RECIPE] boolValue];
-                        coffeeImageData.liked = [record[LIKED] boolValue]; // 0 = No, 1 = Yes
-                        coffeeImageData.recordID = record.recordID.recordName;
-                        
-                        // below lines is not needed, but not removing it yet
-                        //coffeeImageData.image = [UIImage imageWithContentsOfFile:imageAsset.fileURL.path];
-                        //coffeeImageData.image = [UIImage imageWithData:[NSData dataWithContentsOfURL:coffeeImageData.imageURL]];
-                        //NSLog(@"image size height:%f, width:%f", coffeeImageData.image.size.height, coffeeImageData.image.size.width);
-                        //[self.coffeeImageDataArray addObject:coffeeImageData];
-                        [self.imageLoadManager.coffeeImageDataArray addObject:coffeeImageData];
-                        
-                        // cache the image with the string representation of the absolute URL as the cache key
-                        if (coffeeImageData.imageURL) { // make sure there's an image URL to cache
-                            if (self.imageCache) {
-                                [self.imageCache storeImage:[UIImage imageWithContentsOfFile:coffeeImageData.imageURL.path] forKey:coffeeImageData.imageURL.absoluteString toDisk:YES];
-                                //NSLog(@"Printing cache: %@", [[SDImageCache sharedImageCache] description]);
-                            }
-                        } else {
-                            NSLog(@"WARN: CID imageURL is nil...cannot cache.");
-                        }
-                    }
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        [self.myCollectionView reloadData]; // reload the collectionview after getting all the data from CK
-                    });
-                    NSLog(@"CoffeeImageDataArray size %lu", (unsigned long)[self.imageLoadManager.coffeeImageDataArray count]);
-                }
-                // load the keys to be used for cache look up
-                [self getAllCacheKeys];
-            }
-        }
-    }];*/
     
     NSLog(@"INFO: beginLoadingCloudKitData...ended!");
 }
@@ -841,7 +777,7 @@ dispatch_queue_t queue;
         if (error) {
             NSLog(@"Error: there was an error fetching user's private data... %@", error.localizedDescription);
             dispatch_async(dispatch_get_main_queue(), ^{
-                [self alertWithTitle:@"Saved Data Could Not Be Loaded" andMessage:@"There was an error trying to load your saved coffee. We will not be able to show which images and recipes you liked."];
+                [self alertWithTitle:NO_SAVED_DATA_TITLE andMessage:ERROR_LOADING_SAVED_DATA_MSG];
             });
         } else {
             if ([results count] > 0) { // if results, we have user activity from their private database
@@ -864,32 +800,6 @@ dispatch_queue_t queue;
             }
         }
     }];
-    
-    /*[privateDatabase performQuery:query inZoneWithID:nil completionHandler:^(NSArray *results, NSError *error) {
-        if (error) {
-            NSLog(@"Error: there was an error fetching user's private data... %@", error.localizedDescription);
-        } else {
-            if ([results count] > 0) { // if results, we have user activity from their private database
-                @synchronized(self){
-                    NSLog(@"INFO: Data found in user's private CK database.");
-                    for (CKRecord *record in results) {
-                        UserActivity *userActivity = [[UserActivity alloc] init];
-                        CKReference *cidReference = [[CKReference alloc] initWithRecord:record[COFFEE_IMAGE_DATA_RECORD_TYPE] action:CKReferenceActionNone];
-                        //NSLog(@"RecordID of cidReference: %@", cidReference.recordID.recordName);
-                        CoffeeImageData *coffeeImageData = (CoffeeImageData *)cidReference;
-                        userActivity.cidReference = coffeeImageData;
-                        //userActivity.recordID = cidReference.recordID.recordName;
-                        userActivity.recordID = record.recordID.recordName;
-                        NSLog(@"INFO: Reference recordID %@, UA recordID: %@", cidReference.recordID.recordName, userActivity.recordID);
-                        [self.imageLoadManager.userActivityDictionary setObject:userActivity forKey:cidReference.recordID.recordName];
-                    }
-                }
-            } else {
-                NSLog(@"INFO: User has no private data!");
-            }
-        }
-    }];*/
-    
 }
 
 /**
@@ -956,6 +866,17 @@ dispatch_queue_t queue;
                                                           handler:^(UIAlertAction * action) {}];
     [alert addAction:defaultAction];
     [self presentViewController:alert animated:YES completion:nil];*/
+}
+
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
+    
+    if (buttonIndex != [alertView cancelButtonIndex]) {
+        NSLog(@"INFO: Attempting to reload coffee images from CloudKit...");
+        [self beginLoadingCloudKitData];
+    } else {
+        NSLog(@"Do nothing");
+        [self.spinner stopAnimating];
+    }
 }
 
 /**
@@ -1064,7 +985,7 @@ dispatch_queue_t queue;
                 } else {
                     NSLog(@"ERROR: Error saving record to user's private database...%@", error.localizedDescription);
                     dispatch_async(dispatch_get_main_queue(), ^{
-                        [self alertWithTitle:@"Yikes!" andMessage:@"There was a problem trying to save this coffee drink to your preferences. Try clicking the heart button again."];
+                        [self alertWithTitle:YIKES_TITLE andMessage:ERROR_SAVING_LIKED_IMAGE_MSG];
                     });
                 }
             }];
@@ -1106,12 +1027,12 @@ dispatch_queue_t queue;
         //NSLog(@"User is logged into CK - user can upload pics!");
         UIImagePickerController *picker = [[UIImagePickerController alloc] init];
         picker.delegate = self; // set the deleage for the ImagePickerController
-        self.customActionSheet = [[CustomActionSheet alloc] initWithTitle:@"How would you like to submit your coffee pic?" delegate:nil cancelButtonTitle:@"Cancel" destructiveButtonTitle:nil otherButtonTitles:@"Camera", @"Photo Library", nil];
+        self.customActionSheet = [[CustomActionSheet alloc] initWithTitle:@"How would you like to submit your coffee pic?" delegate:nil cancelButtonTitle:@"Cancel" destructiveButtonTitle:nil otherButtonTitles:CAMERA, PHOTO_LIBRARY, nil];
         
         [self.customActionSheet showInView:self.view withCompletionHandler:^(NSString *buttonTitle, NSInteger buttonIndex) {
             NSLog(@"You tapped button in index %ld", (long)buttonIndex);
             NSLog(@"Your selection is %@", buttonTitle);
-            if ([buttonTitle isEqualToString:@"Camera"]) {
+            if ([buttonTitle isEqualToString:CAMERA]) {
                 picker.sourceType = UIImagePickerControllerSourceTypeCamera;
                 [picker setAllowsEditing:YES]; // let the user edit the photo
                 // set the camera presentation style
@@ -1120,8 +1041,9 @@ dispatch_queue_t queue;
                 dispatch_async(dispatch_get_main_queue(), ^{ // show the camera on main thread to avoid latency
                     [self presentViewController:picker animated:YES completion:nil]; // show the camera with animation
                 });
-            } else if ([buttonTitle isEqualToString:@"Photo Library"]) {
+            } else if ([buttonTitle isEqualToString:PHOTO_LIBRARY]) {
                 picker.sourceType = UIImagePickerControllerSourceTypeSavedPhotosAlbum;
+                [picker setAllowsEditing:YES]; // let the user edit the photo
                 picker.modalPresentationStyle = UIModalPresentationCurrentContext;
                 
                 dispatch_async(dispatch_get_main_queue(), ^{ // show the camera on main thread to avoid latency
@@ -1249,6 +1171,11 @@ dispatch_queue_t queue;
             NSLog(@"Yay! We have a CID from Unwinding!");
             
             //NSLog(@"image url %@", self.coffeeImageDataAddedFromCamera.imageURL);
+            //[MRProgressOverlayView showOverlayAddedTo:self.view title:@"Uploading Your Coffee..." mode:MRProgressOverlayViewModeDeterminateCircular animated:YES];
+            self.hud = [MRProgressOverlayView showOverlayAddedTo:self.myCollectionView animated:YES];
+            self.hud.mode = MRProgressOverlayViewModeDeterminateCircular;
+            self.hud.titleLabelText = @"Uploading your coffee...";
+            //[self.hud setProgress:20.0 animated:YES];
             // prepare the CKRecord and save it
             [self.ckManager saveRecord:[self.ckManager createCKRecordForImage:self.coffeeImageDataAddedFromCamera] withCompletionHandler:^(CKRecord *record, NSError *error) {
                 if (!error && record) {
@@ -1258,11 +1185,14 @@ dispatch_queue_t queue;
                     [self.imageLoadManager addCIDForNewUserImage:self.coffeeImageDataAddedFromCamera]; // update the model with the new image
                     // update number of items since array set has increased from new photo taken
                     self.numberOfItemsInSection = [self.imageLoadManager.coffeeImageDataArray count];
+                    //[MRProgressOverlayView dismissAllOverlaysForView:self.view animated:YES];
+                    [self.hud dismiss:YES];
+                    [self.hud removeFromSuperview];
                 } else {
                     NSLog(@"ERROR: Error saving record to cloud...%@", error.localizedDescription);
+                    [self alertWithTitle:@"Yikes!" andMessage:@"We encountered an issue trying to upload your photo to the cloud. I'm sure it was one of those pesky network errors. Would you mind trying to submit it again?"];
                 }
             }];
-             
             //[self.imageLoadManager addCIDForNewUserImage:self.coffeeImageDataAddedFromCamera]; // update the model with the new image
             // update number of items since array set has increased from new photo taken
             //self.numberOfItemsInSection = [self.imageLoadManager.coffeeImageDataArray count];
@@ -1272,7 +1202,7 @@ dispatch_queue_t queue;
             // insert the new key (image URL) into the cacheKeys array
             [self.allCacheKeys insertObject:self.coffeeImageDataAddedFromCamera.imageURL.absoluteString atIndex:0];
             
-            [self alertWithTitle:@"Coffee Photo Added!" andMessage:@"Your coffee was successfully added!"];
+            //[self alertWithTitle:@"Coffee Photo Added!" andMessage:@"Your coffee was successfully added!"];
             [self updateUI];
         } else {
             NSLog(@"Unwinding did not work properly :(");
@@ -1293,7 +1223,7 @@ dispatch_queue_t queue;
         ddvc.drinkImage = [self.imagesArray objectAtIndex:indexPath.row];
     } else*/ if ([segue.identifier isEqualToString:[self getSelectedSegmentTitle]]) { // identifer & segment tile = "Cafes"
         NSLog(@"Segue to Cafe locator!");
-    } else if ([segue.identifier isEqualToString:@"Add New Photo"] &&
+    } else if ([segue.identifier isEqualToString:ADD_NEW_PHOTO_SEGUE] &&
                [segue.destinationViewController isKindOfClass:[NewPhotoResultsViewController class]]) {
         NSLog(@"Segueing to view photo results!");
         NewPhotoResultsViewController *newPhotoResultsVC = (NewPhotoResultsViewController *)segue.destinationViewController;
