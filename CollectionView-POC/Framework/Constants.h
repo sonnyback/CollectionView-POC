@@ -17,12 +17,12 @@ extern NSString *const CAFES;
 extern NSString *const CAMERA;
 extern NSString *const PHOTO_LIBRARY;
 
-// images
+// Images
 extern NSString *const PLACE_HOLDER;
 extern NSString *const HEART_BLUE;
 extern NSString *const HEART_BLUE_SOLID;
 
-// search
+// Search
 extern NSString *const SEARCH_FOR_COFFEE;
 
 // CoffeeImageData
@@ -39,7 +39,7 @@ extern NSString *const RECORD_ID;
 extern NSString *const LOCATION;
 extern NSString *const DEFAULT_NAME;
 
-// segue
+// Segue
 extern NSString *const ADD_NEW_PHOTO_SEGUE;
 extern NSString *const DO_ADD_PHOTO_SEGUE;
 
@@ -51,4 +51,15 @@ extern NSString *const ERROR_LOADING_CK_DATA_MSG;
 extern NSString *const ERROR_SAVING_LIKED_IMAGE_MSG;
 extern NSString *const CANCEL_BUTTON;
 extern NSString *const TRY_AGAIN_BUTTON;
+extern NSString *const ICLOUD_LOGIN_REQ_TITLE;
+extern NSString *const ICLOUD_LOGIN_REQ_MSG;
+extern NSString *const ICLOUD_STATUS_RESTRICTED_TITLE;
+extern NSString *const ICLOUD_STATUS_RESTRICTED_MSG;
+extern NSString *const ICLOUD_STATUS_UNDETERMINED_TITLE;
+extern NSString *const ICLOUD_STATUS_UNDETERMINED_MSG;
+extern NSString *const ERROR_SAVING_PHOTO_MSG;
+extern NSString *const UPLOADING_COFFEE_MSG;
+
+// Actions
+extern NSString *const PHOTO_BRANCH_ACTION;
 @end

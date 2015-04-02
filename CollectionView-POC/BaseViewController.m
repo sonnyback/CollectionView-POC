@@ -1027,7 +1027,7 @@ dispatch_queue_t queue;
         //NSLog(@"User is logged into CK - user can upload pics!");
         UIImagePickerController *picker = [[UIImagePickerController alloc] init];
         picker.delegate = self; // set the deleage for the ImagePickerController
-        self.customActionSheet = [[CustomActionSheet alloc] initWithTitle:@"How would you like to submit your coffee pic?" delegate:nil cancelButtonTitle:@"Cancel" destructiveButtonTitle:nil otherButtonTitles:CAMERA, PHOTO_LIBRARY, nil];
+        self.customActionSheet = [[CustomActionSheet alloc] initWithTitle:PHOTO_BRANCH_ACTION delegate:nil cancelButtonTitle:CANCEL_BUTTON destructiveButtonTitle:nil otherButtonTitles:CAMERA, PHOTO_LIBRARY, nil];
         
         [self.customActionSheet showInView:self.view withCompletionHandler:^(NSString *buttonTitle, NSInteger buttonIndex) {
             NSLog(@"You tapped button in index %ld", (long)buttonIndex);
@@ -1054,22 +1054,22 @@ dispatch_queue_t queue;
     } else if (self.userAccountStatus == CKAccountStatusNoAccount) { // status = 3
         NSLog(@"INFO: User is not logged into CK - Camera not available!");
         dispatch_async(dispatch_get_main_queue(), ^{
-            [self alertWithTitle:@"iCloud Login Required" andMessage:@"You must be logged into your iCloud account to submit photos and recipes. Go into iCloud under Settings on your device to login."];
+            [self alertWithTitle:ICLOUD_LOGIN_REQ_TITLE andMessage:ICLOUD_LOGIN_REQ_MSG];
         });
     } else if (self.userAccountStatus == CKAccountStatusRestricted) { // status = 2
         NSLog(@"INFO: User CK account is RESTRICTED!");
         dispatch_async(dispatch_get_main_queue(), ^{
-            [self alertWithTitle:@"iCloud Status Restricted" andMessage:@"Your iCloud account is listed as Restricted. Saving to CloudKit databases is not allowed on restricted accounts. Try a different iCloud account if you have one or contact your system administrator."];
+            [self alertWithTitle:ICLOUD_STATUS_RESTRICTED_TITLE andMessage:ICLOUD_STATUS_RESTRICTED_MSG];
         });
     } else if (self.userAccountStatus == CKAccountStatusCouldNotDetermine) { // status = 0
         NSLog(@"INFO: User CK status could not be determined!");
         dispatch_async(dispatch_get_main_queue(), ^{
-            [self alertWithTitle:@"iCloud Status Undetermined" andMessage:@"We could not determine your iCloud status. You must be logged into your iCloud account to submit photos and recipes. Go into iCloud under Settings on your device to login."];
+            [self alertWithTitle:ICLOUD_STATUS_UNDETERMINED_TITLE andMessage:ICLOUD_STATUS_UNDETERMINED_MSG];
         });
     } else { // did not get back one of the above values so show the Could Not Determine message
         NSLog(@"INFO: User CK status could not be determined!");
         dispatch_async(dispatch_get_main_queue(), ^{
-            [self alertWithTitle:@"iCloud Status Undetermined" andMessage:@"We could not determine your iCloud status. You must be logged into your iCloud account to submit photos and recipes. Go into iCloud under Settings on your device to login."];
+            [self alertWithTitle:ICLOUD_STATUS_UNDETERMINED_TITLE andMessage:ICLOUD_STATUS_UNDETERMINED_MSG];
         });
     }
 }
@@ -1174,7 +1174,7 @@ dispatch_queue_t queue;
             //[MRProgressOverlayView showOverlayAddedTo:self.view title:@"Uploading Your Coffee..." mode:MRProgressOverlayViewModeDeterminateCircular animated:YES];
             self.hud = [MRProgressOverlayView showOverlayAddedTo:self.myCollectionView animated:YES];
             self.hud.mode = MRProgressOverlayViewModeDeterminateCircular;
-            self.hud.titleLabelText = @"Uploading your coffee...";
+            self.hud.titleLabelText = UPLOADING_COFFEE_MSG;
             //[self.hud setProgress:20.0 animated:YES];
             // prepare the CKRecord and save it
             [self.ckManager saveRecord:[self.ckManager createCKRecordForImage:self.coffeeImageDataAddedFromCamera] withCompletionHandler:^(CKRecord *record, NSError *error) {
@@ -1190,7 +1190,7 @@ dispatch_queue_t queue;
                     [self.hud removeFromSuperview];
                 } else {
                     NSLog(@"ERROR: Error saving record to cloud...%@", error.localizedDescription);
-                    [self alertWithTitle:@"Yikes!" andMessage:@"We encountered an issue trying to upload your photo to the cloud. I'm sure it was one of those pesky network errors. Would you mind trying to submit it again?"];
+                    [self alertWithTitle:YIKES_TITLE andMessage:ERROR_SAVING_PHOTO_MSG];
                 }
             }];
             //[self.imageLoadManager addCIDForNewUserImage:self.coffeeImageDataAddedFromCamera]; // update the model with the new image
