@@ -57,7 +57,7 @@ NSString *const ICLOUD_STATUS_RESTRICTED_TITLE      = @"iCloud Status Restricted
 NSString *const ICLOUD_STATUS_RESTRICTED_MSG        = @"Your iCloud account is listed as Restricted. Saving to CloudKit databases is not allowed on restricted accounts. Try a different iCloud account if you have one or contact your system administrator.";
 NSString *const ICLOUD_STATUS_UNDETERMINED_TITLE    = @"iCloud Status Undetermined";
 NSString *const ICLOUD_STATUS_UNDETERMINED_MSG      = @"We could not determine your iCloud status. You must be logged into your iCloud account to submit photos and recipes. Go into iCloud under Settings on your device to login.";
-NSString *const ERROR_SAVING_PHOTO_MSG              = @"We encountered an issue trying to upload your photo to the cloud. I'm sure it was one of those pesky network errors. Would you mind trying to submit it again?";
+NSString *const ERROR_SAVING_PHOTO_MSG              = @"We encountered an issue trying to upload your photo to the cloud. It was probably one of those pesky network errors. Would you mind trying to submit it again?";
 NSString *const UPLOADING_COFFEE_MSG                = @"Uploading your coffee...";
 
 // Actions

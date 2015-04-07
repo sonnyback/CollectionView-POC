@@ -704,7 +704,7 @@ dispatch_queue_t queue;
     
     NSLog(@"INFO: beginLoadingCloudKitData...started!");
     
-    dispatch_async(queue, ^{
+    /*dispatch_async(queue, ^{
         [self.ckManager loadCloudKitDataWithCompletionHandler:^(NSArray *results, NSError *error) {
             if (!error) {
                 if ([results count] > 0) {
@@ -735,6 +735,65 @@ dispatch_queue_t queue;
                             }
                         } else {
                             NSLog(@"WARN: CID imageURL is nil...cannot cache.");
+                        }
+                    }
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        //[self.myCollectionView reloadData]; // reload the collectionview after getting all the data from CK
+                        [self updateUI];
+                    });
+                    NSLog(@"CoffeeImageDataArray size %lu", (unsigned long)[self.imageLoadManager.coffeeImageDataArray count]);
+                }
+                // load the keys to be used for cache look up
+                [self getAllCacheKeys];
+            } else {
+                NSLog(@"Error: there was an error fetching cloud data... %@", error.localizedDescription);
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    //[self alertWithTitle:@"Yikes!" andMessage:@"There was an error trying to load the coffee images from the Cloud. Please try again."];
+                    UIAlertView *reloadAlert = [[UIAlertView alloc] initWithTitle:YIKES_TITLE message:ERROR_LOADING_CK_DATA_MSG delegate:nil cancelButtonTitle:CANCEL_BUTTON otherButtonTitles:TRY_AGAIN_BUTTON, nil];
+                    reloadAlert.delegate = self;
+                    [reloadAlert show];
+                });
+            }
+        }];
+    });*/
+    
+    dispatch_async(queue, ^{
+        [self.ckManager loadCloudKitDataWithCompletionHandler:^(NSArray *results, CKQueryCursor *cursor, NSError *error) {
+            if (!error) {
+                if ([results count] > 0) {
+                    self.numberOfItemsInSection = [results count];
+                    NSLog(@"INFO: Success querying the cloud for %lu results!!!", (unsigned long)[results count]);
+                    for (CKRecord *record in results) {
+                        // create CoffeeImageData object to store data in the array for each image
+                        CoffeeImageData *coffeeImageData = [[CoffeeImageData alloc] init];
+                        CKAsset *imageAsset = record[IMAGE];
+                        coffeeImageData.imageURL = imageAsset.fileURL;
+                        //NSLog(@"asset URL: %@", coffeeImageData.imageURL);
+                        coffeeImageData.imageName = record[IMAGE_NAME];
+                        //NSLog(@"Image name: %@", coffeeImageData.imageName);
+                        coffeeImageData.imageDescription = record[IMAGE_DESCRIPTION];
+                        coffeeImageData.userID = record[USER_ID];
+                        coffeeImageData.imageBelongsToCurrentUser = [record[IMAGE_BELONGS_TO_USER] boolValue];
+                        coffeeImageData.recipe = [record[RECIPE] boolValue];
+                        coffeeImageData.liked = [record[LIKED] boolValue]; // 0 = No, 1 = Yes
+                        coffeeImageData.recordID = record.recordID.recordName;
+                        // add the CID object to the array
+                        [self.imageLoadManager.coffeeImageDataArray addObject:coffeeImageData];
+                        
+                        // cache the image with the string representation of the absolute URL as the cache key
+                        if (coffeeImageData.imageURL) { // make sure there's an image URL to cache
+                            if (self.imageCache) {
+                                [self.imageCache storeImage:[UIImage imageWithContentsOfFile:coffeeImageData.imageURL.path] forKey:coffeeImageData.imageURL.absoluteString toDisk:YES];
+                                //NSLog(@"Printing cache: %@", [[SDImageCache sharedImageCache] description]);
+                            }
+                        } else {
+                            NSLog(@"WARN: CID imageURL is nil...cannot cache.");
+                            dispatch_async(dispatch_get_main_queue(), ^{
+                                //[self alertWithTitle:@"Yikes!" andMessage:@"There was an error trying to load the coffee images from the Cloud. Please try again."];
+                                UIAlertView *reloadAlert = [[UIAlertView alloc] initWithTitle:YIKES_TITLE message:ERROR_LOADING_CK_DATA_MSG delegate:nil cancelButtonTitle:CANCEL_BUTTON otherButtonTitles:TRY_AGAIN_BUTTON, nil];
+                                reloadAlert.delegate = self;
+                                [reloadAlert show];
+                            });
                         }
                     }
                     dispatch_async(dispatch_get_main_queue(), ^{
@@ -832,11 +891,15 @@ dispatch_queue_t queue;
         // go through the CID objecs in the array and get the URL string for each corresponding image
         for (CoffeeImageData *cid in self.imageLoadManager.coffeeImageDataArray) {
             NSString *url = cid.imageURL.absoluteString;
-            NSLog(@"INFO: URL key being stored: %@", url);
-            // check to make sure the URL is not already in the array
-            if (![self.allCacheKeys containsObject:url]) {
-                //NSLog(@"INFO: Adding URL to cacheKeys array...");
-                [self.allCacheKeys addObject:url];
+            if (url) {
+                NSLog(@"INFO: URL key being stored: %@", url);
+                // check to make sure the URL is not already in the array
+                if (![self.allCacheKeys containsObject:url]) {
+                    //NSLog(@"INFO: Adding URL to cacheKeys array...");
+                    [self.allCacheKeys addObject:url];
+                }
+            } else {
+                NSLog(@"ERROR: URL is nil");
             }
         }
         //NSLog(@"INFO: allCacheKeys array size: %lu", (unsigned long)[self.allCacheKeys count]);
@@ -1169,33 +1232,44 @@ dispatch_queue_t queue;
         
         if (self.coffeeImageDataAddedFromCamera) {
             NSLog(@"Yay! We have a CID from Unwinding!");
-            
             //NSLog(@"image url %@", self.coffeeImageDataAddedFromCamera.imageURL);
-            //[MRProgressOverlayView showOverlayAddedTo:self.view title:@"Uploading Your Coffee..." mode:MRProgressOverlayViewModeDeterminateCircular animated:YES];
             self.hud = [MRProgressOverlayView showOverlayAddedTo:self.myCollectionView animated:YES];
             self.hud.mode = MRProgressOverlayViewModeDeterminateCircular;
             self.hud.titleLabelText = UPLOADING_COFFEE_MSG;
             //[self.hud setProgress:20.0 animated:YES];
             // prepare the CKRecord and save it
-            [self.ckManager saveRecord:[self.ckManager createCKRecordForImage:self.coffeeImageDataAddedFromCamera] withCompletionHandler:^(CKRecord *record, NSError *error) {
-                if (!error && record) {
-                    NSLog(@"INFO: Record saved successfully for recordID: %@", record.recordID.recordName);
-                    // need to get the recordID of the just saved record before adding the CID to the CIDArray
+            [self.ckManager saveRecord:@[[self.ckManager createCKRecordForImage:self.coffeeImageDataAddedFromCamera]] withCompletionHandler:^(NSArray *records, NSError *error) {
+                if (!error && records) {
+                    NSLog(@"INFO: Size of records array returned: %lu", (unsigned long)[records count]);
+                    CKRecord *record = [records lastObject];
                     self.coffeeImageDataAddedFromCamera.recordID = record.recordID.recordName;
+                    NSLog(@"INFO: Record saved successfully for recordID: %@", self.coffeeImageDataAddedFromCamera.recordID);
                     [self.imageLoadManager addCIDForNewUserImage:self.coffeeImageDataAddedFromCamera]; // update the model with the new image
                     // update number of items since array set has increased from new photo taken
                     self.numberOfItemsInSection = [self.imageLoadManager.coffeeImageDataArray count];
-                    //[MRProgressOverlayView dismissAllOverlaysForView:self.view animated:YES];
-                    [self.hud dismiss:YES];
-                    [self.hud removeFromSuperview];
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        [self.hud dismiss:YES];
+                        [self.hud removeFromSuperview];
+                        [self updateUI];
+                        [self alertWithTitle:@"Yay!" andMessage:@"Your coffee photo was successfully sent up to the clouds for everyone to see!"];
+                    });
                 } else {
                     NSLog(@"ERROR: Error saving record to cloud...%@", error.localizedDescription);
-                    [self alertWithTitle:YIKES_TITLE andMessage:ERROR_SAVING_PHOTO_MSG];
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        [self.hud dismiss:YES];
+                        [self.hud removeFromSuperview];
+                        [self alertWithTitle:YIKES_TITLE andMessage:ERROR_SAVING_PHOTO_MSG];
+                    });
                 }
+            } recordProgressHandler:^(double progress) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    //NSLog(@"Updating hud display...");
+                    [self.hud setProgress:progress animated:YES];
+                });
             }];
-            //[self.imageLoadManager addCIDForNewUserImage:self.coffeeImageDataAddedFromCamera]; // update the model with the new image
+            /*[self.imageLoadManager addCIDForNewUserImage:self.coffeeImageDataAddedFromCamera]; // update the model with the new image
             // update number of items since array set has increased from new photo taken
-            //self.numberOfItemsInSection = [self.imageLoadManager.coffeeImageDataArray count];
+            self.numberOfItemsInSection = [self.imageLoadManager.coffeeImageDataArray count];*/
              
             // store the image in SDWebImage cache
             [self.imageCache storeImage:self.coffeeImageDataAddedFromCamera.image forKey:self.coffeeImageDataAddedFromCamera.imageURL.absoluteString];
@@ -1203,7 +1277,7 @@ dispatch_queue_t queue;
             [self.allCacheKeys insertObject:self.coffeeImageDataAddedFromCamera.imageURL.absoluteString atIndex:0];
             
             //[self alertWithTitle:@"Coffee Photo Added!" andMessage:@"Your coffee was successfully added!"];
-            [self updateUI];
+            //[self updateUI];
         } else {
             NSLog(@"Unwinding did not work properly :(");
         }

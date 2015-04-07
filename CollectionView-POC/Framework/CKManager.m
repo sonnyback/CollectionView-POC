@@ -16,7 +16,6 @@
 @property (nonatomic, readonly) CKContainer *container;
 @property (nonatomic, readonly) CKDatabase *publicDatabase;
 @property (nonatomic, readonly) CKDatabase *privateDatabase;
-
 @end
 
 @implementation CKManager
@@ -42,7 +41,7 @@ NSString *const CoffeeImageDataRecordType = @"CoffeeImageData";*/
     return self;
 }
 
-- (void)loadCloudKitDataWithCompletionHandler:(void (^)(NSArray *results, NSError *error))completionHandler {
+/*- (void)loadCloudKitDataWithCompletionHandler:(void (^)(NSArray *results, NSError *error))completionHandler {
     NSLog(@"INFO: Entered loadInitialCloudKitDataWithCompletionHandler...");
     
     // just for initial testing...give me all records
@@ -54,6 +53,32 @@ NSString *const CoffeeImageDataRecordType = @"CoffeeImageData";*/
     [self.publicDatabase performQuery:query inZoneWithID:nil completionHandler:^(NSArray *results, NSError *error) {
         completionHandler(results, error);
     }];
+}*/
+
+- (void)loadCloudKitDataWithCompletionHandler:(void (^)(NSArray *, CKQueryCursor *, NSError *))completionHandler {
+    NSLog(@"INFO: Entered loadInitialCloudKitDataWithCompletionHandler...");
+    NSMutableArray *tempResultsSet = [[NSMutableArray alloc] init];
+    __block NSArray *results;
+    // just for initial testing...give me all records
+    NSPredicate *predicate = [NSPredicate predicateWithValue:true];
+    //create the query
+    CKQuery *query = [[CKQuery alloc] initWithRecordType:COFFEE_IMAGE_DATA_RECORD_TYPE predicate:predicate];
+    CKQueryOperation *ckQueryOperation = [[CKQueryOperation alloc] initWithQuery:query];
+    ckQueryOperation.resultsLimit = CKQueryOperationMaximumResults; // get all the results
+    
+    // processes for each record returned
+    ckQueryOperation.recordFetchedBlock = ^(CKRecord *record) {
+        NSLog(@"RecordFetchBlock returned record: %@", record.recordID.recordName);
+        [tempResultsSet addObject:record];
+    };
+    // query has completed
+    ckQueryOperation.queryCompletionBlock = ^(CKQueryCursor *cursor, NSError *error) {
+        results = [tempResultsSet copy];
+        [tempResultsSet removeAllObjects]; // get rid of the temp results array
+        completionHandler(results, cursor, error);
+    };
+    
+    [self.publicDatabase addOperation:ckQueryOperation];
 }
 
 - (void)getUserActivityPrivateDataWithCompletionHandler:(void (^)(NSArray *results, NSError *error))completionHandler {
@@ -133,7 +158,7 @@ NSString *const CoffeeImageDataRecordType = @"CoffeeImageData";*/
  * @param CKRecord *
  * @return void
  */
-- (void)saveRecord:(CKRecord *)record withCompletionHandler:(void (^)(CKRecord *record, NSError *error))completionHandler{
+/*- (void)saveRecord:(CKRecord *)record withCompletionHandler:(void (^)(CKRecord *record, NSError *error))completionHandler{
     
     NSLog(@"INFO: Entered saveRecord...");
     
@@ -142,15 +167,30 @@ NSString *const CoffeeImageDataRecordType = @"CoffeeImageData";*/
         // save the record
         [self.publicDatabase saveRecord:record completionHandler:^(CKRecord *record, NSError *error) {
             completionHandler(record, error);
-            /*if (error) {
-                NSLog(@"Error saving record to cloud...%@", error.localizedDescription);
-            } else {
-                NSLog(@"Record saved successfully!");
-            }*/
         }];
     } else {
         NSLog(@"WARN: The CKRecord passed was not valid or could not be saved!");
     }
+}*/
+
+- (void)saveRecord:(NSArray *)records withCompletionHandler:(void (^)(NSArray *, NSError *))completionHandler recordProgressHandler:(void (^)(double))progressHandler {
+    
+    NSLog(@"INFO: Entered saveRecord...");
+    CKModifyRecordsOperation *saveOperation = [[CKModifyRecordsOperation alloc] initWithRecordsToSave:records recordIDsToDelete:nil];
+    
+    saveOperation.perRecordProgressBlock = ^(CKRecord *record, double progress) {
+        if (progress <= 1) {
+            NSLog(@"INFO: Save progress is: %f", progress);
+            progressHandler(progress);
+        }
+    };
+    
+    saveOperation.perRecordCompletionBlock = ^(CKRecord *record, NSError *error) {
+        NSLog(@"INFO: Save operation completed!");
+        completionHandler(@[record], error);
+    };
+    
+    [self.publicDatabase addOperation:saveOperation];
 }
 
 /**

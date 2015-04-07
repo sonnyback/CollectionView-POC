@@ -10,6 +10,8 @@
 #import "CoffeeImageData.h"
 #import "UserActivity.h"
 @import CloudKit;
+#import "ImageLoadManager.h"
+#import "CoffeeImageData.h"
 
 @interface CKManager : NSObject
 
@@ -26,14 +28,16 @@ extern NSString *const CoffeeImageDataRecordType;*/
 @property (strong, nonatomic) CKRecordID *userRecordID; // unique user identifier
 
 // public methods
-- (void)loadCloudKitDataWithCompletionHandler:(void (^)(NSArray *results, NSError *error))completionHandler;
+//- (void)loadCloudKitDataWithCompletionHandler:(void (^)(NSArray *results, NSError *error))completionHandler;
+- (void)loadCloudKitDataWithCompletionHandler:(void (^)(NSArray *results, CKQueryCursor *cursor, NSError *error))completionHandler;
 - (void)getUserActivityPrivateDataWithCompletionHandler:(void (^)(NSArray *results, NSError *error))completionHandler;
 - (CKRecord *)createCKRecordForImage:(CoffeeImageData *)coffeeImageData;
 //- (CKRecord *)createCKRecordForUserActivity:(CoffeeImageData *)coffeeImageData;
 - (CKRecord *)createCKRecordForUserActivity:(UserActivity *)userActivity;
-- (void)saveRecord:(CKRecord *)record withCompletionHandler:(void (^)(CKRecord *record, NSError *error))completionHandler;
+//- (void)saveRecord:(CKRecord *)record withCompletionHandler:(void (^)(CKRecord *record, NSError *error))completionHandler;
+- (void)saveRecord:(NSArray *)records withCompletionHandler:(void (^)(NSArray *records, NSError *error))completionHandler recordProgressHandler:(void (^)(double))progressHandler;
 - (void)saveRecordForPrivateData:(CKRecord *)record withCompletionHandler:(void (^)(CKRecord *record, NSError *error))completionHandler;
 - (void)deleteUserActivityRecord:(UserActivity *)userActivityRecord;
 - (CKAccountStatus)getUsersCKStatus;
-
 @end
+
