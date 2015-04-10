@@ -30,6 +30,7 @@ extern NSString *const CoffeeImageDataRecordType;*/
 // public methods
 //- (void)loadCloudKitDataWithCompletionHandler:(void (^)(NSArray *results, NSError *error))completionHandler;
 - (void)loadCloudKitDataWithCompletionHandler:(void (^)(NSArray *results, CKQueryCursor *cursor, NSError *error))completionHandler;
+- (void)loadRecipeDataWithCompletionHandler:(void (^)(NSArray *results, CKQueryCursor *cursor, NSError *error))completionHandler;
 - (void)getUserActivityPrivateDataWithCompletionHandler:(void (^)(NSArray *results, NSError *error))completionHandler;
 - (CKRecord *)createCKRecordForImage:(CoffeeImageData *)coffeeImageData;
 //- (CKRecord *)createCKRecordForUserActivity:(CoffeeImageData *)coffeeImageData;

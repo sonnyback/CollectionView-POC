@@ -14,6 +14,8 @@ extern NSString *const NAME_SPACE_IMAGE_CACHE;
 extern NSString *const JPEG;
 extern NSString *const COFFEE_CELL;
 extern NSString *const CAFES;
+extern NSString *const IMAGES_SEGMENTED_CTRL;
+extern NSString *const RECIPES_SEGMENTED_CTRL;
 extern NSString *const CAMERA;
 extern NSString *const PHOTO_LIBRARY;
 
@@ -39,12 +41,16 @@ extern NSString *const RECORD_ID;
 extern NSString *const LOCATION;
 extern NSString *const DEFAULT_NAME;
 
+// RecipeImageData
+extern NSString *const RECIPE_IMAGE_DATA_RECORD_TYPE;
+
 // Segue
 extern NSString *const ADD_NEW_PHOTO_SEGUE;
 extern NSString *const DO_ADD_PHOTO_SEGUE;
 
 // messages, errors and titles
 extern NSString *const YIKES_TITLE;
+extern NSString *const YAY_TITLE;
 extern NSString *const NO_SAVED_DATA_TITLE;
 extern NSString *const ERROR_LOADING_SAVED_DATA_MSG;
 extern NSString *const ERROR_LOADING_CK_DATA_MSG;
@@ -59,6 +65,7 @@ extern NSString *const ICLOUD_STATUS_UNDETERMINED_TITLE;
 extern NSString *const ICLOUD_STATUS_UNDETERMINED_MSG;
 extern NSString *const ERROR_SAVING_PHOTO_MSG;
 extern NSString *const UPLOADING_COFFEE_MSG;
+extern NSString *const COFFEE_UPLOAD_SUCCESS_MSG;
 
 // Actions
 extern NSString *const PHOTO_BRANCH_ACTION;

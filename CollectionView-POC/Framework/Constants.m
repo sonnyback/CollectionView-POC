@@ -14,6 +14,8 @@ NSString *const NAME_SPACE_IMAGE_CACHE              = @"nameSpaceImageCacheCID";
 NSString *const JPEG                                = @"jpeg";
 NSString *const COFFEE_CELL                         = @"CoffeeCell";
 NSString *const CAFES                               = @"Cafes";
+NSString *const IMAGES_SEGMENTED_CTRL               = @"Images";
+NSString *const RECIPES_SEGMENTED_CTRL              = @"Recipes";
 NSString *const CAMERA                              = @"Camera";
 NSString *const PHOTO_LIBRARY                       = @"Photo Library";
 
@@ -39,12 +41,16 @@ NSString *const RECORD_ID                           = @"RecordID";
 NSString *const LOCATION                            = @"Location";
 NSString *const DEFAULT_NAME                        = @"Default Name";
 
+// RecipeImageData
+NSString *const RECIPE_IMAGE_DATA_RECORD_TYPE       = @"RecipeImageData";
+
 // Segue
 NSString *const ADD_NEW_PHOTO_SEGUE                 = @"Add New Photo";
 NSString *const DO_ADD_PHOTO_SEGUE                  = @"Do Add Photo";
 
 // messages, errors and titles
 NSString *const YIKES_TITLE                         = @"Yikes!";
+NSString *const YAY_TITLE                           = @"Yay!";
 NSString *const NO_SAVED_DATA_TITLE                 = @"Saved Data Not Available";
 NSString *const ERROR_LOADING_SAVED_DATA_MSG        = @"There was an error trying to load your saved coffee. We will not be able to show which images and recipes you liked.";
 NSString *const ERROR_LOADING_CK_DATA_MSG           = @"We encountered an error trying to load the coffee images from the Cloud. Let's try this again, shall we?";
@@ -59,6 +65,7 @@ NSString *const ICLOUD_STATUS_UNDETERMINED_TITLE    = @"iCloud Status Undetermin
 NSString *const ICLOUD_STATUS_UNDETERMINED_MSG      = @"We could not determine your iCloud status. You must be logged into your iCloud account to submit photos and recipes. Go into iCloud under Settings on your device to login.";
 NSString *const ERROR_SAVING_PHOTO_MSG              = @"We encountered an issue trying to upload your photo to the cloud. It was probably one of those pesky network errors. Would you mind trying to submit it again?";
 NSString *const UPLOADING_COFFEE_MSG                = @"Uploading your coffee...";
+NSString *const COFFEE_UPLOAD_SUCCESS_MSG           = @"Your coffee photo was successfully sent up to the clouds for everyone to see!";
 
 // Actions
 NSString *const PHOTO_BRANCH_ACTION                 = @"How would you like to submit your coffee photo?";

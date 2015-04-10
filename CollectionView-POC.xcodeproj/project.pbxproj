@@ -38,6 +38,7 @@
 		E09DCC5C1AC04AFB000FEA53 /* CustomActionSheet.m in Sources */ = {isa = PBXBuildFile; fileRef = E09DCC5B1AC04AFB000FEA53 /* CustomActionSheet.m */; };
 		E09DEAC71975C74600B85A5C /* CafeLocatorTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E09DEAC61975C74600B85A5C /* CafeLocatorTableViewController.m */; };
 		E09DEACD197617F400B85A5C /* CoffeeShop.m in Sources */ = {isa = PBXBuildFile; fileRef = E09DEACC197617F400B85A5C /* CoffeeShop.m */; };
+		E0BF4E1D1AD600CF00094F57 /* RecipeImageData.m in Sources */ = {isa = PBXBuildFile; fileRef = E0BF4E1C1AD600CF00094F57 /* RecipeImageData.m */; };
 		E0C0EF7D19C46EB100289CFD /* CloudKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E0C0EF7C19C46EB100289CFD /* CloudKit.framework */; };
 		E0C4648C1974B320008236B0 /* Project Doc.rtf in Resources */ = {isa = PBXBuildFile; fileRef = E0C4648B1974B320008236B0 /* Project Doc.rtf */; };
 		E0CA9AD41AA9F0DE001D5C0E /* UserActivity.m in Sources */ = {isa = PBXBuildFile; fileRef = E0CA9AD31AA9F0DE001D5C0E /* UserActivity.m */; };
@@ -107,6 +108,8 @@
 		E09DEAC61975C74600B85A5C /* CafeLocatorTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CafeLocatorTableViewController.m; sourceTree = "<group>"; };
 		E09DEACB197617F400B85A5C /* CoffeeShop.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CoffeeShop.h; path = Model/CoffeeShop.h; sourceTree = "<group>"; };
 		E09DEACC197617F400B85A5C /* CoffeeShop.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CoffeeShop.m; path = Model/CoffeeShop.m; sourceTree = "<group>"; };
+		E0BF4E1B1AD600CF00094F57 /* RecipeImageData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RecipeImageData.h; path = Model/RecipeImageData.h; sourceTree = "<group>"; };
+		E0BF4E1C1AD600CF00094F57 /* RecipeImageData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RecipeImageData.m; path = Model/RecipeImageData.m; sourceTree = "<group>"; };
 		E0C0EF7B19C46EA400289CFD /* CollectionView-POC.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = "CollectionView-POC.entitlements"; sourceTree = "<group>"; };
 		E0C0EF7C19C46EB100289CFD /* CloudKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CloudKit.framework; path = System/Library/Frameworks/CloudKit.framework; sourceTree = SDKROOT; };
 		E0C4648B1974B320008236B0 /* Project Doc.rtf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; path = "Project Doc.rtf"; sourceTree = "<group>"; };
@@ -267,6 +270,8 @@
 			children = (
 				E0CA9AD21AA9F0DE001D5C0E /* UserActivity.h */,
 				E0CA9AD31AA9F0DE001D5C0E /* UserActivity.m */,
+				E0BF4E1B1AD600CF00094F57 /* RecipeImageData.h */,
+				E0BF4E1C1AD600CF00094F57 /* RecipeImageData.m */,
 				E03B8A6D199EB5E200F53C41 /* CoffeeImageData.h */,
 				E03B8A6E199EB5E200F53C41 /* CoffeeImageData.m */,
 				E09DEACB197617F400B85A5C /* CoffeeShop.h */,
@@ -445,6 +450,7 @@
 				E064B92218E50B60006193E8 /* CoffeeViewCell.m in Sources */,
 				E064B90218E4C2A1006193E8 /* BaseViewController.m in Sources */,
 				E03B8A6F199EB5E200F53C41 /* CoffeeImageData.m in Sources */,
+				E0BF4E1D1AD600CF00094F57 /* RecipeImageData.m in Sources */,
 				E075ACCF196F07820012F130 /* ImageLoadManager.m in Sources */,
 				E0CA9AD41AA9F0DE001D5C0E /* UserActivity.m in Sources */,
 				E064B8FC18E4C2A1006193E8 /* BaseAppDelegate.m in Sources */,

@@ -25,5 +25,6 @@
 //@property (strong, nonatomic) NSArray *imageNames; // of NSString (name of the images)
 //@property (strong, nonatomic) CoffeeImageData *coffeeImageData;
 @property (strong, nonatomic) NSMutableArray *coffeeImageDataArray; // of CoffeeImageData
+@property (strong, nonatomic) NSMutableArray *recipeImageDataArray; // of RecipeImageData
 @property (strong, nonatomic) NSMutableDictionary *userActivityDictionary;
 @end

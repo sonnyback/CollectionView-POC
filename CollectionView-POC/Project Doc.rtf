@@ -35,7 +35,7 @@ To Do:\
 - Need to look into SDWebImage (what exactly is it and should I use it for loading web images and caching) - Done (implemented SDWebImage for caching)\
 - For Recipe VC and image, Stanford iOS 7 Lecture 9 has a good tutorial on Pan gesture, starting at 10min mark. (important if going to allow users to drag items in the recipe)\
 - Toolbar is not completely aligned with bottom edge of screen - Fixed with autolayout.\
-- ***Make sure to implement this for SDWebImage caching: ({\field{\*\fldinst{HYPERLINK "http://stackoverflow.com/questions/13865537/sdwebimage-clearing-cache?rq=1"}}{\fldrslt http://stackoverflow.com/questions/13865537/sdwebimage-clearing-cache?rq=1}})\
+- ***Make sure to implement this for SDWebImage caching: ({\field{\*\fldinst{HYPERLINK "http://stackoverflow.com/questions/13865537/sdwebimage-clearing-cache?rq=1"}}{\fldrslt http://stackoverflow.com/questions/13865537/sdwebimage-clearing-cache?rq=1}}) - Done\
 	
 \f1\fs28 \cf2 \cb3 \expnd0\expndtw0\kerning0
 SDImageCache\cf0 \expnd0\expndtw0\kerning0
@@ -71,7 +71,7 @@ Need to change this to make it go back to Images. *Fixed*, but may need to resol
 2. When viewing full screen image, tapping in upper right area will cause segue to cafe locator VC. *Fixed* by setting the segmentedcontrol.hidden=YES\
 3. When liking an image, then tapping to close the image, then going back into the image in fullscreen, the solid like button is not visible. *Fixed* - issue was related to control state for the button \
 4. Heart image displays correctly when liking/unliking by tapping the heart button. But if an image is liked, then you go back to the collectionview and then back to the image that is liked, unliking does not show the correct heart image. *Fixed*\
-5. Logic not right inside likeButtonPressed regarding currentImageData.imageName. This is coming up as null. \
+5. Logic not right inside likeButtonPressed regarding currentImageData.imageName. This is coming up as null. NA - no longer an issue.\
 \
 CloudKit:\
 - Container (CKContainer) - 1 container per app. Data segregation and user encapsulation\

@@ -60,7 +60,8 @@ NSString *const CoffeeImageDataRecordType = @"CoffeeImageData";*/
     NSMutableArray *tempResultsSet = [[NSMutableArray alloc] init];
     __block NSArray *results;
     // just for initial testing...give me all records
-    NSPredicate *predicate = [NSPredicate predicateWithValue:true];
+    //NSPredicate *predicate = [NSPredicate predicateWithValue:true];
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"Recipe != 1"];
     //create the query
     CKQuery *query = [[CKQuery alloc] initWithRecordType:COFFEE_IMAGE_DATA_RECORD_TYPE predicate:predicate];
     CKQueryOperation *ckQueryOperation = [[CKQueryOperation alloc] initWithQuery:query];
@@ -68,7 +69,7 @@ NSString *const CoffeeImageDataRecordType = @"CoffeeImageData";*/
     
     // processes for each record returned
     ckQueryOperation.recordFetchedBlock = ^(CKRecord *record) {
-        NSLog(@"RecordFetchBlock returned record: %@", record.recordID.recordName);
+        NSLog(@"RecordFetchBlock returned CID record: %@", record.recordID.recordName);
         [tempResultsSet addObject:record];
     };
     // query has completed
@@ -79,6 +80,34 @@ NSString *const CoffeeImageDataRecordType = @"CoffeeImageData";*/
     };
     
     [self.publicDatabase addOperation:ckQueryOperation];
+}
+
+- (void)loadRecipeDataWithCompletionHandler:(void (^)(NSArray *, CKQueryCursor *, NSError *))completionHandler {
+    NSLog(@"INFO: Entered loadRecipeDataWithCompletionHandler...");
+    
+    NSMutableArray *recipeResultSet = [[NSMutableArray alloc] init];
+    __block NSArray *recipeResults;
+    // get all the results for this Record type
+    NSPredicate *recipePredicate = [NSPredicate predicateWithValue:true];
+    // create the query
+    CKQuery *recipeQuery = [[CKQuery alloc] initWithRecordType:RECIPE_IMAGE_DATA_RECORD_TYPE predicate:recipePredicate];
+    CKQueryOperation *recipeQueryOperation = [[CKQueryOperation alloc] initWithQuery:recipeQuery];
+    recipeQueryOperation.resultsLimit = CKQueryOperationMaximumResults; // get all the results
+    
+    // process each record returned
+    recipeQueryOperation.recordFetchedBlock = ^(CKRecord *record) {
+        NSLog(@"RecordFetchBlock returned RID record: %@", record.recordID.recordName);
+        [recipeResultSet addObject:record];
+    };
+    
+    // query has completed
+    recipeQueryOperation.queryCompletionBlock = ^(CKQueryCursor *cursor, NSError *error) {
+        recipeResults = [recipeResultSet copy];
+        [recipeResultSet removeAllObjects]; // get rid of the temp results array
+        completionHandler(recipeResults, cursor, error);
+    };
+    
+    [self.publicDatabase addOperation:recipeQueryOperation];
 }
 
 - (void)getUserActivityPrivateDataWithCompletionHandler:(void (^)(NSArray *results, NSError *error))completionHandler {

@@ -24,6 +24,15 @@
     return _coffeeImageDataArray;
 }
 
+- (NSMutableArray *)recipeImageDataArray {
+    
+    if (!_recipeImageDataArray) {
+        _recipeImageDataArray = [[NSMutableArray alloc] init];
+    }
+    
+    return _recipeImageDataArray;
+}
+
 // lazy instantiate userActivityDictionary
 - (NSMutableDictionary *)userActivityDictionary {
     
