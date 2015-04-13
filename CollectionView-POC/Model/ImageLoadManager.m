@@ -273,10 +273,23 @@
  * @return CoffeeImageData *
  */
 - (CoffeeImageData *)coffeeImageDataForCell:(NSUInteger)index {
-    NSLog(@"coffeeImageDataForCell for cell %lu", (unsigned long)index);
+    NSLog(@"INFO: coffeeImageDataForCell for cell %lu", (unsigned long)index);
     
     // if the index value is < then array size, get the card, else return nil
     return (index < [self.coffeeImageDataArray count] ? self.coffeeImageDataArray[index] : nil);
+}
+
+/**
+ * Method for getting a specific RecipeImageData object in the array via the index passed
+ *
+ * @param NSUInteger index
+ * @return RecipeImageData *
+ */
+- (RecipeImageData *)recipeImageDataForCell:(NSUInteger)index {
+    NSLog(@"INFO: RecipeImageDataForCell for cell %lu", (unsigned long)index);
+    
+    // if the index value is < then array size, get the card, else return nil
+    return (index < [self.recipeImageDataArray count] ? self.recipeImageDataArray[index] : nil);
 }
 
 /**

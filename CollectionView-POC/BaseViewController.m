@@ -46,6 +46,7 @@
 @property (nonatomic) CKAccountStatus userAccountStatus; // for tracking user's iCloud login status
 @property (strong, nonatomic) CustomActionSheet *customActionSheet;
 @property (strong, nonatomic) MRProgressOverlayView *hud;
+@property (nonatomic) BOOL displayImages; // based on selection of imageRecipeSegmentedControl
 @end
 
 @implementation BaseViewController
@@ -451,7 +452,9 @@ dispatch_queue_t queue;
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
     
     CoffeeViewCell *selectedCell = (CoffeeViewCell *)[collectionView cellForItemAtIndexPath:indexPath];
-    NSLog(@"didSelectItemAtIndexPath");
+    NSLog(@"INFO: didSelectItemAtIndexPath");
+    CoffeeImageData *coffeeImageData;
+    RecipeImageData *recipeImageData;
     self.fullScreenImage = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width-10, self.view.bounds.size.height-15)];
     self.fullScreenImage.contentMode = UIViewContentModeScaleAspectFit;
     self.fullScreenImage.tag = 1000; // set it to this value so it will never conflict with likeButton.tag value
@@ -477,14 +480,24 @@ dispatch_queue_t queue;
     [likeButton setFrame:CGRectMake(xCoord - xCoord, yPoint + (yCoord-LIKE_BUTTON_HEIGHT), LIKE_BUTTON_WIDTH, LIKE_BUTTON_HEIGHT)];
     [likeButton addTarget:self action:@selector(likeButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
     
+    // get the CID or RID object for this cell based on the segmented ctrl selected, i.e. Images=CID, Recipes=RID
+    if (self.displayImages)
+        coffeeImageData = [self.imageLoadManager coffeeImageDataForCell:indexPath.row];
+    else
+        recipeImageData = [self.imageLoadManager recipeImageDataForCell:indexPath.row];
+    
     // get the CoffeeImageData object for this cell
     //CoffeeImageData *coffeeImageData = [self.imageLoadManager coffeeImageDataForCell:indexPath.row];
-    CoffeeImageData *coffeeImageData = self.imageLoadManager.coffeeImageDataArray[indexPath.row];
-    NSLog(@"DEBUG: Image selected for recordID: %@", coffeeImageData.recordID);
+    //CoffeeImageData *coffeeImageData = self.imageLoadManager.coffeeImageDataArray[indexPath.row];
+    //NSLog(@"DEBUG: Image selected for recordID: %@", coffeeImageData.recordID);
+    NSLog(@"DEBUG: Image selected for recordID: %@", (self.displayImages) ? coffeeImageData.recordID : recipeImageData.recordID);
     
-    selectedCell.imageIsLiked = coffeeImageData.isLiked;
+    /*selectedCell.imageIsLiked = coffeeImageData.isLiked;
     //likeButton.selected = selectedCell.imageIsLiked;
-    likeButton.selected = coffeeImageData.isLiked;
+    likeButton.selected = coffeeImageData.isLiked;*/
+    
+    selectedCell.imageIsLiked = (coffeeImageData) ? coffeeImageData.isLiked : recipeImageData.isLiked;
+    likeButton.selected = (coffeeImageData) ? coffeeImageData.isLiked : recipeImageData.isLiked;
     
     // Check to see if image is currently liked or not and display the correct heart image
     if (selectedCell.imageIsLiked) {
@@ -510,9 +523,10 @@ dispatch_queue_t queue;
             weakSelf.navigationController.navigationBarHidden = YES;
             weakSelf.fullScreenImage.center = self.view.center;
             weakSelf.fullScreenImage.backgroundColor = [UIColor blackColor];
-            //self.fullScreenImage.image = selectedCell.coffeeImageView.image;
-            //weakSelf.fullScreenImage.image = coffeeImageData.image;
-            weakSelf.fullScreenImage.image = [UIImage imageWithContentsOfFile:coffeeImageData.imageURL.path];
+            if (coffeeImageData) // display image for CID if we're looking at images
+                weakSelf.fullScreenImage.image = [UIImage imageWithContentsOfFile:coffeeImageData.imageURL.path];
+            else // display image for RID if we're looking at recipes
+                weakSelf.fullScreenImage.image = [UIImage imageWithContentsOfFile:recipeImageData.imageURL.path];
             //weakSelf.fullScreenImage.image = [UIImage imageWithData:[NSData dataWithContentsOfURL:coffeeImageData.imageURL]];
             //self.fullScreenImage.transform = CGAffineTransformMakeScale(1.0, 1.0); // zoom in effect
             weakSelf.fullScreenImage.transform = CGAffineTransformIdentity; // zoom in effect
@@ -521,44 +535,11 @@ dispatch_queue_t queue;
         }completion:^(BOOL finished){
             if (finished) {
                 NSLog(@"Animation finished!");
-                //[self.fullScreenImage bringSubviewToFront:likeButton];
-                // hide the following uiview items so they will not be visible or active
-                //self.searchBar.hidden = YES;
-                //self.toolBar.hidden = YES;
-                //self.imageRecipeSegmentedControl.hidden = YES;
-                //self.navigationController.navigationBarHidden = YES;
-                //self.view.backgroundColor = [UIColor blackColor];
-                //self.myCollectionView.backgroundColor = [UIColor blackColor];
                 weakSelf.isFullScreen = YES;
             }
         }];
         return;
-    } /*else { // Moved this block to closeFullScreenImageView after adding tap gesture
-        NSLog(@"Ending animiation!");
-        //self.navigationController.navigationBarHidden = NO;
-        //self.searchBar.hidden = NO;
-        self.view.backgroundColor = [UIColor whiteColor];
-        self.myCollectionView.backgroundColor = [UIColor colorWithRed:0.62 green:0.651 blue:0.686 alpha:1];
-        [UIView animateWithDuration:0.5 delay:0 options:UIViewAnimationOptionCurveEaseOut | UIViewAnimationOptionAllowUserInteraction animations:^{
-            self.navigationController.navigationBarHidden = NO;
-            self.searchBar.hidden = NO;
-            self.toolBar.hidden = NO;
-            self.imageRecipeSegmentedControl.hidden = NO;
-            //self.flowLayout.itemSize = CGSizeMake(290, 290);
-            //[selectedCell.coffeeImageView setFrame:prevFrame];
-            //selectedCell.coffeeImageView.backgroundColor = [UIColor colorWithRed:0.62 green:0.651 blue:0.686 alpha:1];
-            
-            for (UIView *subView in self.view.subviews) {
-                if (subView.tag == (int)self.fullScreenImage.tag) {
-                    [subView removeFromSuperview];
-                    break;
-                }
-            }
-        }completion:^(BOOL finished){
-            self.isFullScreen = NO;
-        }];
-        return;
-    }*/
+    }
 }
 
 /*- (void)collectionView:(UICollectionView *)collectionView didDeselectItemAtIndexPath:(NSIndexPath *)indexPath {
@@ -730,6 +711,8 @@ dispatch_queue_t queue;
                 if ([results count] > 0) {
                     self.numberOfItemsInSection = [results count];
                     NSLog(@"INFO: Success querying the cloud for %lu results!!!", (unsigned long)[results count]);
+                    // fetch the recipe images from CloudKit
+                    [self loadRecipeDataFromCloudKit];
                     for (CKRecord *record in results) {
                         // create CoffeeImageData object to store data in the array for each image
                         CoffeeImageData *coffeeImageData = [[CoffeeImageData alloc] init];
@@ -763,6 +746,7 @@ dispatch_queue_t queue;
                             });
                         }
                     }
+                    // update the UI on the main queue
                     dispatch_async(dispatch_get_main_queue(), ^{
                         [self updateUI]; // reload the collectionview after getting all the data from CK
                     });
@@ -770,8 +754,6 @@ dispatch_queue_t queue;
                 }
                 // load the keys to be used for cache look up
                 [self getCIDCacheKeys];
-                // fetch the recipe images from CloudKit
-                [self loadRecipeDataFromCloudKit];
             } else {
                 NSLog(@"Error: there was an error fetching cloud data... %@", error.localizedDescription);
                 dispatch_async(dispatch_get_main_queue(), ^{
@@ -874,16 +856,23 @@ dispatch_queue_t queue;
 }
 
 /**
- * Method to determine the selected segment from the UISegmentedControl and
- * get the corresponded title.
+ * Method to determine the selected segment from the UISegmentedControl and get the
+ * corresponded title. Also sets the displayImages property based on the selection
  *
  * @return NSString* Selected Title
  */
 - (NSString *)getSelectedSegmentTitle {
     
-    NSLog(@"Entered getSelectedSegmentTitle...");
+    NSLog(@"INFO: Entered getSelectedSegmentTitle...");
     NSInteger segmentedIndex = self.imageRecipeSegmentedControl.selectedSegmentIndex;
-    //NSString *segmentTitle = [self.imageRecipeSegmentedControl titleForSegmentAtIndex:segmentedIndex];
+    NSString *segmentTitle = [self.imageRecipeSegmentedControl titleForSegmentAtIndex:segmentedIndex];
+    if ([segmentTitle isEqualToString:IMAGES_SEGMENTED_CTRL]) {
+        NSLog(@"Images selected!");
+        self.displayImages = YES;
+    } else {
+        NSLog(@"Recipes selected!");
+        self.displayImages = NO;
+    }
     return [self.imageRecipeSegmentedControl titleForSegmentAtIndex:segmentedIndex];
 }
 

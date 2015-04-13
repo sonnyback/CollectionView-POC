@@ -60,8 +60,8 @@ NSString *const CoffeeImageDataRecordType = @"CoffeeImageData";*/
     NSMutableArray *tempResultsSet = [[NSMutableArray alloc] init];
     __block NSArray *results;
     // just for initial testing...give me all records
-    //NSPredicate *predicate = [NSPredicate predicateWithValue:true];
-    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"Recipe != 1"];
+    NSPredicate *predicate = [NSPredicate predicateWithValue:true];
+    //NSPredicate *predicate = [NSPredicate predicateWithFormat:@"Recipe != 1"];
     //create the query
     CKQuery *query = [[CKQuery alloc] initWithRecordType:COFFEE_IMAGE_DATA_RECORD_TYPE predicate:predicate];
     CKQueryOperation *ckQueryOperation = [[CKQueryOperation alloc] initWithQuery:query];
