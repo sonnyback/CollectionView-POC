@@ -37,12 +37,14 @@ extern NSString *const IMAGE;
 extern NSString *const LIKED;
 extern NSString *const COFFEE_IMAGE_DATA_RECORD_TYPE;
 extern NSString *const USER_ACTIVITY_RECORD_TYPE;
+extern NSString *const USER_ACTIVITY_IMAGES_RECORD_TYPE;
 extern NSString *const RECORD_ID;
 extern NSString *const LOCATION;
 extern NSString *const DEFAULT_NAME;
 
 // RecipeImageData
 extern NSString *const RECIPE_IMAGE_DATA_RECORD_TYPE;
+extern NSString *const USER_ACTIVITY_RECIPES_RECORD_TYPE;
 
 // Segue
 extern NSString *const ADD_NEW_PHOTO_SEGUE;

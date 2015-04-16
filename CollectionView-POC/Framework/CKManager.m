@@ -110,11 +110,24 @@ NSString *const CoffeeImageDataRecordType = @"CoffeeImageData";*/
     [self.publicDatabase addOperation:recipeQueryOperation];
 }
 
-- (void)getUserActivityPrivateDataWithCompletionHandler:(void (^)(NSArray *results, NSError *error))completionHandler {
-    NSLog(@"INFO: Entered getUserActivityPrivateDataWithCompletionHandler...");
+- (void)getUserActivityPrivateDataForCIDWithCompletionHandler:(void (^)(NSArray *results, NSError *error))completionHandler {
+    NSLog(@"INFO: Entered getUserActivityPrivateDataForCIDWithCompletionHandler...");
     
     NSPredicate *predicate = [NSPredicate predicateWithValue:true]; // give all results
-    CKQuery *query = [[CKQuery alloc] initWithRecordType:USER_ACTIVITY_RECORD_TYPE predicate:predicate];
+    //CKQuery *query = [[CKQuery alloc] initWithRecordType:USER_ACTIVITY_RECORD_TYPE predicate:predicate];
+    CKQuery *query = [[CKQuery alloc] initWithRecordType:USER_ACTIVITY_IMAGES_RECORD_TYPE predicate:predicate];
+    
+    // execute the query
+    [self.privateDatabase performQuery:query inZoneWithID:nil completionHandler:^(NSArray *results, NSError *error) {
+        completionHandler(results, error);
+    }];
+}
+
+- (void)getUserActivityPrivateDataForRIDWithCompletionHandler:(void (^)(NSArray *, NSError *))completionHandler {
+    NSLog(@"INFO: Entered getUserActivityPrivateDataForRIDWithCompletionHandler...");
+    
+    NSPredicate *predicate = [NSPredicate predicateWithValue:true]; // give all results
+    CKQuery *query = [[CKQuery alloc] initWithRecordType:USER_ACTIVITY_RECIPES_RECORD_TYPE predicate:predicate];
     
     // execute the query
     [self.privateDatabase performQuery:query inZoneWithID:nil completionHandler:^(NSArray *results, NSError *error) {
@@ -172,14 +185,33 @@ NSString *const CoffeeImageDataRecordType = @"CoffeeImageData";*/
 - (CKRecord *)createCKRecordForUserActivity:(UserActivity *)userActivity {
     
     NSLog(@"INFO: Entered createCKRecordForUserActivity...");
+    if (userActivity.cidReference) {
+        NSLog(@"INFO: Preparing CKRecord for CID!");
+        CKRecord *userActivityRecord = [[CKRecord alloc] initWithRecordType:USER_ACTIVITY_IMAGES_RECORD_TYPE];
+        CKReference *cidReference = [[CKReference alloc] initWithRecordID:[[CKRecordID alloc] initWithRecordName:userActivity.cidReference.recordID] action:CKReferenceActionDeleteSelf];
+        userActivityRecord[COFFEE_IMAGE_DATA_RECORD_TYPE] = cidReference;
+        
+        return userActivityRecord;
+    } else if  (userActivity.ridReference) {
+        NSLog(@"INFO: Preparing CKRecord for RID!");
+        CKRecord *userActivityRecord = [[CKRecord alloc] initWithRecordType:USER_ACTIVITY_RECIPES_RECORD_TYPE];
+        CKReference *ridReference = [[CKReference alloc] initWithRecordID:[[CKRecordID alloc] initWithRecordName:userActivity.ridReference.recordID] action:CKReferenceActionDeleteSelf];
+        userActivityRecord[RECIPE_IMAGE_DATA_RECORD_TYPE] = ridReference;
+        
+        return userActivityRecord;
+    } else
+        return nil;
+}
+
+- (CKRecord *)createCKRecordForUserActivityForRecipe:(UserActivity *)userActivity {
+    
+    NSLog(@"INFO: Entered createCKRecordForUserActivityForRecipe...");
     CKRecord *userActivityRecord = [[CKRecord alloc] initWithRecordType:USER_ACTIVITY_RECORD_TYPE];
-    CKReference *cidReference = [[CKReference alloc] initWithRecordID:[[CKRecordID alloc] initWithRecordName:userActivity.cidReference.recordID] action:CKReferenceActionDeleteSelf];
-    userActivityRecord[COFFEE_IMAGE_DATA_RECORD_TYPE] = cidReference;
-    //userActivityRecord[RECORD_ID] = coffeeImageData.recordID;
+    CKReference *ridReference = [[CKReference alloc] initWithRecordID:[[CKRecordID alloc] initWithRecordName:userActivity.ridReference.recordID] action:CKReferenceActionDeleteSelf];
+    userActivityRecord[RECIPE_IMAGE_DATA_RECORD_TYPE] = ridReference;
     
     return userActivityRecord;
 }
-
 
 /**
  * Method to save a public CKRecord to CloudKit

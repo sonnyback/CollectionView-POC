@@ -8,10 +8,12 @@
 
 #import <Foundation/Foundation.h>
 #import "CoffeeImageData.h"
+#import "RecipeImageData.h"
 
 @interface UserActivity : NSObject
 
 @property (strong, nonatomic) CoffeeImageData *cidReference; // CKReference
+@property (strong, nonatomic) RecipeImageData *ridReference; // CKReference
 @property (strong, nonatomic) NSString *recordID; // recordID of the UA record
 //@property (strong, nonatomic) NSString *userActivityRecordID;
 

@@ -37,12 +37,14 @@ NSString *const IMAGE                               = @"Image";
 NSString *const LIKED                               = @"Liked";
 NSString *const COFFEE_IMAGE_DATA_RECORD_TYPE       = @"CoffeeImageData";
 NSString *const USER_ACTIVITY_RECORD_TYPE           = @"UserActivity";
+NSString *const USER_ACTIVITY_IMAGES_RECORD_TYPE    = @"UserActivityImages";
 NSString *const RECORD_ID                           = @"RecordID";
 NSString *const LOCATION                            = @"Location";
 NSString *const DEFAULT_NAME                        = @"Default Name";
 
 // RecipeImageData
 NSString *const RECIPE_IMAGE_DATA_RECORD_TYPE       = @"RecipeImageData";
+NSString *const USER_ACTIVITY_RECIPES_RECORD_TYPE   = @"UserActivityRecipes";
 
 // Segue
 NSString *const ADD_NEW_PHOTO_SEGUE                 = @"Add New Photo";
