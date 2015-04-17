@@ -139,7 +139,6 @@ dispatch_queue_t queue;
 - (void)setImageRecipeSegmentedControl:(UISegmentedControl *)imageRecipeSegmentedControl {
     
     _imageRecipeSegmentedControl = imageRecipeSegmentedControl;
-    
 }
 
 #pragma mark - UIImagePickerControllerDelegate
@@ -184,37 +183,9 @@ dispatch_queue_t queue;
     self.coffeeImageDataAddedFromCamera.imageURL = localURL;
     NSLog(@"CIDAddedFromCamera.imageURL: %@", self.coffeeImageDataAddedFromCamera.imageURL);
     
-    /* NOTE: This is just for initial testing...will need to segue or use action sheet to confirm the user wants
-     * save the image!
-     */
-    // prepare the CKRecord and save it
-    /*[self.ckManager saveRecord:[self.ckManager createCKRecordForImage:self.coffeeImageDataAddedFromCamera] withCompletionHandler:^(CKRecord *record, NSError *error) {
-        if (!error) {
-            if (record) {
-                NSLog(@"INFO: Record saved successfully for recordID: %@", record.recordID.recordName);
-                // need to get the recordID of the just saved record before adding the CID to the CIDArray
-                self.coffeeImageDataAddedFromCamera.recordID = record.recordID.recordName;
-                //[self.imageLoadManager addCIDForNewUserImage:self.coffeeImageDataAddedFromCamera]; // update the model with the new image
-            }
-        } else {
-            NSLog(@"ERROR: Error saving record to cloud...%@", error.localizedDescription);
-        }
-    }];
-    
-    [self.imageLoadManager addCIDForNewUserImage:self.coffeeImageDataAddedFromCamera]; // update the model with the new image
-    // update number of items since array set has increased from new photo taken
-    self.numberOfItemsInSection = [self.imageLoadManager.coffeeImageDataArray count];
-    
-    // store the image in SDWebImage cache
-    [self.imageCache storeImage:image forKey:self.coffeeImageDataAddedFromCamera.imageURL.absoluteString];
-    // insert the new key (image URL) into the cacheKeys array
-    [self.allCacheKeys insertObject:self.coffeeImageDataAddedFromCamera.imageURL.absoluteString atIndex:0];*/
-    
     [self dismissViewControllerAnimated:YES completion:nil];
     
     [self performSegueWithIdentifier:@"Add New Photo" sender:self];
-    //[self updateUI]; // updateUI to reload collectionview data
-    //self.coffeeImageDataAddedFromCamera = nil;
 }
 
 - (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker {
@@ -449,6 +420,8 @@ dispatch_queue_t queue;
 
 #define LIKE_BUTTON_WIDTH 38.0
 #define LIKE_BUTTON_HEIGHT 38.0
+#define RECIPE_BUTTON_HEIGHT 20
+#define RECIPE_BUTTON_WIDTH 60
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
     
     CoffeeViewCell *selectedCell = (CoffeeViewCell *)[collectionView cellForItemAtIndexPath:indexPath];
@@ -472,6 +445,8 @@ dispatch_queue_t queue;
     
     UIButton *likeButton = [[UIButton alloc] init]; // button for liking image and storing in profile
     likeButton.tag = indexPath.row; // set the tag of the button to the indexpath.row so we know which cell/image is selected
+    UIButton *recipeButton = [[UIButton alloc] init]; // button for viewing recipe if image is of a recipe
+    
     
     // place button in lower left corner of image
     //[likeButton setFrame:CGRectMake(xCoord - (xCoord * .97), yCoord - (yCoord * .08), LIKE_BUTTON_WIDTH, LIKE_BUTTON_HEIGHT)];
@@ -479,6 +454,11 @@ dispatch_queue_t queue;
     
     [likeButton setFrame:CGRectMake(xCoord - xCoord, yPoint + (yCoord-LIKE_BUTTON_HEIGHT), LIKE_BUTTON_WIDTH, LIKE_BUTTON_HEIGHT)];
     [likeButton addTarget:self action:@selector(likeButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
+    
+    //[recipeButton setFrame:CGRectMake(xCoord + xCoord, yPoint + (yCoord-LIKE_BUTTON_HEIGHT), LIKE_BUTTON_WIDTH, LIKE_BUTTON_HEIGHT)];
+    [recipeButton setFrame:CGRectMake(xCoord - RECIPE_BUTTON_WIDTH, yPoint + (yCoord - RECIPE_BUTTON_HEIGHT), RECIPE_BUTTON_WIDTH, RECIPE_BUTTON_HEIGHT)];
+    [recipeButton setTitle:RECIPE forState:UIControlStateNormal];
+    [recipeButton addTarget:self action:@selector(recipeButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
     
     // get the CID or RID object for this cell based on the segmented ctrl selected, i.e. Images=CID, Recipes=RID
     if (self.displayImages)
@@ -532,6 +512,8 @@ dispatch_queue_t queue;
             weakSelf.fullScreenImage.transform = CGAffineTransformIdentity; // zoom in effect
             [weakSelf.view addSubview:self.fullScreenImage];
             [weakSelf.fullScreenImage addSubview:likeButton]; // add the button to the view
+            // only add the recipe button if we're looking at recipes
+            if (recipeImageData) [weakSelf.fullScreenImage addSubview:recipeButton];
         }completion:^(BOOL finished){
             if (finished) {
                 NSLog(@"Animation finished!");
@@ -1202,8 +1184,8 @@ dispatch_queue_t queue;
         self.customActionSheet = [[CustomActionSheet alloc] initWithTitle:PHOTO_BRANCH_ACTION delegate:nil cancelButtonTitle:CANCEL_BUTTON destructiveButtonTitle:nil otherButtonTitles:CAMERA, PHOTO_LIBRARY, nil];
         
         [self.customActionSheet showInView:self.view withCompletionHandler:^(NSString *buttonTitle, NSInteger buttonIndex) {
-            NSLog(@"You tapped button in index %ld", (long)buttonIndex);
-            NSLog(@"Your selection is %@", buttonTitle);
+            //NSLog(@"You tapped button in index %ld", (long)buttonIndex);
+            //NSLog(@"Your selection is %@", buttonTitle);
             if ([buttonTitle isEqualToString:CAMERA]) {
                 picker.sourceType = UIImagePickerControllerSourceTypeCamera;
                 [picker setAllowsEditing:YES]; // let the user edit the photo
@@ -1246,6 +1228,11 @@ dispatch_queue_t queue;
     }
 }
 
+- (IBAction)recipeButtonPressed:(id)sender {
+    
+    NSLog(@"INFO: recipeButtonPressed...");
+}
+
 #pragma mark - VC Lifecyle Methods
 - (void)viewDidLayoutSubviews
 {
@@ -1278,6 +1265,7 @@ dispatch_queue_t queue;
     //self.toolBar.barTintColor = [UIColor colorWithRed:0.112 green:0.234 blue:0.4 alpha:1];
     //self.navigationController.navigationBar.barTintColor = self.globalColor; // set the background color of the navigation bar
     self.navigationController.navigationBar.barTintColor = [UIColor colorWithRed:0.112 green:0.234 blue:0.4 alpha:1];
+    //self.navigationController.navigationBar.barTintColor = [UIColor blackColor];
     //self.navigationController.navigationBar.barTintColor = [UIColor colorWithPatternImage:[UIImage imageNamed:@"orange_gradient.jpg"]];
     // below is just a test. colors provided by Otha and are displaying correct color through helper method
     //self.navigationController.navigationBar.barTintColor = [Helper colorFromRed:112.0 Green:234.0 Blue:4.0 Alpha:1.0];
