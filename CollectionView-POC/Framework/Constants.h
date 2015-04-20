@@ -49,6 +49,7 @@ extern NSString *const USER_ACTIVITY_RECIPES_RECORD_TYPE;
 // Segue
 extern NSString *const ADD_NEW_PHOTO_SEGUE;
 extern NSString *const DO_ADD_PHOTO_SEGUE;
+extern NSString *const SHOW_RECIPE_SEGUE;
 
 // messages, errors and titles
 extern NSString *const YIKES_TITLE;

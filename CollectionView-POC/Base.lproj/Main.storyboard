@@ -132,6 +132,7 @@
                         <outlet property="toolBar" destination="HFB-yh-hZe" id="uvl-wC-LZz"/>
                         <segue destination="WUI-KS-5Q7" kind="push" identifier="Cafes" id="jYd-0r-8g6"/>
                         <segue destination="LI1-wF-NTg" kind="modal" identifier="Add New Photo" id="ikY-c8-ZRZ"/>
+                        <segue destination="iqh-62-Nv9" kind="modal" identifier="Show Recipe Details" id="kBQ-Ge-ke1"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="x5A-6p-PRh" sceneMemberID="firstResponder"/>
@@ -180,25 +181,31 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="6ix-1S-CoE">
-                                <rect key="frame" x="0.0" y="58" width="320" height="582"/>
+                                <rect key="frame" x="0.0" y="95" width="320" height="545"/>
                             </imageView>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="4H9-rc-g0o">
+                                <rect key="frame" x="16" y="57" width="58" height="30"/>
+                                <state key="normal" title="Cancel">
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="cancelButtonPressed:" destination="LI1-wF-NTg" eventType="touchUpInside" id="mj1-ZV-OGX"/>
+                                </connections>
+                            </button>
+                            <navigationBar contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="3fi-Ag-EDO">
+                                <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
+                                <items>
+                                    <navigationItem title="Add Photo" id="Jhe-Gc-ud2" userLabel="Add Photo"/>
+                                </items>
+                            </navigationBar>
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="dzW-SB-xFm">
-                                <rect key="frame" x="215" y="20" width="89" height="30"/>
+                                <rect key="frame" x="215" y="57" width="89" height="30"/>
                                 <state key="normal" title="Use Photo">
                                     <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                                 </state>
                                 <connections>
                                     <action selector="useButtonPressed:" destination="LI1-wF-NTg" eventType="touchUpInside" id="bJZ-t0-wFQ"/>
                                     <segue destination="Bwp-gi-Eby" kind="unwind" identifier="Do Add Photo" unwindAction="addedPhoto:" id="h6h-v2-aEz"/>
-                                </connections>
-                            </button>
-                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="4H9-rc-g0o">
-                                <rect key="frame" x="16" y="20" width="58" height="30"/>
-                                <state key="normal" title="Cancel">
-                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
-                                </state>
-                                <connections>
-                                    <action selector="cancelButtonPressed:" destination="LI1-wF-NTg" eventType="touchUpInside" id="mj1-ZV-OGX"/>
                                 </connections>
                             </button>
                         </subviews>
@@ -211,7 +218,55 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="ji4-CG-E0b" userLabel="First Responder" sceneMemberID="firstResponder"/>
                 <exit id="Bwp-gi-Eby" userLabel="Exit" sceneMemberID="exit"/>
             </objects>
-            <point key="canvasLocation" x="-5392" y="-2372"/>
+            <point key="canvasLocation" x="-5392" y="-2433"/>
+        </scene>
+        <!--Recipe Details View Controller-->
+        <scene sceneID="vyL-tF-ppE">
+            <objects>
+                <viewController id="iqh-62-Nv9" customClass="RecipeDetailsViewController" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="Xwh-3T-ONw"/>
+                        <viewControllerLayoutGuide type="bottom" id="8r0-R5-S6d"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="Ulw-XS-Zf0">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <navigationBar contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Pz6-os-o8Q">
+                                <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
+                                <items>
+                                    <navigationItem title="Recipe Details" id="fgd-oW-tBb"/>
+                                </items>
+                            </navigationBar>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="TOI-fO-R1q">
+                                <rect key="frame" x="16" y="518" width="48" height="30"/>
+                                <state key="normal" title="Cancel">
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="cancelButtonPressed:" destination="iqh-62-Nv9" eventType="touchUpInside" id="e9a-aO-bsi"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="rOQ-3v-GOe">
+                                <rect key="frame" x="263" y="518" width="41" height="30"/>
+                                <state key="normal" title="Finish">
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="finishButtonPressed:" destination="iqh-62-Nv9" eventType="touchUpInside" id="fB5-6z-o2s"/>
+                                </connections>
+                            </button>
+                            <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ZOE-kQ-Gi5" customClass="CupView">
+                                <rect key="frame" x="0.0" y="44" width="320" height="262"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                            </view>
+                        </subviews>
+                        <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="Se3-R1-zKr" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-4974" y="-2433"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="Jrl-Ue-T3r">

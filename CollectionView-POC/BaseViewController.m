@@ -23,6 +23,7 @@
 #import "CustomActionSheet.h"
 #import "MRProgress.h"
 #import "RecipeImageData.h"
+#import "RecipeDetailsViewController.h"
 
 @interface BaseViewController()
 @property (weak, nonatomic) IBOutlet UICollectionView *myCollectionView;
@@ -1231,6 +1232,7 @@ dispatch_queue_t queue;
 - (IBAction)recipeButtonPressed:(id)sender {
     
     NSLog(@"INFO: recipeButtonPressed...");
+    [self performSegueWithIdentifier:SHOW_RECIPE_SEGUE sender:self];
 }
 
 #pragma mark - VC Lifecyle Methods
@@ -1386,21 +1388,16 @@ dispatch_queue_t queue;
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
     
     NSLog(@"PrepareForSegue!");
-    /*if ([segue.identifier isEqualToString:@"Recipes"]) {
-    //if ([segue.identifier isEqualToString:[self getSelectedSegmentTitle]]) {
-        NSLog(@"Segue to Recipes!");
-        CoffeeViewCell *cell = (CoffeeViewCell *)sender;
-        NSIndexPath *indexPath = [self.myCollectionView indexPathForCell:cell];
-        
-        DrinkDetailViewController *ddvc = (DrinkDetailViewController *)[segue destinationViewController];
-        ddvc.drinkImage = [self.imagesArray objectAtIndex:indexPath.row];
-    } else*/ if ([segue.identifier isEqualToString:[self getSelectedSegmentTitle]]) { // identifer & segment tile = "Cafes"
+    if ([segue.identifier isEqualToString:[self getSelectedSegmentTitle]]) { // identifer & segment tile = "Cafes"
         NSLog(@"Segue to Cafe locator!");
     } else if ([segue.identifier isEqualToString:ADD_NEW_PHOTO_SEGUE] &&
                [segue.destinationViewController isKindOfClass:[NewPhotoResultsViewController class]]) {
         NSLog(@"Segueing to view photo results!");
         NewPhotoResultsViewController *newPhotoResultsVC = (NewPhotoResultsViewController *)segue.destinationViewController;
         newPhotoResultsVC.coffeeImageData = self.coffeeImageDataAddedFromCamera;
+    } else if ([segue.identifier isEqualToString:SHOW_RECIPE_SEGUE] &&
+               [segue.destinationViewController isKindOfClass:[RecipeDetailsViewController class]]) {
+        NSLog(@"Seguing to Recipe Details!");
     }
 }
 

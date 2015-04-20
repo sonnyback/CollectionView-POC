@@ -91,6 +91,8 @@
     [super viewDidLoad];
     NSLog(@"NewPhotoResultsViewController.viewDidLoad...");
     self.view.backgroundColor = [UIColor whiteColor];
+    self.navigationController.navigationBar.barTintColor = [UIColor colorWithRed:0.112 green:0.234 blue:0.4 alpha:1];
+    //self.navigationIt = [UIColor colorWithRed:0.112 green:0.234 blue:0.4 alpha:1];
     // Do any additional setup after loading the view.
     self.imageViewOutlet.contentMode = UIViewContentModeScaleAspectFit;
     //self.imageViewOutlet.contentMode = UIViewContentModeScaleAspectFill;

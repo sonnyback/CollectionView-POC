@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		E03A9C00195DB77500316D6E /* footer_banner.png in Resources */ = {isa = PBXBuildFile; fileRef = E03A9BFF195DB77500316D6E /* footer_banner.png */; };
 		E03B8A6F199EB5E200F53C41 /* CoffeeImageData.m in Sources */ = {isa = PBXBuildFile; fileRef = E03B8A6E199EB5E200F53C41 /* CoffeeImageData.m */; };
 		E03E745D1978B11F00A3AE0F /* Helper.m in Sources */ = {isa = PBXBuildFile; fileRef = E03E745C1978B11F00A3AE0F /* Helper.m */; };
 		E03F8785196C3C6900854347 /* magnifying_glass_32.png in Resources */ = {isa = PBXBuildFile; fileRef = E03F8784196C3C6900854347 /* magnifying_glass_32.png */; };
@@ -38,6 +37,10 @@
 		E09DCC5C1AC04AFB000FEA53 /* CustomActionSheet.m in Sources */ = {isa = PBXBuildFile; fileRef = E09DCC5B1AC04AFB000FEA53 /* CustomActionSheet.m */; };
 		E09DEAC71975C74600B85A5C /* CafeLocatorTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E09DEAC61975C74600B85A5C /* CafeLocatorTableViewController.m */; };
 		E09DEACD197617F400B85A5C /* CoffeeShop.m in Sources */ = {isa = PBXBuildFile; fileRef = E09DEACC197617F400B85A5C /* CoffeeShop.m */; };
+		E0BE2F581AE18E8500A692AF /* RecipeDetailsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E0BE2F571AE18E8500A692AF /* RecipeDetailsViewController.m */; };
+		E0BE2F5C1AE18FF000A692AF /* CupView.m in Sources */ = {isa = PBXBuildFile; fileRef = E0BE2F5B1AE18FF000A692AF /* CupView.m */; };
+		E0BE2F631AE2780A00A692AF /* Hot_Coffee_Cup.jpg in Resources */ = {isa = PBXBuildFile; fileRef = E0BE2F611AE2780A00A692AF /* Hot_Coffee_Cup.jpg */; };
+		E0BE2F641AE2780A00A692AF /* Cold_Coffee_Cup.jpg in Resources */ = {isa = PBXBuildFile; fileRef = E0BE2F621AE2780A00A692AF /* Cold_Coffee_Cup.jpg */; };
 		E0BF4E1D1AD600CF00094F57 /* RecipeImageData.m in Sources */ = {isa = PBXBuildFile; fileRef = E0BF4E1C1AD600CF00094F57 /* RecipeImageData.m */; };
 		E0C0EF7D19C46EB100289CFD /* CloudKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E0C0EF7C19C46EB100289CFD /* CloudKit.framework */; };
 		E0C4648C1974B320008236B0 /* Project Doc.rtf in Resources */ = {isa = PBXBuildFile; fileRef = E0C4648B1974B320008236B0 /* Project Doc.rtf */; };
@@ -62,7 +65,6 @@
 		59E5354F5A4B056E2AC02126 /* libPods-CollectionView-POC.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-CollectionView-POC.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		665186018E079FE9E1B28D80 /* Pods-CollectionView-POC.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CollectionView-POC.debug.xcconfig"; path = "Pods/Target Support Files/Pods-CollectionView-POC/Pods-CollectionView-POC.debug.xcconfig"; sourceTree = "<group>"; };
 		67C90E36B97F8843437E45ED /* Pods-CollectionView-POC.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CollectionView-POC.release.xcconfig"; path = "Pods/Target Support Files/Pods-CollectionView-POC/Pods-CollectionView-POC.release.xcconfig"; sourceTree = "<group>"; };
-		E03A9BFF195DB77500316D6E /* footer_banner.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = footer_banner.png; sourceTree = "<group>"; };
 		E03B8A6D199EB5E200F53C41 /* CoffeeImageData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CoffeeImageData.h; path = Model/CoffeeImageData.h; sourceTree = "<group>"; };
 		E03B8A6E199EB5E200F53C41 /* CoffeeImageData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CoffeeImageData.m; path = Model/CoffeeImageData.m; sourceTree = "<group>"; };
 		E03E745B1978B11F00A3AE0F /* Helper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Helper.h; path = Utility/Helper.h; sourceTree = "<group>"; };
@@ -108,6 +110,12 @@
 		E09DEAC61975C74600B85A5C /* CafeLocatorTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CafeLocatorTableViewController.m; sourceTree = "<group>"; };
 		E09DEACB197617F400B85A5C /* CoffeeShop.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CoffeeShop.h; path = Model/CoffeeShop.h; sourceTree = "<group>"; };
 		E09DEACC197617F400B85A5C /* CoffeeShop.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CoffeeShop.m; path = Model/CoffeeShop.m; sourceTree = "<group>"; };
+		E0BE2F561AE18E8500A692AF /* RecipeDetailsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RecipeDetailsViewController.h; sourceTree = "<group>"; };
+		E0BE2F571AE18E8500A692AF /* RecipeDetailsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RecipeDetailsViewController.m; sourceTree = "<group>"; };
+		E0BE2F5A1AE18FF000A692AF /* CupView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CupView.h; sourceTree = "<group>"; };
+		E0BE2F5B1AE18FF000A692AF /* CupView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CupView.m; sourceTree = "<group>"; };
+		E0BE2F611AE2780A00A692AF /* Hot_Coffee_Cup.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = Hot_Coffee_Cup.jpg; sourceTree = "<group>"; };
+		E0BE2F621AE2780A00A692AF /* Cold_Coffee_Cup.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = Cold_Coffee_Cup.jpg; sourceTree = "<group>"; };
 		E0BF4E1B1AD600CF00094F57 /* RecipeImageData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RecipeImageData.h; path = Model/RecipeImageData.h; sourceTree = "<group>"; };
 		E0BF4E1C1AD600CF00094F57 /* RecipeImageData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RecipeImageData.m; path = Model/RecipeImageData.m; sourceTree = "<group>"; };
 		E0C0EF7B19C46EA400289CFD /* CollectionView-POC.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = "CollectionView-POC.entitlements"; sourceTree = "<group>"; };
@@ -206,16 +214,9 @@
 			children = (
 				E0C0EF7B19C46EA400289CFD /* CollectionView-POC.entitlements */,
 				E064B8FD18E4C2A1006193E8 /* Main.storyboard */,
-				E09DEAC51975C74600B85A5C /* CafeLocatorTableViewController.h */,
-				E09DEAC61975C74600B85A5C /* CafeLocatorTableViewController.m */,
-				E0E9A23018FBFC3D00043A84 /* CustomFlowLayout.h */,
-				E0E9A23118FBFC3D00043A84 /* CustomFlowLayout.m */,
-				E064B92018E50B60006193E8 /* CoffeeViewCell.h */,
-				E064B92118E50B60006193E8 /* CoffeeViewCell.m */,
-				E064B90018E4C2A1006193E8 /* BaseViewController.h */,
-				E064B90118E4C2A1006193E8 /* BaseViewController.m */,
-				E08329791928F3E100A8E9DF /* NewPhotoResultsViewController.h */,
-				E083297A1928F3E100A8E9DF /* NewPhotoResultsViewController.m */,
+				E0BE2F541AE15D2800A692AF /* ViewControllers */,
+				E0BE2F591AE18FB200A692AF /* CustomViews */,
+				E0BE2F551AE15D5D00A692AF /* CollectionView */,
 				E0DE6CC71985536000D1A7FC /* Framework */,
 				E03E745E1978B13000A3AE0F /* Utility */,
 				E075ACC9196F01D60012F130 /* Model */,
@@ -228,15 +229,8 @@
 		E064B8F218E4C2A1006193E8 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				E08003E51AABA6A00087F44E /* orange_gradient_iphone6.jpg */,
-				E08003E71AAC8C1E0087F44E /* blue_gradient_iphone6.jpg */,
-				E08003E91AADF90A0087F44E /* blue_gradient_3_iphone6.jpg */,
-				E0DEB1061A0E486A00A0CDA9 /* placeholder.png */,
-				E091384E19A5517E003890E8 /* heart_blue_solid.png */,
-				E075C735199535A20086C523 /* heart_blue.png */,
+				E0BE2F531AE15A4200A692AF /* Images */,
 				E0C4648B1974B320008236B0 /* Project Doc.rtf */,
-				E03F8784196C3C6900854347 /* magnifying_glass_32.png */,
-				E03A9BFF195DB77500316D6E /* footer_banner.png */,
 				E064B8FA18E4C2A1006193E8 /* BaseAppDelegate.h */,
 				E064B8FB18E4C2A1006193E8 /* BaseAppDelegate.m */,
 				E064B8F318E4C2A1006193E8 /* CollectionView-POC-Info.plist */,
@@ -280,6 +274,57 @@
 				E075ACCE196F07820012F130 /* ImageLoadManager.m */,
 			);
 			name = Model;
+			sourceTree = "<group>";
+		};
+		E0BE2F531AE15A4200A692AF /* Images */ = {
+			isa = PBXGroup;
+			children = (
+				E0BE2F611AE2780A00A692AF /* Hot_Coffee_Cup.jpg */,
+				E0BE2F621AE2780A00A692AF /* Cold_Coffee_Cup.jpg */,
+				E08003E51AABA6A00087F44E /* orange_gradient_iphone6.jpg */,
+				E08003E71AAC8C1E0087F44E /* blue_gradient_iphone6.jpg */,
+				E08003E91AADF90A0087F44E /* blue_gradient_3_iphone6.jpg */,
+				E0DEB1061A0E486A00A0CDA9 /* placeholder.png */,
+				E091384E19A5517E003890E8 /* heart_blue_solid.png */,
+				E075C735199535A20086C523 /* heart_blue.png */,
+				E03F8784196C3C6900854347 /* magnifying_glass_32.png */,
+			);
+			name = Images;
+			sourceTree = "<group>";
+		};
+		E0BE2F541AE15D2800A692AF /* ViewControllers */ = {
+			isa = PBXGroup;
+			children = (
+				E0BE2F561AE18E8500A692AF /* RecipeDetailsViewController.h */,
+				E0BE2F571AE18E8500A692AF /* RecipeDetailsViewController.m */,
+				E09DEAC51975C74600B85A5C /* CafeLocatorTableViewController.h */,
+				E09DEAC61975C74600B85A5C /* CafeLocatorTableViewController.m */,
+				E064B90018E4C2A1006193E8 /* BaseViewController.h */,
+				E064B90118E4C2A1006193E8 /* BaseViewController.m */,
+				E08329791928F3E100A8E9DF /* NewPhotoResultsViewController.h */,
+				E083297A1928F3E100A8E9DF /* NewPhotoResultsViewController.m */,
+			);
+			name = ViewControllers;
+			sourceTree = "<group>";
+		};
+		E0BE2F551AE15D5D00A692AF /* CollectionView */ = {
+			isa = PBXGroup;
+			children = (
+				E0E9A23018FBFC3D00043A84 /* CustomFlowLayout.h */,
+				E0E9A23118FBFC3D00043A84 /* CustomFlowLayout.m */,
+				E064B92018E50B60006193E8 /* CoffeeViewCell.h */,
+				E064B92118E50B60006193E8 /* CoffeeViewCell.m */,
+			);
+			name = CollectionView;
+			sourceTree = "<group>";
+		};
+		E0BE2F591AE18FB200A692AF /* CustomViews */ = {
+			isa = PBXGroup;
+			children = (
+				E0BE2F5A1AE18FF000A692AF /* CupView.h */,
+				E0BE2F5B1AE18FF000A692AF /* CupView.m */,
+			);
+			name = CustomViews;
 			sourceTree = "<group>";
 		};
 		E0DE6CC71985536000D1A7FC /* Framework */ = {
@@ -384,7 +429,6 @@
 			files = (
 				E08003E61AABA6A00087F44E /* orange_gradient_iphone6.jpg in Resources */,
 				E0C4648C1974B320008236B0 /* Project Doc.rtf in Resources */,
-				E03A9C00195DB77500316D6E /* footer_banner.png in Resources */,
 				E064B90418E4C2A1006193E8 /* Images.xcassets in Resources */,
 				E075C736199535A20086C523 /* heart_blue.png in Resources */,
 				E0DEB1071A0E486A00A0CDA9 /* placeholder.png in Resources */,
@@ -393,7 +437,9 @@
 				E03F8785196C3C6900854347 /* magnifying_glass_32.png in Resources */,
 				E08003EA1AADF90A0087F44E /* blue_gradient_3_iphone6.jpg in Resources */,
 				E064B8FF18E4C2A1006193E8 /* Main.storyboard in Resources */,
+				E0BE2F631AE2780A00A692AF /* Hot_Coffee_Cup.jpg in Resources */,
 				E08003E81AAC8C1E0087F44E /* blue_gradient_iphone6.jpg in Resources */,
+				E0BE2F641AE2780A00A692AF /* Cold_Coffee_Cup.jpg in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -462,6 +508,8 @@
 				E09DEACD197617F400B85A5C /* CoffeeShop.m in Sources */,
 				E0DE6CC61985535700D1A7FC /* Constants.m in Sources */,
 				E07D2A771A8A6D50009AF38D /* CKManager.m in Sources */,
+				E0BE2F581AE18E8500A692AF /* RecipeDetailsViewController.m in Sources */,
+				E0BE2F5C1AE18FF000A692AF /* CupView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

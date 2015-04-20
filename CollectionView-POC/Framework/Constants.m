@@ -49,6 +49,7 @@ NSString *const USER_ACTIVITY_RECIPES_RECORD_TYPE   = @"UserActivityRecipes";
 // Segue
 NSString *const ADD_NEW_PHOTO_SEGUE                 = @"Add New Photo";
 NSString *const DO_ADD_PHOTO_SEGUE                  = @"Do Add Photo";
+NSString *const SHOW_RECIPE_SEGUE                   = @"Show Recipe Details";
 
 // messages, errors and titles
 NSString *const YIKES_TITLE                         = @"Yikes!";
