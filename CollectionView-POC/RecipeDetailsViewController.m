@@ -7,8 +7,11 @@
 //
 
 #import "RecipeDetailsViewController.h"
+#import "CupView.h"
 
 @interface RecipeDetailsViewController()
+@property (weak, nonatomic) IBOutlet UINavigationBar *navBarOutlet;
+@property (weak, nonatomic) IBOutlet CupView *cupView;
 
 @end
 
@@ -27,11 +30,19 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    NSLog(@"viewDidLoad...");
-    self.navigationController.navigationBar.hidden = NO;
-    self.navigationController.navigationBar.barTintColor = [UIColor colorWithRed:0.112 green:0.234 blue:0.4 alpha:1];
-    //self.view.backgroundColor = [UIColor blackColor];
     // Do any additional setup after loading the view.
+    NSLog(@"viewDidLoad...");
+    // hide the status bar
+    [[UIApplication sharedApplication] setStatusBarHidden:YES
+                                            withAnimation:UIStatusBarAnimationFade];
+    // set the size of the text in the navbar
+    //self.navBarOutlet.titleTextAttributes = @{ NSFontAttributeName : [UIFont systemFontOfSize:14]};
+    //self.navBarOutlet.barTintColor = [UIColor colorWithRed:0.112 green:0.234 blue:0.4 alpha:1];
+    //self.view.backgroundColor = [UIColor blackColor];
+}
+
+- (BOOL)prefersStatusBarHidden {
+    return YES;
 }
 
 - (void)didReceiveMemoryWarning {

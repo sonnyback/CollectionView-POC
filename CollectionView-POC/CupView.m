@@ -63,6 +63,14 @@
     [backgroundView setImage:img];
     self.clipsToBounds = YES;
     [self addSubview:backgroundView];
+    
+    //UILabel *titleLabel = [[UILabel alloc] initWithFrame:CGRectMake(self.bounds.origin.x, self.bounds.origin.y, self.bounds.size.width, self.bounds.size.height)];
+    UILabel *titleLabel = [[UILabel alloc] init];
+    titleLabel.text = @"Show Us How to Make this Drink";
+    // position the label in the center of the view above the cup image
+    titleLabel.frame = CGRectMake(self.bounds.origin.x/2 + titleLabel.text.length, self.bounds.size.height/2 - (self.bounds.size.height * .95), self.bounds.size.width, self.bounds.size.height);
+    NSLog(@"titleLabel size is: %lu", (unsigned long)titleLabel.text.length);
+    [backgroundView addSubview:titleLabel];
 }
 
 - (void)awakeFromNib {

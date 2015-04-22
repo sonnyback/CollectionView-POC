@@ -13,6 +13,7 @@
 @property (weak, nonatomic) IBOutlet UIImageView *imageViewOutlet;
 @property (strong, nonatomic) CLLocation *location;
 @property (strong, nonatomic) CLLocationManager *locationManager;
+@property (weak, nonatomic) IBOutlet UINavigationBar *navBarOutlet;
 @end
 
 @implementation NewPhotoResultsViewController
@@ -89,11 +90,13 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    NSLog(@"NewPhotoResultsViewController.viewDidLoad...");
-    self.view.backgroundColor = [UIColor whiteColor];
-    self.navigationController.navigationBar.barTintColor = [UIColor colorWithRed:0.112 green:0.234 blue:0.4 alpha:1];
-    //self.navigationIt = [UIColor colorWithRed:0.112 green:0.234 blue:0.4 alpha:1];
     // Do any additional setup after loading the view.
+    NSLog(@"NewPhotoResultsViewController.viewDidLoad...");
+    // hide the status bar
+    [[UIApplication sharedApplication] setStatusBarHidden:YES
+                                            withAnimation:UIStatusBarAnimationFade];
+    //self.view.backgroundColor = [UIColor whiteColor];
+    //self.navBarOutlet.barTintColor = [UIColor colorWithRed:0.112 green:0.234 blue:0.4 alpha:1];
     self.imageViewOutlet.contentMode = UIViewContentModeScaleAspectFit;
     //self.imageViewOutlet.contentMode = UIViewContentModeScaleAspectFill;
     //self.imageViewOutlet.contentMode = UIViewContentModeScaleToFill;
@@ -101,6 +104,10 @@
     // Set this in every view controller so that the back button displays back < instead of the root view controller name
     //self.navigationItem.backBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"" style:UIBarButtonItemStylePlain target:nil action:nil];
     NSLog(@"Finished viewDidLoad!");
+}
+
+- (BOOL)prefersStatusBarHidden {
+    return YES;
 }
 
 - (void)didReceiveMemoryWarning
