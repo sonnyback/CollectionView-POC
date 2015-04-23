@@ -219,34 +219,8 @@ dispatch_queue_t queue;
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
     
-    NSLog(@"***numberOfItemsInSection***");
-    
-    // this block will load CV cells without invoking camera, but takes too much time to load and often
-    // crashes with BAD_EXC_ACCESS. And numberOfItems property almost always printes 1 less than array count
-    /*dispatch_queue_t fetchQ = dispatch_queue_create("load image data", NULL);
-    dispatch_async(fetchQ, ^{
-        self.numberOfItemsInSection = [self.imageLoadManager.coffeeImageDataArray count];
-        //[self.myCollectionView reloadData];
-    });*/
-    
-    // this block will only load the CV data if photo is taken with camera image added to the array. NumberOfItems
-    // property always correctly prints the same value as array count
-    /*dispatch_semaphore_t sema = dispatch_semaphore_create(0);
-    dispatch_queue_t fetchQ = dispatch_queue_create("load image data", NULL);
-    dispatch_async(fetchQ, ^{
-        NSLog(@"Remote call started...");
-        self.numberOfItemsInSection = [self.imageLoadManager.coffeeImageDataArray count];
-        NSLog(@"Remote call returned...");
-        //[self.myCollectionView reloadData]; // should be done on main thread!
-        dispatch_semaphore_signal(sema);
-    });
-    [self.myCollectionView reloadData];
-    dispatch_semaphore_wait(sema, DISPATCH_TIME_FOREVER);*/
-    
-    //[self.myCollectionView reloadData];
-    NSLog(@"numberOfItemsInSection: %ld", (long)self.numberOfItemsInSection);
+    NSLog(@"INFO: numberOfItemsInSection: %ld", (long)self.numberOfItemsInSection);
     return self.numberOfItemsInSection;
-    //return [self.imageLoadManager.coffeeImageDataArray count];
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {

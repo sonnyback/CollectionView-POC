@@ -33,8 +33,8 @@
     // Do any additional setup after loading the view.
     NSLog(@"viewDidLoad...");
     // hide the status bar
-    [[UIApplication sharedApplication] setStatusBarHidden:YES
-                                            withAnimation:UIStatusBarAnimationFade];
+    /*[[UIApplication sharedApplication] setStatusBarHidden:YES
+                                              withAnimation:UIStatusBarAnimationFade];*/
     // set the size of the text in the navbar
     //self.navBarOutlet.titleTextAttributes = @{ NSFontAttributeName : [UIFont systemFontOfSize:14]};
     //self.navBarOutlet.barTintColor = [UIColor colorWithRed:0.112 green:0.234 blue:0.4 alpha:1];

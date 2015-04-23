@@ -93,8 +93,8 @@
     // Do any additional setup after loading the view.
     NSLog(@"NewPhotoResultsViewController.viewDidLoad...");
     // hide the status bar
-    [[UIApplication sharedApplication] setStatusBarHidden:YES
-                                            withAnimation:UIStatusBarAnimationFade];
+    /*[[UIApplication sharedApplication] setStatusBarHidden:YES
+                                            withAnimation:UIStatusBarAnimationFade];*/
     //self.view.backgroundColor = [UIColor whiteColor];
     //self.navBarOutlet.barTintColor = [UIColor colorWithRed:0.112 green:0.234 blue:0.4 alpha:1];
     self.imageViewOutlet.contentMode = UIViewContentModeScaleAspectFit;

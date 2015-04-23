@@ -132,7 +132,7 @@
                         <outlet property="toolBar" destination="HFB-yh-hZe" id="uvl-wC-LZz"/>
                         <segue destination="WUI-KS-5Q7" kind="push" identifier="Cafes" id="jYd-0r-8g6"/>
                         <segue destination="LI1-wF-NTg" kind="modal" identifier="Add New Photo" id="ikY-c8-ZRZ"/>
-                        <segue destination="iqh-62-Nv9" kind="modal" identifier="Show Recipe Details" id="kBQ-Ge-ke1"/>
+                        <segue destination="lYT-ob-UMx" kind="modal" identifier="Show Recipe Details" id="kBQ-Ge-ke1"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="x5A-6p-PRh" sceneMemberID="firstResponder"/>
@@ -269,6 +269,7 @@
                         </subviews>
                         <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
                     </view>
+                    <navigationItem key="navigationItem" id="ZSi-5d-muf"/>
                     <connections>
                         <outlet property="cupView" destination="ZOE-kQ-Gi5" id="fRX-M7-CNt"/>
                         <outlet property="navBarOutlet" destination="Pz6-os-o8Q" id="rWP-in-2qK"/>
@@ -276,7 +277,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Se3-R1-zKr" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-4974" y="-2433"/>
+            <point key="canvasLocation" x="-4302" y="-2415"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="Jrl-Ue-T3r">
@@ -295,6 +296,24 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="ujA-tH-kEJ" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="-5835" y="-3117"/>
+        </scene>
+        <!--Navigation Controller-->
+        <scene sceneID="mOo-EK-nnn">
+            <objects>
+                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="lYT-ob-UMx" sceneMemberID="viewController">
+                    <toolbarItems/>
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="s54-LT-xkk">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <nil name="viewControllers"/>
+                    <connections>
+                        <segue destination="iqh-62-Nv9" kind="relationship" relationship="rootViewController" id="iAc-Zf-l27"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="XNE-lu-sGm" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-4834" y="-2415"/>
         </scene>
     </scenes>
     <simulatedMetricsContainer key="defaultSimulatedMetrics">
