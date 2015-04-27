@@ -224,7 +224,7 @@
             </objects>
             <point key="canvasLocation" x="-5392" y="-2433"/>
         </scene>
-        <!--Recipe Details View Controller-->
+        <!--Recipe Details-->
         <scene sceneID="vyL-tF-ppE">
             <objects>
                 <viewController id="iqh-62-Nv9" customClass="RecipeDetailsViewController" sceneMemberID="viewController">
@@ -236,12 +236,6 @@
                         <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <navigationBar contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Pz6-os-o8Q">
-                                <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
-                                <items>
-                                    <navigationItem title="Recipe Details" id="fgd-oW-tBb"/>
-                                </items>
-                            </navigationBar>
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="TOI-fO-R1q">
                                 <rect key="frame" x="16" y="518" width="48" height="30"/>
                                 <state key="normal" title="Cancel">
@@ -269,15 +263,16 @@
                         </subviews>
                         <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
                     </view>
-                    <navigationItem key="navigationItem" id="ZSi-5d-muf"/>
+                    <navigationItem key="navigationItem" title="Recipe Details" id="ZSi-5d-muf">
+                        <barButtonItem key="leftBarButtonItem" image="menu" id="AWR-Gm-yvr"/>
+                    </navigationItem>
                     <connections>
                         <outlet property="cupView" destination="ZOE-kQ-Gi5" id="fRX-M7-CNt"/>
-                        <outlet property="navBarOutlet" destination="Pz6-os-o8Q" id="rWP-in-2qK"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Se3-R1-zKr" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-4302" y="-2415"/>
+            <point key="canvasLocation" x="-4542" y="-2433"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="Jrl-Ue-T3r">
@@ -313,9 +308,12 @@
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="XNE-lu-sGm" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-4834" y="-2415"/>
+            <point key="canvasLocation" x="-4974" y="-2433"/>
         </scene>
     </scenes>
+    <resources>
+        <image name="menu" width="28" height="20"/>
+    </resources>
     <simulatedMetricsContainer key="defaultSimulatedMetrics">
         <simulatedStatusBarMetrics key="statusBar"/>
         <simulatedOrientationMetrics key="orientation"/>

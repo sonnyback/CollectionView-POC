@@ -10,7 +10,7 @@
 #import "CupView.h"
 
 @interface RecipeDetailsViewController()
-@property (weak, nonatomic) IBOutlet UINavigationBar *navBarOutlet;
+//@property (weak, nonatomic) IBOutlet UINavigationBar *navBarOutlet;
 @property (weak, nonatomic) IBOutlet CupView *cupView;
 
 @end
