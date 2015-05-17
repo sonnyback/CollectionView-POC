@@ -132,7 +132,7 @@
                         <outlet property="toolBar" destination="HFB-yh-hZe" id="uvl-wC-LZz"/>
                         <segue destination="WUI-KS-5Q7" kind="push" identifier="Cafes" id="jYd-0r-8g6"/>
                         <segue destination="LI1-wF-NTg" kind="modal" identifier="Add New Photo" id="ikY-c8-ZRZ"/>
-                        <segue destination="lYT-ob-UMx" kind="modal" identifier="Show Recipe Details" id="kBQ-Ge-ke1"/>
+                        <segue destination="dgi-sf-yWT" kind="modal" identifier="Show Recipe Details" id="ze5-Q8-Uqd"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="x5A-6p-PRh" sceneMemberID="firstResponder"/>
@@ -167,6 +167,54 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="r1z-2L-wxt" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="-4974" y="-3117"/>
+        </scene>
+        <!--Reveal View Controller-->
+        <scene sceneID="sd7-vO-Edx">
+            <objects>
+                <viewController storyboardIdentifier="SWReveal" id="dgi-sf-yWT" customClass="SWRevealViewController" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="DZj-j2-WQn"/>
+                        <viewControllerLayoutGuide type="bottom" id="FSR-Vf-YEK"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="5MT-vM-B2r">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                    </view>
+                    <connections>
+                        <segue destination="Oax-Z5-VNI" kind="custom" identifier="sw_rear" customClass="SWRevealViewControllerSegueSetController" id="BXa-EG-dxx"/>
+                        <segue destination="lYT-ob-UMx" kind="custom" identifier="sw_front" customClass="SWRevealViewControllerSegueSetController" id="7Tn-Bj-tCf"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="97p-e9-oVU" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-5392" y="-1721"/>
+        </scene>
+        <!--Sidebar View Controller-->
+        <scene sceneID="Pfs-rg-jej">
+            <objects>
+                <tableViewController id="Oax-Z5-VNI" customClass="SidebarViewController" sceneMemberID="viewController">
+                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" id="naP-e6-aFY">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <prototypes>
+                            <tableViewCell contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="Cell" id="ELy-Ax-vnb">
+                                <autoresizingMask key="autoresizingMask"/>
+                                <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="ELy-Ax-vnb" id="4hL-Wd-dSH">
+                                    <autoresizingMask key="autoresizingMask"/>
+                                </tableViewCellContentView>
+                            </tableViewCell>
+                        </prototypes>
+                        <connections>
+                            <outlet property="dataSource" destination="Oax-Z5-VNI" id="yTy-5X-Obd"/>
+                            <outlet property="delegate" destination="Oax-Z5-VNI" id="IeV-eD-5ox"/>
+                        </connections>
+                    </tableView>
+                </tableViewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="S0w-2p-UKr" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-4974" y="-1721"/>
         </scene>
         <!--New Photo Results View Controller-->
         <scene sceneID="UDJ-as-bG7">
@@ -236,10 +284,14 @@
                         <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
+                            <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ZOE-kQ-Gi5" customClass="CupView">
+                                <rect key="frame" x="0.0" y="44" width="320" height="262"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                            </view>
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="TOI-fO-R1q">
                                 <rect key="frame" x="16" y="518" width="48" height="30"/>
                                 <state key="normal" title="Cancel">
-                                    <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                    <color key="titleColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
                                     <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                                 </state>
                                 <connections>
@@ -249,25 +301,22 @@
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="rOQ-3v-GOe">
                                 <rect key="frame" x="263" y="518" width="41" height="30"/>
                                 <state key="normal" title="Finish">
-                                    <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                    <color key="titleColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
                                     <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                                 </state>
                                 <connections>
                                     <action selector="finishButtonPressed:" destination="iqh-62-Nv9" eventType="touchUpInside" id="fB5-6z-o2s"/>
                                 </connections>
                             </button>
-                            <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ZOE-kQ-Gi5" customClass="CupView">
-                                <rect key="frame" x="0.0" y="44" width="320" height="262"/>
-                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                            </view>
                         </subviews>
-                        <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                        <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
                     </view>
                     <navigationItem key="navigationItem" title="Recipe Details" id="ZSi-5d-muf">
                         <barButtonItem key="leftBarButtonItem" image="menu" id="AWR-Gm-yvr"/>
                     </navigationItem>
                     <connections>
                         <outlet property="cupView" destination="ZOE-kQ-Gi5" id="fRX-M7-CNt"/>
+                        <outlet property="sidebarButton" destination="AWR-Gm-yvr" id="yxO-hO-YeW"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Se3-R1-zKr" userLabel="First Responder" sceneMemberID="firstResponder"/>

@@ -1369,8 +1369,8 @@ dispatch_queue_t queue;
         NSLog(@"Segueing to view photo results!");
         NewPhotoResultsViewController *newPhotoResultsVC = (NewPhotoResultsViewController *)segue.destinationViewController;
         newPhotoResultsVC.coffeeImageData = self.coffeeImageDataAddedFromCamera;
-    } else if ([segue.identifier isEqualToString:SHOW_RECIPE_SEGUE] &&
-               [segue.destinationViewController isKindOfClass:[RecipeDetailsViewController class]]) {
+    } else if ([segue.identifier isEqualToString:SHOW_RECIPE_SEGUE] /*&&
+               [segue.destinationViewController isKindOfClass:[RecipeDetailsViewController class]]*/) {
         NSLog(@"Seguing to Recipe Details!");
     }
 }

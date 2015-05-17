@@ -30,9 +30,6 @@
 		E075ACCF196F07820012F130 /* ImageLoadManager.m in Sources */ = {isa = PBXBuildFile; fileRef = E075ACCE196F07820012F130 /* ImageLoadManager.m */; };
 		E075C736199535A20086C523 /* heart_blue.png in Resources */ = {isa = PBXBuildFile; fileRef = E075C735199535A20086C523 /* heart_blue.png */; };
 		E07D2A771A8A6D50009AF38D /* CKManager.m in Sources */ = {isa = PBXBuildFile; fileRef = E07D2A761A8A6D50009AF38D /* CKManager.m */; };
-		E08003E61AABA6A00087F44E /* orange_gradient_iphone6.jpg in Resources */ = {isa = PBXBuildFile; fileRef = E08003E51AABA6A00087F44E /* orange_gradient_iphone6.jpg */; };
-		E08003E81AAC8C1E0087F44E /* blue_gradient_iphone6.jpg in Resources */ = {isa = PBXBuildFile; fileRef = E08003E71AAC8C1E0087F44E /* blue_gradient_iphone6.jpg */; };
-		E08003EA1AADF90A0087F44E /* blue_gradient_3_iphone6.jpg in Resources */ = {isa = PBXBuildFile; fileRef = E08003E91AADF90A0087F44E /* blue_gradient_3_iphone6.jpg */; };
 		E083297B1928F3E100A8E9DF /* NewPhotoResultsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E083297A1928F3E100A8E9DF /* NewPhotoResultsViewController.m */; };
 		E0896A9C19D4B80C00B12C7A /* UIImage+CS193p.m in Sources */ = {isa = PBXBuildFile; fileRef = E0896A9B19D4B80C00B12C7A /* UIImage+CS193p.m */; };
 		E091384F19A5517E003890E8 /* heart_blue_solid.png in Resources */ = {isa = PBXBuildFile; fileRef = E091384E19A5517E003890E8 /* heart_blue_solid.png */; };
@@ -102,9 +99,6 @@
 		E075C735199535A20086C523 /* heart_blue.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = heart_blue.png; sourceTree = "<group>"; };
 		E07D2A751A8A6D50009AF38D /* CKManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CKManager.h; path = Framework/CKManager.h; sourceTree = "<group>"; };
 		E07D2A761A8A6D50009AF38D /* CKManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CKManager.m; path = Framework/CKManager.m; sourceTree = "<group>"; };
-		E08003E51AABA6A00087F44E /* orange_gradient_iphone6.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = orange_gradient_iphone6.jpg; sourceTree = "<group>"; };
-		E08003E71AAC8C1E0087F44E /* blue_gradient_iphone6.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = blue_gradient_iphone6.jpg; sourceTree = "<group>"; };
-		E08003E91AADF90A0087F44E /* blue_gradient_3_iphone6.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = blue_gradient_3_iphone6.jpg; sourceTree = "<group>"; };
 		E08329791928F3E100A8E9DF /* NewPhotoResultsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NewPhotoResultsViewController.h; sourceTree = "<group>"; };
 		E083297A1928F3E100A8E9DF /* NewPhotoResultsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NewPhotoResultsViewController.m; sourceTree = "<group>"; };
 		E0896A9A19D4B80C00B12C7A /* UIImage+CS193p.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+CS193p.h"; sourceTree = "<group>"; };
@@ -287,9 +281,6 @@
 			children = (
 				E0BE2F611AE2780A00A692AF /* Hot_Coffee_Cup.jpg */,
 				E0BE2F621AE2780A00A692AF /* Cold_Coffee_Cup.jpg */,
-				E08003E51AABA6A00087F44E /* orange_gradient_iphone6.jpg */,
-				E08003E71AAC8C1E0087F44E /* blue_gradient_iphone6.jpg */,
-				E08003E91AADF90A0087F44E /* blue_gradient_3_iphone6.jpg */,
 				E0DEB1061A0E486A00A0CDA9 /* placeholder.png */,
 				E091384E19A5517E003890E8 /* heart_blue_solid.png */,
 				E075C735199535A20086C523 /* heart_blue.png */,
@@ -437,7 +428,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E08003E61AABA6A00087F44E /* orange_gradient_iphone6.jpg in Resources */,
 				E0C4648C1974B320008236B0 /* Project Doc.rtf in Resources */,
 				E064B90418E4C2A1006193E8 /* Images.xcassets in Resources */,
 				E075C736199535A20086C523 /* heart_blue.png in Resources */,
@@ -445,10 +435,8 @@
 				E064B8F618E4C2A1006193E8 /* InfoPlist.strings in Resources */,
 				E091384F19A5517E003890E8 /* heart_blue_solid.png in Resources */,
 				E03F8785196C3C6900854347 /* magnifying_glass_32.png in Resources */,
-				E08003EA1AADF90A0087F44E /* blue_gradient_3_iphone6.jpg in Resources */,
 				E064B8FF18E4C2A1006193E8 /* Main.storyboard in Resources */,
 				E0BE2F631AE2780A00A692AF /* Hot_Coffee_Cup.jpg in Resources */,
-				E08003E81AAC8C1E0087F44E /* blue_gradient_iphone6.jpg in Resources */,
 				E0BE2F641AE2780A00A692AF /* Cold_Coffee_Cup.jpg in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

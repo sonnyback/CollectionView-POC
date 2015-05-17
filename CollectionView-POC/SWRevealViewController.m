@@ -1707,12 +1707,12 @@ const int FrontViewPositionNone = 0xff;
             [self performSegueWithIdentifier:SWSegueFrontIdentifier sender:nil];
         }
         @catch(NSException *exception) {}
-        
-        @try
+        /**IMPORTANT! Had to comment this out to prevent it from crashing when tapping the menu nav button **/
+        /*@try
         {
             [self performSegueWithIdentifier:SWSegueRightIdentifier sender:nil];
         }
-        @catch(NSException *exception) {}
+        @catch(NSException *exception) {}*/
     }
 }
 

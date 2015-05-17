@@ -11,6 +11,7 @@
 
 @interface RecipeDetailsViewController : UIViewController
 
+@property (weak, nonatomic) IBOutlet UIBarButtonItem *sidebarButton;
 @property (strong, nonatomic) RecipeImageData *recipeImageData;
 
 @end
