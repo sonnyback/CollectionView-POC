@@ -36,6 +36,7 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    [self.view setBackgroundColor:[UIColor colorWithRed:0.62 green:0.651 blue:0.686 alpha:1]];
     // Do any additional setup after loading the view.
     NSLog(@"viewDidLoad...");
     SWRevealViewController *revealViewController = self.revealViewController;

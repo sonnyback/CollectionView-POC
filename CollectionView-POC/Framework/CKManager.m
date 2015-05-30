@@ -352,7 +352,7 @@ NSString *const CoffeeImageDataRecordType = @"CoffeeImageData";*/
     });
     dispatch_semaphore_wait(sema, DISPATCH_TIME_FOREVER);
     
-    NSLog(@"INFO: CKAccountStatus: %ld", userAccountStatus);
+    NSLog(@"INFO: CKAccountStatus: %ld", (long)userAccountStatus);
     
     return userAccountStatus;
 }

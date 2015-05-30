@@ -18,6 +18,26 @@ NSString *const IMAGES_SEGMENTED_CTRL               = @"Images";
 NSString *const RECIPES_SEGMENTED_CTRL              = @"Recipes";
 NSString *const CAMERA                              = @"Camera";
 NSString *const PHOTO_LIBRARY                       = @"Photo Library";
+NSString *const SPACE                               = @" ";
+NSString *const BLANK                               = @"";
+
+// Ingredients
+NSString *const SELECT_INGREDIENTS                  = @"Select Ingredients Below:";
+NSString *const ESPRESSO                            = @"Espresso";
+NSString *const MILK                                = @"Milk";
+NSString *const SYRUP                               = @"Syrup";
+NSString *const SINGLE_SHOT                         = @"Single Shot";
+NSString *const DOUBLE_SHOT                         = @"Double Shot";
+NSString *const ONE_THIRD                           = @"1/3";
+NSString *const STEAMED_MILK                        = @"Steamed Milk";
+NSString *const MILK_FOAM                           = @"Milk Foam";
+NSString *const WHITE_CHOCOLATE                     = @"White Chocolate";
+NSString *const CARAMEL                             = @"Caramel";
+NSString *const VANILLA                             = @"Vanilla";
+NSString *const HAZELNUT                            = @"Hazelnut";
+NSString *const MOCHA                               = @"Mocha";
+NSString *const CHOCOLATE                           = @"Chocolate";
+NSString *const PEPPERMINT                          = @"Peppermint";
 
 // Images
 NSString *const PLACE_HOLDER                        = @"placeholder";

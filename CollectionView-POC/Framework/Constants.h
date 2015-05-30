@@ -18,6 +18,26 @@ extern NSString *const IMAGES_SEGMENTED_CTRL;
 extern NSString *const RECIPES_SEGMENTED_CTRL;
 extern NSString *const CAMERA;
 extern NSString *const PHOTO_LIBRARY;
+extern NSString *const SPACE;
+extern NSString *const BLANK;
+
+// Ingredients
+extern NSString *const SELECT_INGREDIENTS;
+extern NSString *const ESPRESSO;
+extern NSString *const MILK;
+extern NSString *const SYRUP;
+extern NSString *const SINGLE_SHOT;
+extern NSString *const DOUBLE_SHOT;
+extern NSString *const ONE_THIRD;
+extern NSString *const STEAMED_MILK;
+extern NSString *const MILK_FOAM;
+extern NSString *const WHITE_CHOCOLATE;
+extern NSString *const CARAMEL;
+extern NSString *const VANILLA;
+extern NSString *const HAZELNUT;
+extern NSString *const MOCHA;
+extern NSString *const CHOCOLATE;
+extern NSString *const PEPPERMINT;
 
 // Images
 extern NSString *const PLACE_HOLDER;
