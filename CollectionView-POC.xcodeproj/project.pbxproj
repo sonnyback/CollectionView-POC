@@ -51,6 +51,7 @@
 		E0DE6CC61985535700D1A7FC /* Constants.m in Sources */ = {isa = PBXBuildFile; fileRef = E0DE6CC51985535700D1A7FC /* Constants.m */; };
 		E0DEB1071A0E486A00A0CDA9 /* placeholder.png in Resources */ = {isa = PBXBuildFile; fileRef = E0DEB1061A0E486A00A0CDA9 /* placeholder.png */; };
 		E0E9A23218FBFC3D00043A84 /* CustomFlowLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = E0E9A23118FBFC3D00043A84 /* CustomFlowLayout.m */; };
+		E0F072F51B1DD0E600E91E46 /* Plus-25.png in Resources */ = {isa = PBXBuildFile; fileRef = E0F072F41B1DD0E600E91E46 /* Plus-25.png */; };
 		F6F2A80BF43E29C4A6E1939A /* libPods-CollectionView-POC.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 59E5354F5A4B056E2AC02126 /* libPods-CollectionView-POC.a */; };
 /* End PBXBuildFile section */
 
@@ -136,6 +137,7 @@
 		E0DEB1061A0E486A00A0CDA9 /* placeholder.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = placeholder.png; sourceTree = "<group>"; };
 		E0E9A23018FBFC3D00043A84 /* CustomFlowLayout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CustomFlowLayout.h; sourceTree = "<group>"; };
 		E0E9A23118FBFC3D00043A84 /* CustomFlowLayout.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CustomFlowLayout.m; sourceTree = "<group>"; };
+		E0F072F41B1DD0E600E91E46 /* Plus-25.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Plus-25.png"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -293,6 +295,7 @@
 				E0A2FEC01B0CF241006CA8A4 /* Down4-16.png */,
 				E0BE2F611AE2780A00A692AF /* Hot_Coffee_Cup.jpg */,
 				E0BE2F621AE2780A00A692AF /* Cold_Coffee_Cup.jpg */,
+				E0F072F41B1DD0E600E91E46 /* Plus-25.png */,
 				E0DEB1061A0E486A00A0CDA9 /* placeholder.png */,
 				E091384E19A5517E003890E8 /* heart_blue_solid.png */,
 				E075C735199535A20086C523 /* heart_blue.png */,
@@ -445,6 +448,7 @@
 				E064B90418E4C2A1006193E8 /* Images.xcassets in Resources */,
 				E075C736199535A20086C523 /* heart_blue.png in Resources */,
 				E0DEB1071A0E486A00A0CDA9 /* placeholder.png in Resources */,
+				E0F072F51B1DD0E600E91E46 /* Plus-25.png in Resources */,
 				E064B8F618E4C2A1006193E8 /* InfoPlist.strings in Resources */,
 				E091384F19A5517E003890E8 /* heart_blue_solid.png in Resources */,
 				E0A2FEC31B0D140C006CA8A4 /* Down4-12.png in Resources */,

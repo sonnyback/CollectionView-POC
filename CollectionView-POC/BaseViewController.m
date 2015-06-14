@@ -1150,7 +1150,7 @@ dispatch_queue_t queue;
     
     // need to check user's iCloud status before allowing the camera in case they logged out of iCloud
     self.userAccountStatus = [self.ckManager getUsersCKStatus]; // will return values 0-3. 1 is what we're looking for
-    NSLog(@"INFO: cameraBarButtonPressed userAccountStatus: %ld", self.userAccountStatus);
+    NSLog(@"INFO: cameraBarButtonPressed userAccountStatus: %ld", (long)self.userAccountStatus);
     
     if (self.userAccountStatus == CKAccountStatusAvailable) { // status = 1
         //NSLog(@"User is logged into CK - user can upload pics!");

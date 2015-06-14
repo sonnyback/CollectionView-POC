@@ -9,7 +9,7 @@
 #import <UIKit/UIKit.h>
 #import "RecipeImageData.h"
 
-@interface RecipeDetailsViewController : UIViewController
+@interface RecipeDetailsViewController : UIViewController <UITextFieldDelegate>
 
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *sidebarButton;
 @property (strong, nonatomic) RecipeImageData *recipeImageData;
