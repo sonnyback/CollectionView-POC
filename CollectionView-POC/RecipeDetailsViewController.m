@@ -52,12 +52,13 @@
     textField.font = [UIFont systemFontOfSize:14];
     textField.placeholder = @"Enter recipe instruction...";
     
-    float addButtonX = self.addIngredientButton.frame.origin.x;
+    /*float addButtonX = self.addIngredientButton.frame.origin.x;
     float addButtonY = self.addIngredientButton.frame.origin.y + self.addIngredientButton.frame.origin.y;
     //[self.addIngredientButton.layer setFrame:CGRectMake(addButtonX, addButtonY, self.addIngredientButton.frame.size.width, self.addIngredientButton.frame.size.height)];
-    [self.addIngredientButton.layer setFrame:CGRectMake(addButtonX, addButtonY+50, self.addIngredientButton.frame.size.width, self.addIngredientButton.frame.size.height)];
+    [self.addIngredientButton.layer setFrame:CGRectMake(addButtonX, addButtonY+50, self.addIngredientButton.frame.size.width, self.addIngredientButton.frame.size.height)];*/
     
     [self.scrollView addSubview:textField];
+    self.recipeInstructionTextfield = textField;
 }
 
 #pragma mark - UITextFieldDelegate
@@ -94,6 +95,7 @@
     
     [self.scrollView setShowsVerticalScrollIndicator:YES];
     [self.scrollView setShowsHorizontalScrollIndicator:YES];
+    self.scrollView.contentSize = self.view.bounds.size; // may not be exactly correct, but intent is to allow vertical scrolling
     [self setupTextFields];
     
     // hide the status bar
