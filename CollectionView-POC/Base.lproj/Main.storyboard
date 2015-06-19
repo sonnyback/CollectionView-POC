@@ -307,6 +307,15 @@
                                         <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                         <textInputTraits key="textInputTraits"/>
                                     </textField>
+                                    <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="SeL-4F-2Sw">
+                                        <rect key="frame" x="16" y="113" width="25" height="25"/>
+                                        <state key="normal" image="Plus-25.png">
+                                            <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                        </state>
+                                        <connections>
+                                            <action selector="addIngredientsButtonPressed:" destination="iqh-62-Nv9" eventType="touchUpInside" id="25A-BT-rkc"/>
+                                        </connections>
+                                    </button>
                                 </subviews>
                             </scrollView>
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="rOQ-3v-GOe">
@@ -319,6 +328,13 @@
                                     <action selector="finishButtonPressed:" destination="iqh-62-Nv9" eventType="touchUpInside" id="fB5-6z-o2s"/>
                                 </connections>
                             </button>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="U1R-4k-UJZ">
+                                <rect key="frame" x="0.0" y="520" width="320" height="1"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="TOI-fO-R1q">
                                 <rect key="frame" x="16" y="530" width="48" height="30"/>
                                 <state key="normal" title="Cancel">
@@ -327,15 +343,6 @@
                                 </state>
                                 <connections>
                                     <action selector="cancelButtonPressed:" destination="iqh-62-Nv9" eventType="touchUpInside" id="e9a-aO-bsi"/>
-                                </connections>
-                            </button>
-                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="SeL-4F-2Sw">
-                                <rect key="frame" x="148" y="535" width="25" height="25"/>
-                                <state key="normal" image="Plus-25.png">
-                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
-                                </state>
-                                <connections>
-                                    <action selector="addIngredientsButtonPressed:" destination="iqh-62-Nv9" eventType="touchUpInside" id="25A-BT-rkc"/>
                                 </connections>
                             </button>
                         </subviews>

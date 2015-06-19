@@ -25,6 +25,29 @@
 
 #pragma mark - Action Methods
 
+/**
+ * Helper method to alert user of info and errors. Takes a title and message parameters.
+ *
+ * @param NSString *title - title of the error/info
+ * @param NSString *msg - message to be displayed to user
+ * @return void
+ */
+- (void)alertWithTitle:(NSString *)title andMessage:(NSString *)msg {
+    
+    [[[UIAlertView alloc] initWithTitle:title
+                                message:msg
+                               delegate:nil
+                      cancelButtonTitle:nil
+                      otherButtonTitles:@"OK", nil] show];
+    
+    /* NOTE: This is the iOS 8 way of handling alerts. UIAlertView has been deprecated for iOS 8*/
+    /*UIAlertController *alert = [UIAlertController alertControllerWithTitle:title message:msg preferredStyle:UIAlertControllerStyleAlert];
+     UIAlertAction* defaultAction = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault
+     handler:^(UIAlertAction * action) {}];
+     [alert addAction:defaultAction];
+     [self presentViewController:alert animated:YES completion:nil];*/
+}
+
 - (IBAction)cancelButtonPressed:(UIButton *)sender {
     
     NSLog(@"INFO: RecipeDetailsViewController.cancelButtonPressed...");
@@ -39,26 +62,55 @@
 - (IBAction)addIngredientsButtonPressed:(UIButton *)sender {
     
     NSLog(@"INFO: addIngredientsButtonPressed");
-    self.numberOfTextFields++;
-    float x = self.recipeInstructionTextfield.frame.origin.x;
-    float y = self.recipeInstructionTextfield.frame.origin.y + (self.recipeInstructionTextfield.frame.size.height+5);
-    float width = self.recipeInstructionTextfield.frame.size.width;
-    float height = self.recipeInstructionTextfield.frame.size.height;
-    CGRect textFieldFrame = CGRectMake(x, y, width, height);
-    NSLog(@"recipeInstructionTextfield is x:%f, y:%f, width:%f, height:%f ", self.recipeInstructionTextfield.frame.origin.x, self.recipeInstructionTextfield.frame.origin.y, self.recipeInstructionTextfield.frame.size.width, self.recipeInstructionTextfield.frame.size.height);
-    NSLog(@"textFieldFrame is x:%f, y:%f, width:%f, height:%f ", x, y, width, height);
-    UITextField *textField = [[UITextField alloc] initWithFrame:textFieldFrame];
-    textField.borderStyle = UITextBorderStyleRoundedRect;
-    textField.font = [UIFont systemFontOfSize:14];
-    textField.placeholder = @"Enter recipe instruction...";
     
-    /*float addButtonX = self.addIngredientButton.frame.origin.x;
-    float addButtonY = self.addIngredientButton.frame.origin.y + self.addIngredientButton.frame.origin.y;
-    //[self.addIngredientButton.layer setFrame:CGRectMake(addButtonX, addButtonY, self.addIngredientButton.frame.size.width, self.addIngredientButton.frame.size.height)];
-    [self.addIngredientButton.layer setFrame:CGRectMake(addButtonX, addButtonY+50, self.addIngredientButton.frame.size.width, self.addIngredientButton.frame.size.height)];*/
+    if (self.numberOfTextFields > 11) {
+        [self alertWithTitle:@"Too Many Instructions" andMessage:@"Please limit recipe instructions to 12 steps."];
+    } else {
+        float x = self.recipeInstructionTextfield.frame.origin.x;
+        float y = self.recipeInstructionTextfield.frame.origin.y + (self.recipeInstructionTextfield.frame.size.height+5);
+        float width = self.recipeInstructionTextfield.frame.size.width;
+        float height = self.recipeInstructionTextfield.frame.size.height;
+        CGRect textFieldFrame = CGRectMake(x, y, width, height);
+        //NSLog(@"recipeInstructionTextfield is x:%f, y:%f, width:%f, height:%f ", self.recipeInstructionTextfield.frame.origin.x, self.recipeInstructionTextfield.frame.origin.y, self.recipeInstructionTextfield.frame.size.width, self.recipeInstructionTextfield.frame.size.height);
+        //NSLog(@"addIngredientButton is x:%f, y:%f, width:%f, height:%f ", self.addIngredientButton.frame.origin.x, self.addIngredientButton.frame.origin.y, self.addIngredientButton.frame.size.width, self.addIngredientButton.frame.size.height);
+        //NSLog(@"textFieldFrame is x:%f, y:%f, width:%f, height:%f ", x, y, width, height);
+        UITextField *textField = [[UITextField alloc] initWithFrame:textFieldFrame];
+        textField.borderStyle = UITextBorderStyleRoundedRect;
+        textField.font = [UIFont systemFontOfSize:14];
+        textField.placeholder = @"Enter recipe instruction...";
+        textField.delegate = self;
+        
+        [self.scrollView addSubview:textField];
+        self.recipeInstructionTextfield = textField;
+        [self.addIngredientButton removeFromSuperview];
+        
+        float addButtonX = self.addIngredientButton.frame.origin.x;
+        float addButtonY = textField.frame.origin.y + textField.frame.size.height + 5;
+        UIButton *newButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
+        newButton.frame = CGRectMake(addButtonX, addButtonY, self.addIngredientButton.frame.size.width, self.addIngredientButton.frame.size.height);
+        [newButton setBackgroundImage:[UIImage imageNamed:@"Plus-25.png"] forState:UIControlStateNormal];
+        [newButton addTarget:self action:@selector(addIngredientsButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
+        //NSLog(@"addIngredientButton is x:%f, y:%f, width:%f, height:%f ", newButton.frame.origin.x, newButton.frame.origin.y, newButton.frame.size.width, newButton.frame.size.height);
+        [self.scrollView addSubview:newButton];
+        self.addIngredientButton = newButton;
+        
+        [self checkForTextFields];
+        self.numberOfTextFields++; // increment numberOfTextFields to keep count
+    }
+}
+
+- (void)checkForTextFields {
     
-    [self.scrollView addSubview:textField];
-    self.recipeInstructionTextfield = textField;
+    NSArray *subViews = [self.scrollView subviews];
+    int textfieldCount = 0;
+    for (int i = 0; i < [subViews count]; i++) {
+        UIView *currentView = subViews[i]; // get the current subview
+        if ([currentView isKindOfClass:[UITextField class]]) {
+            //NSLog(@"TextField found!");
+            textfieldCount++;
+        }
+    }
+    NSLog(@"The scrollView contains %d textfields", textfieldCount);
 }
 
 #pragma mark - UITextFieldDelegate
@@ -94,8 +146,10 @@
     }
     
     [self.scrollView setShowsVerticalScrollIndicator:YES];
-    [self.scrollView setShowsHorizontalScrollIndicator:YES];
-    self.scrollView.contentSize = self.view.bounds.size; // may not be exactly correct, but intent is to allow vertical scrolling
+    [self.scrollView setShowsHorizontalScrollIndicator:NO];
+    [self.scrollView setBounces:YES];
+    self.scrollView.contentSize = CGSizeMake(self.view.frame.size.width, self.view.frame.size.height);
+    //self.scrollView.contentSize = self.view.bounds.size; // may not be exactly correct, but intent is to allow vertical scrolling
     [self setupTextFields];
     
     // hide the status bar
@@ -112,6 +166,8 @@
     NSLog(@"INFO: setupTextFields...");
     self.drinkNameTextField.placeholder = NAME_YOUR_DRINK;
     self.recipeInstructionTextfield.placeholder = @"Enter recipe instruction...";
+    self.drinkNameTextField.delegate = self;
+    self.recipeInstructionTextfield.delegate = self;
     
     /*for (int i = 0; i < self.numberOfTextFields; i++) {
         
