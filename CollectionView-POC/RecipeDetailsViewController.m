@@ -88,7 +88,7 @@
         float addButtonY = textField.frame.origin.y + textField.frame.size.height + 5;
         UIButton *newButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
         newButton.frame = CGRectMake(addButtonX, addButtonY, self.addIngredientButton.frame.size.width, self.addIngredientButton.frame.size.height);
-        [newButton setBackgroundImage:[UIImage imageNamed:@"Plus-25.png"] forState:UIControlStateNormal];
+        [newButton setBackgroundImage:[UIImage imageNamed:PLUS_25] forState:UIControlStateNormal];
         [newButton addTarget:self action:@selector(addIngredientsButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
         //NSLog(@"addIngredientButton is x:%f, y:%f, width:%f, height:%f ", newButton.frame.origin.x, newButton.frame.origin.y, newButton.frame.size.width, newButton.frame.size.height);
         [self.scrollView addSubview:newButton];

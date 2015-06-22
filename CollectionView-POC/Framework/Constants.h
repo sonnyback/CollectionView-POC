@@ -44,6 +44,9 @@ extern NSString *const PEPPERMINT;
 extern NSString *const PLACE_HOLDER;
 extern NSString *const HEART_BLUE;
 extern NSString *const HEART_BLUE_SOLID;
+extern NSString *const PLUS_25;
+extern NSString *const USER_MALE_25;
+extern NSString *const USER_MALE_FILLED_25;
 
 // Search
 extern NSString *const SEARCH_FOR_COFFEE;

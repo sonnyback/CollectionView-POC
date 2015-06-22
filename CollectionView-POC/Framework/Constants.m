@@ -44,6 +44,9 @@ NSString *const PEPPERMINT                          = @"Peppermint";
 NSString *const PLACE_HOLDER                        = @"placeholder";
 NSString *const HEART_BLUE                          = @"heart_blue";
 NSString *const HEART_BLUE_SOLID                    = @"heart_blue_solid";
+NSString *const PLUS_25                             = @"Plus-25";
+NSString *const USER_MALE_25                        = @"User_Male_25";
+NSString *const USER_MALE_FILLED_25                 = @"User_Male_Filled_25";
 
 // Search
 NSString *const SEARCH_FOR_COFFEE                   = @"Search for coffee";

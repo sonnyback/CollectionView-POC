@@ -91,6 +91,12 @@
                                             <action selector="cameraBarButtonPressed:" destination="vXZ-lx-hvc" id="NFp-n4-H5E"/>
                                         </connections>
                                     </barButtonItem>
+                                    <barButtonItem style="plain" systemItem="flexibleSpace" id="2vV-d6-iaT"/>
+                                    <barButtonItem title="Item" id="NLG-NQ-7pN">
+                                        <connections>
+                                            <action selector="userBarButtonPressed:" destination="vXZ-lx-hvc" id="bTh-73-uyh"/>
+                                        </connections>
+                                    </barButtonItem>
                                 </items>
                             </toolbar>
                             <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" animating="YES" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="54p-Xr-gam">
@@ -130,6 +136,7 @@
                         <outlet property="searchBar" destination="uSB-QY-ddN" id="d2E-rc-HbT"/>
                         <outlet property="spinner" destination="54p-Xr-gam" id="mIw-uh-NUV"/>
                         <outlet property="toolBar" destination="HFB-yh-hZe" id="uvl-wC-LZz"/>
+                        <outlet property="userBarButtonItem" destination="NLG-NQ-7pN" id="06v-xs-SuU"/>
                         <segue destination="WUI-KS-5Q7" kind="push" identifier="Cafes" id="jYd-0r-8g6"/>
                         <segue destination="LI1-wF-NTg" kind="modal" identifier="Add New Photo" id="ikY-c8-ZRZ"/>
                         <segue destination="dgi-sf-yWT" kind="modal" identifier="Show Recipe Details" id="ze5-Q8-Uqd"/>
@@ -332,7 +339,7 @@
                                 <rect key="frame" x="0.0" y="520" width="320" height="1"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="TOI-fO-R1q">

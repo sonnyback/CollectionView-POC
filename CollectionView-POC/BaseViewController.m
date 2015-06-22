@@ -48,6 +48,8 @@
 @property (strong, nonatomic) CustomActionSheet *customActionSheet;
 @property (strong, nonatomic) MRProgressOverlayView *hud;
 @property (nonatomic) BOOL displayImages; // based on selection of imageRecipeSegmentedControl
+@property (weak, nonatomic) IBOutlet UIBarButtonItem *userBarButtonItem;
+@property (nonatomic) BOOL userBarButtonSelected;
 @end
 
 @implementation BaseViewController
@@ -248,6 +250,10 @@ dispatch_queue_t queue;
         
         // load placeholder image. will only been seen if loading from very weak signal or during scrolling after being idle
         cell.coffeeImageView.image = [UIImage imageNamed:PLACE_HOLDER];
+        
+        if (self.userBarButtonSelected) {
+            NSLog(@"*******Should be showing liked images only!********");
+        }
         
         /** Render cells for Images selection (CoffeeImageData) **/
         if ([[self getSelectedSegmentTitle] isEqualToString:IMAGES_SEGMENTED_CTRL]) {
@@ -1203,6 +1209,22 @@ dispatch_queue_t queue;
     }
 }
 
+- (IBAction)userBarButtonPressed:(UIBarButtonItem *)sender {
+    
+    NSLog(@"INFO: UserBarButtonPressed...");
+    //self.userBarButtonItem
+    
+    if (self.userBarButtonSelected) {
+        [self.userBarButtonItem setImage:[UIImage imageNamed:USER_MALE_25]];
+    } else {
+        [self.userBarButtonItem setImage:[UIImage imageNamed:USER_MALE_FILLED_25]];
+    }
+    
+    self.userBarButtonSelected = !self.userBarButtonSelected;
+    
+    [self updateUI];
+}
+
 - (IBAction)recipeButtonPressed:(id)sender {
     
     NSLog(@"INFO: recipeButtonPressed...");
@@ -1223,6 +1245,9 @@ dispatch_queue_t queue;
     
     // create the queue
     queue = dispatch_queue_create("com.drivethruu.CollectionView-POC",nil);
+    //[self.userBarButtonItem setBackgroundImage:[UIImage imageNamed:@"User Male-25"] forState:UIControlStateNormal barMetrics:UIBarMetricsDefault];
+    [self.userBarButtonItem setImage:[UIImage imageNamed:USER_MALE_25]];
+    self.userBarButtonSelected = NO;
     
     // clear the cache
     [self.imageCache clearMemory];
