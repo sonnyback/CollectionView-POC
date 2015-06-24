@@ -279,12 +279,7 @@ dispatch_queue_t queue;
                                 NSLog(@"Image found in cache!");
                                 //UIImage *thumbnail = [Helper imageWithImage:image scaledToWidth:ITEM_SIZE];
                                 //cell.coffeeImageView.image = thumbnail;
-                                if (self.userBarButtonSelected) { // check to see if we should show only the liked images
-                                    if (coffeeImageData.isLiked)
-                                        cell.coffeeImageView.image = image;
-                                } else { // show all images
-                                    cell.coffeeImageView.image = image;
-                                }
+                                cell.coffeeImageView.image = image;
                             } else {
                                 NSLog(@"Image not found in cache, getting image from CID!");
                                 if (coffeeImageData.imageURL.path) {
@@ -568,6 +563,10 @@ dispatch_queue_t queue;
     
     //self.myCollectionView.delegate = self; // not needed since done in storyboard
     //self.myCollectionView.dataSource = self; // not needed since done in storyboard
+    
+    UIRefreshControl *refreshControl = [[UIRefreshControl alloc] init];
+    [refreshControl addTarget:self action:@selector(startRefresh:) forControlEvents:UIControlEventValueChanged];
+    [self.myCollectionView addSubview:refreshControl];
     
     [self.myCollectionView setCollectionViewLayout:flowLayout];
     
@@ -1223,27 +1222,56 @@ dispatch_queue_t queue;
     }
 }
 
+/**
+ * Method to handle the user pressing the user profile icon button. When pressed, it
+ * checks to make sure the user has liked (saved) any images. If so, it adjusts the 
+ * numberOfItemsInSection accordingly and only shows the saved images. If not, it displays
+ * a message to the user that they have no saved images to display.
+ *
+ * @return void
+ */
 - (IBAction)userBarButtonPressed:(UIBarButtonItem *)sender {
     
     NSLog(@"INFO: UserBarButtonPressed...");
     //self.userBarButtonItem
+    NSUInteger numberOfUserSavedImages = [[self.imageLoadManager.userActivityDictionary allKeys] count];
     
-    if (self.userBarButtonSelected) {
-        [self.userBarButtonItem setImage:[UIImage imageNamed:USER_MALE_25]];
+    // make sure the user has saved any images that can be displayed when this button is tapped.
+    if (numberOfUserSavedImages > 0) {
+        if (self.userBarButtonSelected) {
+            [self.userBarButtonItem setImage:[UIImage imageNamed:USER_MALE_25]];
+        } else {
+            [self.userBarButtonItem setImage:[UIImage imageNamed:USER_MALE_FILLED_25]];
+            NSLog(@"*******Should be showing liked images only!********");
+        }
+        
+        self.userBarButtonSelected = !self.userBarButtonSelected;
+        
+        if (self.userBarButtonSelected) {
+            //self.numberOfItemsInSection = [[self.imageLoadManager.userActivityDictionary allKeys] count];
+            self.numberOfItemsInSection = numberOfUserSavedImages;
+        } else {
+            self.numberOfItemsInSection = [self.imageLoadManager.coffeeImageDataArray count];
+        }
+        
+        [self updateUI];
     } else {
-        [self.userBarButtonItem setImage:[UIImage imageNamed:USER_MALE_FILLED_25]];
-        NSLog(@"*******Should be showing liked images only!********");
+        [self alertWithTitle:@"No Images to Display..." andMessage:@"You have not liked any images or recipes to be saved to your profile. Once you have liked images, they will be displayed when tapping this icon."];
     }
+}
+
+/**
+ * Method to let the user do a pull down refresh. This just calls updateUI which
+ * will only reload the collectionView. It does not make a CloudKit call to retrieve
+ * the cloud data.
+ * @param sender - UIRefreshControl
+ * @return void
+ */
+- (IBAction)startRefresh:(id)sender {
     
-    self.userBarButtonSelected = !self.userBarButtonSelected;
-    
-    if (self.userBarButtonSelected) {
-        self.numberOfItemsInSection = [[self.imageLoadManager.userActivityDictionary allKeys] count];
-    } else {
-        self.numberOfItemsInSection = [self.imageLoadManager.coffeeImageDataArray count];
-    }
-    
+    NSLog(@"INFO: startRefresh...");
     [self updateUI];
+    [sender endRefreshing];
 }
 
 - (IBAction)recipeButtonPressed:(id)sender {
