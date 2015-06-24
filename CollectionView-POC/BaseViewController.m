@@ -251,10 +251,6 @@ dispatch_queue_t queue;
         // load placeholder image. will only been seen if loading from very weak signal or during scrolling after being idle
         cell.coffeeImageView.image = [UIImage imageNamed:PLACE_HOLDER];
         
-        if (self.userBarButtonSelected) {
-            NSLog(@"*******Should be showing liked images only!********");
-        }
-        
         /** Render cells for Images selection (CoffeeImageData) **/
         if ([[self getSelectedSegmentTitle] isEqualToString:IMAGES_SEGMENTED_CTRL]) {
             NSLog(@"INFO: Displaying images for Images selection!");
@@ -283,7 +279,12 @@ dispatch_queue_t queue;
                                 NSLog(@"Image found in cache!");
                                 //UIImage *thumbnail = [Helper imageWithImage:image scaledToWidth:ITEM_SIZE];
                                 //cell.coffeeImageView.image = thumbnail;
-                                cell.coffeeImageView.image = image;
+                                if (self.userBarButtonSelected) { // check to see if we should show only the liked images
+                                    if (coffeeImageData.isLiked)
+                                        cell.coffeeImageView.image = image;
+                                } else { // show all images
+                                    cell.coffeeImageView.image = image;
+                                }
                             } else {
                                 NSLog(@"Image not found in cache, getting image from CID!");
                                 if (coffeeImageData.imageURL.path) {
@@ -732,6 +733,13 @@ dispatch_queue_t queue;
     NSLog(@"INFO: beginLoadingCloudKitData...ended!");
 }
 
+/**
+ * Method to load the recipe images of CK records to populate the CV. This is a separate
+ * method from the beginLoadingCloudKitData because the recipe images are loaded from a 
+ * different record type.
+ *
+ * @return void
+ */
 - (void)loadRecipeDataFromCloudKit {
     
     NSLog(@"INFO: loadRecipeDataFromCloudKit...started!");
@@ -776,6 +784,12 @@ dispatch_queue_t queue;
     }];
 }
 
+/**
+ * Method to retrieve records stored in the user's private records. These are images that the
+ * user has "liked".
+ *
+ * @return void
+ */
 - (void)getUserActivityPrivateData {
     
     NSLog(@"INFO: Entered getUserActivityPrivateData");
@@ -1218,9 +1232,16 @@ dispatch_queue_t queue;
         [self.userBarButtonItem setImage:[UIImage imageNamed:USER_MALE_25]];
     } else {
         [self.userBarButtonItem setImage:[UIImage imageNamed:USER_MALE_FILLED_25]];
+        NSLog(@"*******Should be showing liked images only!********");
     }
     
     self.userBarButtonSelected = !self.userBarButtonSelected;
+    
+    if (self.userBarButtonSelected) {
+        self.numberOfItemsInSection = [[self.imageLoadManager.userActivityDictionary allKeys] count];
+    } else {
+        self.numberOfItemsInSection = [self.imageLoadManager.coffeeImageDataArray count];
+    }
     
     [self updateUI];
 }
