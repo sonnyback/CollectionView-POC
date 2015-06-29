@@ -50,6 +50,7 @@
 @property (nonatomic) BOOL displayImages; // based on selection of imageRecipeSegmentedControl
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *userBarButtonItem;
 @property (nonatomic) BOOL userBarButtonSelected;
+@property (strong, nonatomic) NSMutableArray *userSavedImages; // only stores the images the user has liked
 @end
 
 @implementation BaseViewController
@@ -130,6 +131,15 @@ dispatch_queue_t queue;
     return _ridCacheKeys;
 }
 
+- (NSMutableArray *)userSavedImages {
+    
+    if (!_userSavedImages) {
+        _userSavedImages = [[NSMutableArray alloc] init];
+    }
+    
+    return _userSavedImages;
+}
+
 // return the value for globalColor ro
 - (UIColor *)globalColor {
     
@@ -162,17 +172,6 @@ dispatch_queue_t queue;
     self.coffeeImageDataAddedFromCamera.userID = self.ckManager.userRecordID.recordName;
     self.coffeeImageDataAddedFromCamera.imageBelongsToCurrentUser = NO; // user took this photo but should be set to NO initially
     self.coffeeImageDataAddedFromCamera.liked = NO; // should always be NO for the public data. Will only be set to YES in code if there is a reference in user's data
-    /*CoffeeImageData *dataForNewImage = [[CoffeeImageData alloc] init];
-    dataForNewImage.image = image;
-    dataForNewImage.imageName = @"temporary name"; // i think this will be an image file URL
-    dataForNewImage.imageDescription = @"description";
-    dataForNewImage.userID = self.ckManager.userRecordID.recordName;
-    dataForNewImage.imageBelongsToCurrentUser = NO; // user took this photo but should be set to NO initially
-    dataForNewImage.liked = NO; // should always be NO for the public data. Will only be set to YES in code if there is a reference in user's data
-     */
-    /** THIS IS NULL. NEED TO USE SDWEBIMAGE cache **/
-    //dataForNewImage.imageURL = info[UIImagePickerControllerReferenceURL];
-    //NSLog(@"CID.imageURL: %@", dataForNewImage.imageURL);
     
     // write the image to local cache directory - will later convert this to SDWebImage cache
     NSData *data = UIImageJPEGRepresentation(image, 1.0); // 1.0 = no compression
@@ -235,7 +234,6 @@ dispatch_queue_t queue;
     //cell.layer.rasterizationScale = [UIScreen mainScreen].scale;
     
     if (cell) {
-        
         [self.spinner stopAnimating]; // images should be loaded, so stop spinner
         //cell.backgroundColor = [UIColor whiteColor];
         //cell.layer.cornerRadius = 3;
@@ -251,94 +249,102 @@ dispatch_queue_t queue;
         // load placeholder image. will only been seen if loading from very weak signal or during scrolling after being idle
         cell.coffeeImageView.image = [UIImage imageNamed:PLACE_HOLDER];
         
-        /** Render cells for Images selection (CoffeeImageData) **/
-        if ([[self getSelectedSegmentTitle] isEqualToString:IMAGES_SEGMENTED_CTRL]) {
-            NSLog(@"INFO: Displaying images for Images selection!");
-            CoffeeImageData *coffeeImageData = self.imageLoadManager.coffeeImageDataArray[indexPath.row];
-            
+        // if user button has been selected, only display the saved (liked) images
+        if (self.userBarButtonSelected) {
+            NSLog(@"INFO: ****Showing saved images only****");
+            CoffeeImageData *coffeeImageData = self.userSavedImages[indexPath.row];
             if (coffeeImageData) {
-                // check to see if the recordID of the current CID is userActivityDictionary. If so, it's in the user's private
-                // data so set liked value = YES
-                if ([self.imageLoadManager lookupRecordIDInUserData:coffeeImageData.recordID]) {
-                    //NSLog(@"RecordID found in userActivityDictiontary!");
-                    coffeeImageData.liked = YES;
+                NSString *cacheKey = coffeeImageData.imageURL.absoluteString;
+                if (cacheKey) {
+                    [self.imageCache queryDiskCacheForKey:cacheKey done:^(UIImage *image, SDImageCacheType cacheType) {
+                        if (image) {
+                            NSLog(@"Image found in cache!");
+                            cell.coffeeImageView.image = image;
+                        } else {
+                            NSLog(@"Image not found in cache, getting image from CID!");
+                            cell.coffeeImageView.image = [UIImage imageWithContentsOfFile:coffeeImageData.imageURL.path];
+                        }
+                    }];
                 }
-                // check to see if this image was submitted by the current user
-                if ([self.ckManager.userRecordID.recordName isEqualToString:coffeeImageData.userID]) {
-                    NSLog(@"This image belongs to user: %@", self.ckManager.userRecordID.recordName);
-                    coffeeImageData.imageBelongsToCurrentUser = YES;
-                }
+            }
+        } else { // else clause is for user profile button (userBarButtonItem) de-selected
+            /** Render cells for Images selection (CoffeeImageData) **/
+            if ([[self getSelectedSegmentTitle] isEqualToString:IMAGES_SEGMENTED_CTRL]) {
+                NSLog(@"INFO: Displaying images for Images selection!");
+                CoffeeImageData *coffeeImageData = self.imageLoadManager.coffeeImageDataArray[indexPath.row];
                 
-                if ([self.cidCacheKeys count] > 0) { // check to see if the cacheKeys arrays contains any keys (URLs)
-                    // get the URL of the current indexes images from cache
-                    NSString *cacheKey = self.cidCacheKeys[indexPath.row];
-                    if (cacheKey) {
-                        NSLog(@"cacheKey found!");
-                        [self.imageCache queryDiskCacheForKey:cacheKey done:^(UIImage *image, SDImageCacheType cacheType) {
-                            if (image) { // image is found in the cache
-                                NSLog(@"Image found in cache!");
-                                //UIImage *thumbnail = [Helper imageWithImage:image scaledToWidth:ITEM_SIZE];
-                                //cell.coffeeImageView.image = thumbnail;
-                                cell.coffeeImageView.image = image;
-                            } else {
-                                NSLog(@"Image not found in cache, getting image from CID!");
-                                if (coffeeImageData.imageURL.path) {
-                                    cell.coffeeImageView.image = [UIImage imageWithContentsOfFile:coffeeImageData.imageURL.path];
+                if (coffeeImageData) {
+                    // check to see if this image was submitted by the current user
+                    if ([self.ckManager.userRecordID.recordName isEqualToString:coffeeImageData.userID]) {
+                        NSLog(@"This image belongs to user: %@", self.ckManager.userRecordID.recordName);
+                        coffeeImageData.imageBelongsToCurrentUser = YES;
+                    }
+                    
+                    if ([self.cidCacheKeys count] > 0) { // check to see if the cacheKeys arrays contains any keys (URLs)
+                        // get the URL of the current indexes images from cache
+                        NSString *cacheKey = self.cidCacheKeys[indexPath.row];
+                        if (cacheKey) {
+                            NSLog(@"cacheKey found!");
+                            [self.imageCache queryDiskCacheForKey:cacheKey done:^(UIImage *image, SDImageCacheType cacheType) {
+                                if (image) { // image is found in the cache
+                                    NSLog(@"Image found in cache!");
+                                    //UIImage *thumbnail = [Helper imageWithImage:image scaledToWidth:ITEM_SIZE];
+                                    //cell.coffeeImageView.image = thumbnail;
+                                    cell.coffeeImageView.image = image;
+                                } else {
+                                    NSLog(@"Image not found in cache, getting image from CID!");
+                                    if (coffeeImageData.imageURL.path) {
+                                        cell.coffeeImageView.image = [UIImage imageWithContentsOfFile:coffeeImageData.imageURL.path];
+                                    }
                                 }
+                            }];
+                        } else {
+                            NSLog(@"cacheKey NOT found!");
+                            if (coffeeImageData.imageURL.path) {
+                                cell.coffeeImageView.image = [UIImage imageWithContentsOfFile:coffeeImageData.imageURL.path];
                             }
-                        }];
-                    } else {
-                        NSLog(@"cacheKey NOT found!");
+                        }
+                    } else { // if not, get the image data from the CID object
+                        NSLog(@"allCacheKeys array is empty, getting image from CID!");
                         if (coffeeImageData.imageURL.path) {
                             cell.coffeeImageView.image = [UIImage imageWithContentsOfFile:coffeeImageData.imageURL.path];
                         }
                     }
-                } else { // if not, get the image data from the CID object
-                    NSLog(@"allCacheKeys array is empty, getting image from CID!");
-                    if (coffeeImageData.imageURL.path) {
-                        cell.coffeeImageView.image = [UIImage imageWithContentsOfFile:coffeeImageData.imageURL.path];
+                }
+            } else { /** Render cells for Recipes selection (RecipesImageData) **/
+                NSLog(@"INFO: Displaying images for Recipes selection!");
+                RecipeImageData *recipeImageData = self.imageLoadManager.recipeImageDataArray[indexPath.row];
+                
+                if (recipeImageData) {
+                    // check to see if this image was submitted by the current user
+                    if ([self.ckManager.userRecordID.recordName isEqualToString:recipeImageData.userID]) {
+                        NSLog(@"This image belongs to user: %@", self.ckManager.userRecordID.recordName);
+                        recipeImageData.imageBelongsToCurrentUser = YES;
                     }
-                }
-            }
-        } else { /** Render cells for Recipes selection (RecipesImageData) **/
-            NSLog(@"INFO: Displaying images for Recipes selection!");
-            RecipeImageData *recipeImageData = self.imageLoadManager.recipeImageDataArray[indexPath.row];
-            
-            if (recipeImageData) {
-                // check to see if the recordID of the current RID is userActivityDictionary. If so, it's in the user's private
-                // data so set liked value = YES
-                if ([self.imageLoadManager lookupRecordIDInUserData:recipeImageData.recordID]) {
-                    //NSLog(@"RecordID found in userActivityDictiontary!");
-                    recipeImageData.liked = YES;
-                }
-                // check to see if this image was submitted by the current user
-                if ([self.ckManager.userRecordID.recordName isEqualToString:recipeImageData.userID]) {
-                    NSLog(@"This image belongs to user: %@", self.ckManager.userRecordID.recordName);
-                    recipeImageData.imageBelongsToCurrentUser = YES;
-                }
-                // check to see if the cacheKeys arrays contains any keys (URLs)
-                if ([self.ridCacheKeys count] > 0) {
-                    // get the URL of the current indexes images from cache
-                    NSString *cacheKey = self.ridCacheKeys[indexPath.row];
-                    if (cacheKey) {
-                        NSLog(@"cacheKey found!");
-                        [self.imageCache queryDiskCacheForKey:cacheKey done:^(UIImage *image, SDImageCacheType cacheType) {
-                            if (image) { // image is found in the cache
-                                NSLog(@"Image found in cache!");
-                                //UIImage *thumbnail = [Helper imageWithImage:image scaledToWidth:ITEM_SIZE];
-                                //cell.coffeeImageView.image = thumbnail;
-                                cell.coffeeImageView.image = image;
-                            } else {
-                                NSLog(@"Image not found in cache, getting image from RID!");
-                                if (recipeImageData.imageURL.path) {
-                                    cell.coffeeImageView.image = [UIImage imageWithContentsOfFile:recipeImageData.imageURL.path];
+                    // check to see if the cacheKeys arrays contains any keys (URLs)
+                    if ([self.ridCacheKeys count] > 0) {
+                        // get the URL of the current indexes images from cache
+                        NSString *cacheKey = self.ridCacheKeys[indexPath.row];
+                        if (cacheKey) {
+                            NSLog(@"cacheKey found!");
+                            [self.imageCache queryDiskCacheForKey:cacheKey done:^(UIImage *image, SDImageCacheType cacheType) {
+                                if (image) { // image is found in the cache
+                                    NSLog(@"Image found in cache!");
+                                    //UIImage *thumbnail = [Helper imageWithImage:image scaledToWidth:ITEM_SIZE];
+                                    //cell.coffeeImageView.image = thumbnail;
+                                    cell.coffeeImageView.image = image;
+                                } else {
+                                    NSLog(@"Image not found in cache, getting image from RID!");
+                                    if (recipeImageData.imageURL.path) {
+                                        cell.coffeeImageView.image = [UIImage imageWithContentsOfFile:recipeImageData.imageURL.path];
+                                    }
                                 }
+                            }];
+                        } else {
+                            NSLog(@"cacheKey NOT found!");
+                            if (recipeImageData.imageURL.path) {
+                                cell.coffeeImageView.image = [UIImage imageWithContentsOfFile:recipeImageData.imageURL.path];
                             }
-                        }];
-                    } else {
-                        NSLog(@"cacheKey NOT found!");
-                        if (recipeImageData.imageURL.path) {
-                            cell.coffeeImageView.image = [UIImage imageWithContentsOfFile:recipeImageData.imageURL.path];
                         }
                     }
                 }
@@ -438,8 +444,13 @@ dispatch_queue_t queue;
     [recipeButton addTarget:self action:@selector(recipeButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
     
     // get the CID or RID object for this cell based on the segmented ctrl selected, i.e. Images=CID, Recipes=RID
-    if (self.displayImages)
-        coffeeImageData = [self.imageLoadManager coffeeImageDataForCell:indexPath.row];
+    if (self.displayImages) {
+        
+        if (self.userBarButtonSelected) {
+            coffeeImageData = self.userSavedImages[indexPath.row];
+        } else
+            coffeeImageData = [self.imageLoadManager coffeeImageDataForCell:indexPath.row];
+    }
     else
         recipeImageData = [self.imageLoadManager recipeImageDataForCell:indexPath.row];
     
@@ -690,6 +701,12 @@ dispatch_queue_t queue;
                         coffeeImageData.recipe = [record[RECIPE] boolValue];
                         coffeeImageData.liked = [record[LIKED] boolValue]; // 0 = No, 1 = Yes
                         coffeeImageData.recordID = record.recordID.recordName;
+                        // check to see if the recordID of the current CID is userActivityDictionary. If so, it's in the user's private
+                        // data so set liked value = YES
+                        if ([self.imageLoadManager lookupRecordIDInUserData:coffeeImageData.recordID]) {
+                            //NSLog(@"RecordID found in userActivityDictiontary!");
+                            coffeeImageData.liked = YES;
+                        }
                         // add the CID object to the array
                         [self.imageLoadManager.coffeeImageDataArray addObject:coffeeImageData];
                         
@@ -711,6 +728,7 @@ dispatch_queue_t queue;
                     }
                     // update the UI on the main queue
                     dispatch_async(dispatch_get_main_queue(), ^{
+                        self.userBarButtonItem.enabled = YES; // enable the profile button once data has loaded
                         [self updateUI]; // reload the collectionview after getting all the data from CK
                     });
                     NSLog(@"CoffeeImageDataArray size %lu", (unsigned long)[self.imageLoadManager.coffeeImageDataArray count]);
@@ -761,6 +779,12 @@ dispatch_queue_t queue;
                     //NSLog(@"RID isRecipe %d", recipeImageData.isRecipe);
                     recipeImageData.recordID = record.recordID.recordName;
                     //NSLog(@"RID recordID: %@", recipeImageData.recordID);
+                    // check to see if the recordID of the current RID is userActivityDictionary. If so, it's in the user's private
+                    // data so set liked value = YES
+                    if ([self.imageLoadManager lookupRecordIDInUserData:recipeImageData.recordID]) {
+                        //NSLog(@"RecordID found in userActivityDictiontary!");
+                        recipeImageData.liked = YES;
+                    }
                     // add the RID object to the array
                     [self.imageLoadManager.recipeImageDataArray addObject:recipeImageData];
                     
@@ -809,7 +833,7 @@ dispatch_queue_t queue;
         } else {
             if ([results count] > 0) { // if results, we have user activity from their private database
                 @synchronized(self){
-                    NSLog(@"INFO: Data found in user's private CK database.");
+                    NSLog(@"INFO: CID data found in user's private CK database.");
                     for (CKRecord *record in results) {
                         UserActivity *userActivity = [[UserActivity alloc] init];
                         CKReference *cidReference = [[CKReference alloc] initWithRecord:record[COFFEE_IMAGE_DATA_RECORD_TYPE] action:CKReferenceActionNone];
@@ -838,7 +862,7 @@ dispatch_queue_t queue;
         } else {
             if ([results count] > 0) { // if results, we have user activity from their private database
                 @synchronized(self){
-                    NSLog(@"INFO: Data found in user's private CK database.");
+                    NSLog(@"INFO: RID data found in user's private CK database.");
                     for (CKRecord *record in results) {
                         UserActivity *userActivity = [[UserActivity alloc] init];
                         CKReference *ridReference = [[CKReference alloc] initWithRecord:record[RECIPE_IMAGE_DATA_RECORD_TYPE] action:CKReferenceActionNone];
@@ -937,7 +961,6 @@ dispatch_queue_t queue;
         NSLog(@"INFO: ridCacheKeys array size: %lu", (unsigned long)[self.ridCacheKeys count]);
     }
 }
-
 
 #pragma mark - Action Methods
 
@@ -1233,25 +1256,33 @@ dispatch_queue_t queue;
 - (IBAction)userBarButtonPressed:(UIBarButtonItem *)sender {
     
     NSLog(@"INFO: UserBarButtonPressed...");
-    //self.userBarButtonItem
-    NSUInteger numberOfUserSavedImages = [[self.imageLoadManager.userActivityDictionary allKeys] count];
+    // copy the data from the CID array to the userSavedImages array before filtering
+    self.userSavedImages = [self.imageLoadManager.coffeeImageDataArray mutableCopy];
+    // predicate to filter out non-saved (liked) images
+    NSPredicate *filterPredicate = [NSPredicate predicateWithFormat:@"isLiked = YES"];
+    [self.userSavedImages filterUsingPredicate:filterPredicate]; // filter based on predicate
+    
+    for (CoffeeImageData *cid in self.userSavedImages) {
+        NSLog(@"CID image is liked? %d", cid.isLiked);
+    }
     
     // make sure the user has saved any images that can be displayed when this button is tapped.
-    if (numberOfUserSavedImages > 0) {
+    if ([self.userSavedImages count] > 0) {
         if (self.userBarButtonSelected) {
             [self.userBarButtonItem setImage:[UIImage imageNamed:USER_MALE_25]];
         } else {
             [self.userBarButtonItem setImage:[UIImage imageNamed:USER_MALE_FILLED_25]];
             NSLog(@"*******Should be showing liked images only!********");
         }
-        
+        // toggle the button selection status
         self.userBarButtonSelected = !self.userBarButtonSelected;
         
+        // user tapped the profile button so adjust NOIIS accordingly
         if (self.userBarButtonSelected) {
-            //self.numberOfItemsInSection = [[self.imageLoadManager.userActivityDictionary allKeys] count];
-            self.numberOfItemsInSection = numberOfUserSavedImages;
+            self.numberOfItemsInSection = [self.userSavedImages count];
         } else {
             self.numberOfItemsInSection = [self.imageLoadManager.coffeeImageDataArray count];
+            self.userSavedImages = nil; // get rid of this array as it's not currently needed
         }
         
         [self updateUI];
@@ -1272,6 +1303,35 @@ dispatch_queue_t queue;
     NSLog(@"INFO: startRefresh...");
     [self updateUI];
     [sender endRefreshing];
+}
+
+/**
+ * Method to reload the CV data from CloudKit when the refresh button is tapped. This method
+ * will clear out all the array data from ImageLoadManager and the cache keys. Also recalls
+ * the getUserActivityPrivateData method.
+ *
+ * @param sender - reload button
+ * @return void
+ */
+- (IBAction)reloadButtonPressed:(UIBarButtonItem *)sender {
+    
+    NSLog(@"INFO: reloadButtonPressed...");
+    [self.spinner startAnimating];
+    // clear out all data from imageLoadMager...
+    [self.imageLoadManager.coffeeImageDataArray removeAllObjects];
+    [self.imageLoadManager.recipeImageDataArray removeAllObjects];
+    [self.imageLoadManager.userActivityDictionary removeAllObjects];
+    // clear out the cache keys...
+    [self.cidCacheKeys removeAllObjects];
+    [self.ridCacheKeys removeAllObjects];
+    
+    self.userAccountStatus = [self.ckManager getUsersCKStatus]; // get the user's iCloud login status
+    // load the user's private (saved) data if they're signed into iCloud
+    if (self.userAccountStatus == 1) {
+        [self getUserActivityPrivateData];
+    }
+    // reload all the data from the cloud....
+    [self beginLoadingCloudKitData];
 }
 
 - (IBAction)recipeButtonPressed:(id)sender {
@@ -1296,7 +1356,8 @@ dispatch_queue_t queue;
     queue = dispatch_queue_create("com.drivethruu.CollectionView-POC",nil);
     //[self.userBarButtonItem setBackgroundImage:[UIImage imageNamed:@"User Male-25"] forState:UIControlStateNormal barMetrics:UIBarMetricsDefault];
     [self.userBarButtonItem setImage:[UIImage imageNamed:USER_MALE_25]];
-    self.userBarButtonSelected = NO;
+    self.userBarButtonItem.enabled = NO; // disable initially while data is being retrieved from the cloud
+    self.userBarButtonSelected = NO; // set this to No initially to ensure user profile button is not selected
     
     // clear the cache
     [self.imageCache clearMemory];

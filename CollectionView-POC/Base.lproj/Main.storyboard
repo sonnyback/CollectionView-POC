@@ -129,6 +129,12 @@
                                 <textInputTraits key="textInputTraits"/>
                             </textField>
                         </barButtonItem>
+                        <barButtonItem key="rightBarButtonItem" image="Restart-25.png" id="4yE-3E-QEq">
+                            <color key="tintColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                            <connections>
+                                <action selector="reloadButtonPressed:" destination="vXZ-lx-hvc" id="yxs-n8-g4E"/>
+                            </connections>
+                        </barButtonItem>
                     </navigationItem>
                     <connections>
                         <outlet property="imageRecipeSegmentedControl" destination="InD-us-9xD" id="Oxp-Si-kXV"/>
@@ -410,6 +416,7 @@
     </scenes>
     <resources>
         <image name="Plus-25.png" width="25" height="25"/>
+        <image name="Restart-25.png" width="25" height="25"/>
         <image name="menu" width="28" height="20"/>
     </resources>
     <simulatedMetricsContainer key="defaultSimulatedMetrics">
