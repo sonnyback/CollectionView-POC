@@ -7,6 +7,7 @@
 //
 
 #import "ImageLoadManager.h"
+#import "Constants.h"
 
 @interface ImageLoadManager()
 
@@ -40,6 +41,16 @@
         _userActivityDictionary = [[NSMutableDictionary alloc] init];
     }
     return _userActivityDictionary;
+}
+
+// lazy instantiate userSavedImages
+- (NSMutableArray *)userSavedImages {
+    
+    if (!_userSavedImages) {
+        _userSavedImages = [[NSMutableArray alloc] init];
+    }
+    
+    return _userSavedImages;
 }
 
 
@@ -290,6 +301,35 @@
     
     // if the index value is < then array size, get the card, else return nil
     return (index < [self.recipeImageDataArray count] ? self.recipeImageDataArray[index] : nil);
+}
+
+/**
+ * Method to create mutable array 
+ *
+ *
+ */
+- (void)getUserSavedImagesForSelection:(NSString *)selection {
+    
+    NSLog(@"INFO: getUserSavedImagesForSelection: %@", selection);
+    
+    // clear out the array before populating it
+    if ([self.userSavedImages count] > 0) {
+        [self.userSavedImages removeAllObjects];
+    }
+    
+    if ([selection isEqualToString:IMAGES_SEGMENTED_CTRL]) {
+        // copy the data from the CID array to the userSavedImages array before filtering
+        self.userSavedImages = [self.coffeeImageDataArray mutableCopy];
+        // predicate to filter out non-saved (liked) images
+        NSPredicate *filterPredicate = [NSPredicate predicateWithFormat:@"isLiked = YES"];
+        [self.userSavedImages filterUsingPredicate:filterPredicate]; // filter based on predicate
+    } else if ([selection isEqualToString:RECIPES_SEGMENTED_CTRL]) {
+        // copy the data from the CID array to the userSavedImages array before filtering
+        self.userSavedImages = [self.recipeImageDataArray mutableCopy];
+        // predicate to filter out non-saved (liked) images
+        NSPredicate *filterPredicate = [NSPredicate predicateWithFormat:@"isLiked = YES"];
+        [self.userSavedImages filterUsingPredicate:filterPredicate]; // filter based on predicate
+    }
 }
 
 /**

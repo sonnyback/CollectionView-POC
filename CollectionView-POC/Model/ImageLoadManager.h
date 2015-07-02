@@ -22,6 +22,7 @@
 - (void)updateUserLikeActivityAtIndex:(NSUInteger)index;
 - (BOOL)lookupRecordIDInUserData:(NSString *)recordID;
 - (void)removeUserActivityDataFromDictionary:(NSString *)recordID;
+- (void)getUserSavedImagesForSelection:(NSString *)selection;
 // imagesArray and imageNames array will go away. Replaced by coffeeImageDataArray
 //@property (strong, nonatomic) NSArray *imagesArray; // of UIImage (array of images)
 //@property (strong, nonatomic) NSArray *imageNames; // of NSString (name of the images)
@@ -29,4 +30,5 @@
 @property (strong, nonatomic) NSMutableArray *coffeeImageDataArray; // of CoffeeImageData
 @property (strong, nonatomic) NSMutableArray *recipeImageDataArray; // of RecipeImageData
 @property (strong, nonatomic) NSMutableDictionary *userActivityDictionary;
+@property (strong, nonatomic) NSMutableArray *userSavedImages; // only stores the images the user has liked
 @end

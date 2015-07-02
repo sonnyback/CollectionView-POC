@@ -50,7 +50,8 @@
 @property (nonatomic) BOOL displayImages; // based on selection of imageRecipeSegmentedControl
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *userBarButtonItem;
 @property (nonatomic) BOOL userBarButtonSelected;
-@property (strong, nonatomic) NSMutableArray *userSavedImages; // only stores the images the user has liked
+@property (weak, nonatomic) IBOutlet UIBarButtonItem *cameraBarButton;
+@property (weak, nonatomic) IBOutlet UIBarButtonItem *reloadBarButton;
 @end
 
 @implementation BaseViewController
@@ -88,16 +89,6 @@ dispatch_queue_t queue;
     return _ckManager;
 }
 
-// lazy instantiate coffeeImageData
-/*- (CoffeeImageData *)coffeeImageData {
-    
-    if (!_coffeeImageData) {
-        _coffeeImageData = [[CoffeeImageData alloc] init];
-    }
-    
-    return _coffeeImageData;
-}*/
-
 #define ONE_HOUR_IN_SECONDS 3600
 
 // lazy instantiate imageCache
@@ -129,15 +120,6 @@ dispatch_queue_t queue;
     }
     
     return _ridCacheKeys;
-}
-
-- (NSMutableArray *)userSavedImages {
-    
-    if (!_userSavedImages) {
-        _userSavedImages = [[NSMutableArray alloc] init];
-    }
-    
-    return _userSavedImages;
 }
 
 // return the value for globalColor ro
@@ -252,7 +234,7 @@ dispatch_queue_t queue;
         // if user button has been selected, only display the saved (liked) images
         if (self.userBarButtonSelected) {
             NSLog(@"INFO: ****Showing saved images only****");
-            CoffeeImageData *coffeeImageData = self.userSavedImages[indexPath.row];
+            CoffeeImageData *coffeeImageData = self.imageLoadManager.userSavedImages[indexPath.row];
             if (coffeeImageData) {
                 NSString *cacheKey = coffeeImageData.imageURL.absoluteString;
                 if (cacheKey) {
@@ -447,7 +429,7 @@ dispatch_queue_t queue;
     if (self.displayImages) {
         
         if (self.userBarButtonSelected) {
-            coffeeImageData = self.userSavedImages[indexPath.row];
+            coffeeImageData = self.imageLoadManager.userSavedImages[indexPath.row];
         } else
             coffeeImageData = [self.imageLoadManager coffeeImageDataForCell:indexPath.row];
     }
@@ -728,7 +710,18 @@ dispatch_queue_t queue;
                     }
                     // update the UI on the main queue
                     dispatch_async(dispatch_get_main_queue(), ^{
-                        self.userBarButtonItem.enabled = YES; // enable the profile button once data has loaded
+                        // enable buttons once data has loaded...
+                        self.userBarButtonItem.enabled = YES;
+                        self.cameraBarButton.enabled = YES;
+                        self.reloadBarButton.enabled = YES;
+                        
+                        /* If this is being called from reload button, check to see if the user profile button was tapped. If
+                         * so, then toggle the status and set the image back to the unfilled (untapped) version. We don't want
+                         * to leave the profile button in selected status if we're reloading all the data from CloudKit */
+                        if (self.userBarButtonSelected) {
+                            self.userBarButtonSelected = !self.userBarButtonSelected;
+                            [self.userBarButtonItem setImage:[UIImage imageNamed:USER_MALE_25]];
+                        }
                         [self updateUI]; // reload the collectionview after getting all the data from CK
                     });
                     NSLog(@"CoffeeImageDataArray size %lu", (unsigned long)[self.imageLoadManager.coffeeImageDataArray count]);
@@ -1009,10 +1002,20 @@ dispatch_queue_t queue;
     if (sender.selectedSegmentIndex == 0) { // Images
         // update the number of items in section for the correct data
         self.numberOfItemsInSection = [self.imageLoadManager.coffeeImageDataArray count];
+        // check to see if the user profile button has been selected, if so, unselect it
+        if (self.userBarButtonSelected) {
+            self.userBarButtonSelected = !self.userBarButtonSelected;
+            [self.userBarButtonItem setImage:[UIImage imageNamed:USER_MALE_25]];
+        }
         [self updateUI]; // reload the collectionview
     } else if (sender.selectedSegmentIndex == 1) { // Recipes
         // update the number of items in section for the correct data
         self.numberOfItemsInSection = [self.imageLoadManager.recipeImageDataArray count];
+        // check to see if the user profile button has been selected, if so, unselect it
+        if (self.userBarButtonSelected) {
+            self.userBarButtonSelected = !self.userBarButtonSelected;
+            [self.userBarButtonItem setImage:[UIImage imageNamed:USER_MALE_25]];
+        }
         [self updateUI]; // reload the collectionview
     }
     else if (sender.selectedSegmentIndex == 2)  { // Cafes
@@ -1256,18 +1259,12 @@ dispatch_queue_t queue;
 - (IBAction)userBarButtonPressed:(UIBarButtonItem *)sender {
     
     NSLog(@"INFO: UserBarButtonPressed...");
-    // copy the data from the CID array to the userSavedImages array before filtering
-    self.userSavedImages = [self.imageLoadManager.coffeeImageDataArray mutableCopy];
-    // predicate to filter out non-saved (liked) images
-    NSPredicate *filterPredicate = [NSPredicate predicateWithFormat:@"isLiked = YES"];
-    [self.userSavedImages filterUsingPredicate:filterPredicate]; // filter based on predicate
     
-    for (CoffeeImageData *cid in self.userSavedImages) {
-        NSLog(@"CID image is liked? %d", cid.isLiked);
-    }
+    // get the saved images for the user
+    [self.imageLoadManager getUserSavedImagesForSelection:[self getSelectedSegmentTitle]];
     
     // make sure the user has saved any images that can be displayed when this button is tapped.
-    if ([self.userSavedImages count] > 0) {
+    if ([self.imageLoadManager.userSavedImages count] > 0) {
         if (self.userBarButtonSelected) {
             [self.userBarButtonItem setImage:[UIImage imageNamed:USER_MALE_25]];
         } else {
@@ -1279,15 +1276,21 @@ dispatch_queue_t queue;
         
         // user tapped the profile button so adjust NOIIS accordingly
         if (self.userBarButtonSelected) {
-            self.numberOfItemsInSection = [self.userSavedImages count];
+            self.numberOfItemsInSection = [self.imageLoadManager.userSavedImages count];
         } else {
-            self.numberOfItemsInSection = [self.imageLoadManager.coffeeImageDataArray count];
-            self.userSavedImages = nil; // get rid of this array as it's not currently needed
+            // check to see which segmented control is selected so we can set and display the CV accordingly
+            if ([[self getSelectedSegmentTitle] isEqualToString:IMAGES_SEGMENTED_CTRL]) {
+                self.numberOfItemsInSection = [self.imageLoadManager.coffeeImageDataArray count];
+            } else if ([[self getSelectedSegmentTitle] isEqualToString:RECIPES_SEGMENTED_CTRL]) {
+                self.numberOfItemsInSection = [self.imageLoadManager.recipeImageDataArray count];
+            }
+            // get rid of this array as it's not currently needed
+            self.imageLoadManager.userSavedImages = nil;
         }
         
         [self updateUI];
     } else {
-        [self alertWithTitle:@"No Images to Display..." andMessage:@"You have not liked any images or recipes to be saved to your profile. Once you have liked images, they will be displayed when tapping this icon."];
+        [self alertWithTitle:@"No saved images in your profile..." andMessage:@"You have not liked any images or recipes to be saved to your profile. Once you have liked images, they will be displayed when tapping this icon."];
     }
 }
 
@@ -1316,7 +1319,18 @@ dispatch_queue_t queue;
 - (IBAction)reloadButtonPressed:(UIBarButtonItem *)sender {
     
     NSLog(@"INFO: reloadButtonPressed...");
-    [self.spinner startAnimating];
+    [self.spinner startAnimating]; // start the spinner for the reload
+    
+    // disable user interaction buttons while data is being retrieved from the Cloud...
+    self.reloadBarButton.enabled = NO;
+    self.cameraBarButton.enabled = NO;
+    self.userBarButtonItem.enabled = NO;
+    
+    /*if (self.userBarButtonSelected) {
+        self.userBarButtonSelected = !self.userBarButtonSelected;
+        [self.userBarButtonItem setImage:[UIImage imageNamed:USER_MALE_25]];
+    }*/
+    
     // clear out all data from imageLoadMager...
     [self.imageLoadManager.coffeeImageDataArray removeAllObjects];
     [self.imageLoadManager.recipeImageDataArray removeAllObjects];
@@ -1356,8 +1370,12 @@ dispatch_queue_t queue;
     queue = dispatch_queue_create("com.drivethruu.CollectionView-POC",nil);
     //[self.userBarButtonItem setBackgroundImage:[UIImage imageNamed:@"User Male-25"] forState:UIControlStateNormal barMetrics:UIBarMetricsDefault];
     [self.userBarButtonItem setImage:[UIImage imageNamed:USER_MALE_25]];
-    self.userBarButtonItem.enabled = NO; // disable initially while data is being retrieved from the cloud
     self.userBarButtonSelected = NO; // set this to No initially to ensure user profile button is not selected
+    
+    // disable buttons while data is being retrieved
+    self.userBarButtonItem.enabled = NO; // disable initially while data is being retrieved from the cloud
+    self.cameraBarButton.enabled = NO;
+    self.reloadBarButton.enabled = NO;
     
     // clear the cache
     [self.imageCache clearMemory];

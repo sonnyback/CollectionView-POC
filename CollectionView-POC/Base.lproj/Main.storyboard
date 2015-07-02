@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="7706" systemVersion="14D136" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" initialViewController="LKh-CG-LfG">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="7706" systemVersion="14E46" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" initialViewController="LKh-CG-LfG">
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="7703"/>
@@ -137,8 +137,10 @@
                         </barButtonItem>
                     </navigationItem>
                     <connections>
+                        <outlet property="cameraBarButton" destination="dDH-r1-7Lx" id="1oe-Cc-e2q"/>
                         <outlet property="imageRecipeSegmentedControl" destination="InD-us-9xD" id="Oxp-Si-kXV"/>
                         <outlet property="myCollectionView" destination="JVU-z8-YUF" id="rdQ-lD-JZ2"/>
+                        <outlet property="reloadBarButton" destination="4yE-3E-QEq" id="Vjd-p9-iad"/>
                         <outlet property="searchBar" destination="uSB-QY-ddN" id="d2E-rc-HbT"/>
                         <outlet property="spinner" destination="54p-Xr-gam" id="mIw-uh-NUV"/>
                         <outlet property="toolBar" destination="HFB-yh-hZe" id="uvl-wC-LZz"/>
