@@ -122,7 +122,7 @@ dispatch_queue_t queue;
     return _ridCacheKeys;
 }
 
-// return the value for globalColor ro
+// return the value for globalColor
 - (UIColor *)globalColor {
     
     return [UIColor colorWithRed:0.5 green:0.6 blue:0.8 alpha:1.0]; // original color i came up with randonmly
@@ -427,14 +427,18 @@ dispatch_queue_t queue;
     
     // get the CID or RID object for this cell based on the segmented ctrl selected, i.e. Images=CID, Recipes=RID
     if (self.displayImages) {
-        
-        if (self.userBarButtonSelected) {
+        // determine if we're user saved images or not
+        if (self.userBarButtonSelected) { // user saved images
             coffeeImageData = self.imageLoadManager.userSavedImages[indexPath.row];
-        } else
+        } else // or not...
             coffeeImageData = [self.imageLoadManager coffeeImageDataForCell:indexPath.row];
+    } else {
+        // determine if we're user saved recipes or not
+        if (self.userBarButtonSelected) { // user saved recipes
+            recipeImageData = self.imageLoadManager.userSavedImages[indexPath.row];
+        } else // or not...
+            recipeImageData = [self.imageLoadManager recipeImageDataForCell:indexPath.row];
     }
-    else
-        recipeImageData = [self.imageLoadManager recipeImageDataForCell:indexPath.row];
     
     // get the CoffeeImageData object for this cell
     //CoffeeImageData *coffeeImageData = [self.imageLoadManager coffeeImageDataForCell:indexPath.row];

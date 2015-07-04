@@ -66,6 +66,7 @@ NSString *const CoffeeImageDataRecordType = @"CoffeeImageData";*/
     CKQuery *query = [[CKQuery alloc] initWithRecordType:COFFEE_IMAGE_DATA_RECORD_TYPE predicate:predicate];
     CKQueryOperation *ckQueryOperation = [[CKQueryOperation alloc] initWithQuery:query];
     ckQueryOperation.resultsLimit = CKQueryOperationMaximumResults; // get all the results
+    //ckQueryOperation.resultsLimit = 20;
     
     // processes for each record returned
     ckQueryOperation.recordFetchedBlock = ^(CKRecord *record) {
@@ -76,6 +77,12 @@ NSString *const CoffeeImageDataRecordType = @"CoffeeImageData";*/
     ckQueryOperation.queryCompletionBlock = ^(CKQueryCursor *cursor, NSError *error) {
         results = [tempResultsSet copy];
         [tempResultsSet removeAllObjects]; // get rid of the temp results array
+        /*if (cursor != nil) {
+            NSLog(@"INFO: More results to fetch from CloudKit!");
+            CKQueryOperation *newOperation = [[CKQueryOperation alloc] initWithCursor:cursor];
+            newOperation.resultsLimit = 20;
+            [self.publicDatabase addOperation:newOperation];
+        }*/
         completionHandler(results, cursor, error);
     };
     
