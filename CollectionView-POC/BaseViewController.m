@@ -440,10 +440,7 @@ dispatch_queue_t queue;
             recipeImageData = [self.imageLoadManager recipeImageDataForCell:indexPath.row];
     }
     
-    // get the CoffeeImageData object for this cell
-    //CoffeeImageData *coffeeImageData = [self.imageLoadManager coffeeImageDataForCell:indexPath.row];
-    //CoffeeImageData *coffeeImageData = self.imageLoadManager.coffeeImageDataArray[indexPath.row];
-    //NSLog(@"DEBUG: Image selected for recordID: %@", coffeeImageData.recordID);
+    // get the correct CID/RID object for this cell
     NSLog(@"DEBUG: Image selected for recordID: %@", (self.displayImages) ? coffeeImageData.recordID : recipeImageData.recordID);
     
     /*selectedCell.imageIsLiked = coffeeImageData.isLiked;
@@ -465,6 +462,9 @@ dispatch_queue_t queue;
     // if ! isFullScreen, then not yet viewing fullscreen image, so animate to fullScreen view
     if (!self.isFullScreen) {
         self.fullScreenImage.transform = CGAffineTransformMakeScale(0.1, 0.1);
+        /*CGPoint animationPoint = CGPointMake(selectedCell.bounds.origin.x/2, selectedCell.bounds.origin.y/2);
+        self.fullScreenImage.center = animationPoint;
+        self.fullScreenImage.transform = CGAffineTransformMakeScale(0.1, 0.1);*/
         __weak BaseViewController *weakSelf = self; // to make sure we don't have retain cycles. is this really needed here?
         [UIView animateWithDuration:0.5 delay:0 options:0 animations:^{
             NSLog(@"Starting animiation!");
@@ -1499,9 +1499,6 @@ dispatch_queue_t queue;
                     [self.hud setProgress:progress animated:YES];
                 });
             }];
-            /*[self.imageLoadManager addCIDForNewUserImage:self.coffeeImageDataAddedFromCamera]; // update the model with the new image
-            // update number of items since array set has increased from new photo taken
-            self.numberOfItemsInSection = [self.imageLoadManager.coffeeImageDataArray count];*/
              
             // store the image in SDWebImage cache
             [self.imageCache storeImage:self.coffeeImageDataAddedFromCamera.image forKey:self.coffeeImageDataAddedFromCamera.imageURL.absoluteString];

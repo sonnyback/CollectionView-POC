@@ -66,7 +66,7 @@ NSString *const CoffeeImageDataRecordType = @"CoffeeImageData";*/
     CKQuery *query = [[CKQuery alloc] initWithRecordType:COFFEE_IMAGE_DATA_RECORD_TYPE predicate:predicate];
     CKQueryOperation *ckQueryOperation = [[CKQueryOperation alloc] initWithQuery:query];
     ckQueryOperation.resultsLimit = CKQueryOperationMaximumResults; // get all the results
-    //ckQueryOperation.resultsLimit = 20;
+    //ckQueryOperation.resultsLimit = 25;
     
     // processes for each record returned
     ckQueryOperation.recordFetchedBlock = ^(CKRecord *record) {
@@ -78,10 +78,14 @@ NSString *const CoffeeImageDataRecordType = @"CoffeeImageData";*/
         results = [tempResultsSet copy];
         [tempResultsSet removeAllObjects]; // get rid of the temp results array
         /*if (cursor != nil) {
-            NSLog(@"INFO: More results to fetch from CloudKit!");
+            NSLog(@"INFO: More records to fetch from CloudKit!");
             CKQueryOperation *newOperation = [[CKQueryOperation alloc] initWithCursor:cursor];
-            newOperation.resultsLimit = 20;
-            [self.publicDatabase addOperation:newOperation];
+            newOperation.resultsLimit = 25;
+            //[self.publicDatabase addOperation:newOperation];
+            newOperation.recordFetchedBlock = ckQueryOperation.recordFetchedBlock;
+            newOperation.queryCompletionBlock = ckQueryOperation.queryCompletionBlock;
+            ckQueryOperation = newOperation;
+            [self.publicDatabase addOperation:ckQueryOperation];
         }*/
         completionHandler(results, cursor, error);
     };

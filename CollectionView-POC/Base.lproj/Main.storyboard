@@ -252,6 +252,17 @@
                             <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="6ix-1S-CoE">
                                 <rect key="frame" x="0.0" y="95" width="320" height="371"/>
                             </imageView>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="dzW-SB-xFm">
+                                <rect key="frame" x="246" y="518" width="58" height="30"/>
+                                <state key="normal" title="Submit">
+                                    <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="useButtonPressed:" destination="LI1-wF-NTg" eventType="touchUpInside" id="bJZ-t0-wFQ"/>
+                                    <segue destination="Bwp-gi-Eby" kind="unwind" identifier="Do Add Photo" unwindAction="addedPhoto:" id="h6h-v2-aEz"/>
+                                </connections>
+                            </button>
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="4H9-rc-g0o">
                                 <rect key="frame" x="16" y="518" width="58" height="30"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="15"/>
@@ -261,17 +272,6 @@
                                 </state>
                                 <connections>
                                     <action selector="cancelButtonPressed:" destination="LI1-wF-NTg" eventType="touchUpInside" id="mj1-ZV-OGX"/>
-                                </connections>
-                            </button>
-                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="dzW-SB-xFm">
-                                <rect key="frame" x="215" y="518" width="89" height="30"/>
-                                <state key="normal" title="Use Photo">
-                                    <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
-                                </state>
-                                <connections>
-                                    <action selector="useButtonPressed:" destination="LI1-wF-NTg" eventType="touchUpInside" id="bJZ-t0-wFQ"/>
-                                    <segue destination="Bwp-gi-Eby" kind="unwind" identifier="Do Add Photo" unwindAction="addedPhoto:" id="h6h-v2-aEz"/>
                                 </connections>
                             </button>
                         </subviews>
