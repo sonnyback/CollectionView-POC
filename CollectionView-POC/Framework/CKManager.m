@@ -16,17 +16,10 @@
 @property (nonatomic, readonly) CKContainer *container;
 @property (nonatomic, readonly) CKDatabase *publicDatabase;
 @property (nonatomic, readonly) CKDatabase *privateDatabase;
+@property (strong, nonatomic) CKQueryCursor *cursorProperty;
 @end
 
 @implementation CKManager
-
-/*NSString *const ImageName = @"ImageName";
-NSString *const ImageBelongsToUser = @"ImageBelongsToUser";
-NSString *const ImageDescription = @"ImageDescription";
-NSString *const UserID = @"UserID";
-NSString *const Recipe = @"Recipe";
-NSString *const Image = @"Image";
-NSString *const CoffeeImageDataRecordType = @"CoffeeImageData";*/
 
 // Default initializer - instantiates the public and private databases
 - (instancetype)init {
@@ -41,20 +34,17 @@ NSString *const CoffeeImageDataRecordType = @"CoffeeImageData";*/
     return self;
 }
 
-/*- (void)loadCloudKitDataWithCompletionHandler:(void (^)(NSArray *results, NSError *error))completionHandler {
-    NSLog(@"INFO: Entered loadInitialCloudKitDataWithCompletionHandler...");
-    
-    // just for initial testing...give me all records
-    NSPredicate *predicate = [NSPredicate predicateWithValue:true];
-    //create the query
-    CKQuery *query = [[CKQuery alloc] initWithRecordType:COFFEE_IMAGE_DATA_RECORD_TYPE predicate:predicate];
-    
-    // execute the query
-    [self.publicDatabase performQuery:query inZoneWithID:nil completionHandler:^(NSArray *results, NSError *error) {
-        completionHandler(results, error);
-    }];
-}*/
-
+#define TWENTY_FIVE 25
+/**
+ * Method to load initial data from CloudKit as the app loads. Also, this method is called if
+ * the user taps the reload button. It uses CKQueryOperation to be able to load the data in chunks
+ * and get per record progress updates.
+ * @param NSArray for results set
+ * @param CKQueryCursor to mark the cursor point of last record fetched
+ * @param NSError if error is returned
+ * @param CompletionHandler - will be returned when query/operation is completed
+ * @return void
+ */
 - (void)loadCloudKitDataWithCompletionHandler:(void (^)(NSArray *, CKQueryCursor *, NSError *))completionHandler {
     NSLog(@"INFO: Entered loadInitialCloudKitDataWithCompletionHandler...");
     NSMutableArray *tempResultsSet = [[NSMutableArray alloc] init];
@@ -65,10 +55,11 @@ NSString *const CoffeeImageDataRecordType = @"CoffeeImageData";*/
     //create the query
     CKQuery *query = [[CKQuery alloc] initWithRecordType:COFFEE_IMAGE_DATA_RECORD_TYPE predicate:predicate];
     CKQueryOperation *ckQueryOperation = [[CKQueryOperation alloc] initWithQuery:query];
-    ckQueryOperation.resultsLimit = CKQueryOperationMaximumResults; // get all the results
-    //ckQueryOperation.resultsLimit = 25;
+    //__weak CKQueryOperation *weakself = ckQueryOperation;
+    //ckQueryOperation.resultsLimit = CKQueryOperationMaximumResults; // get all the results
+    ckQueryOperation.resultsLimit = TWENTY_FIVE;
     
-    // processes for each record returned
+    // process each record returned
     ckQueryOperation.recordFetchedBlock = ^(CKRecord *record) {
         NSLog(@"RecordFetchBlock returned CID record: %@", record.recordID.recordName);
         [tempResultsSet addObject:record];
@@ -79,18 +70,73 @@ NSString *const CoffeeImageDataRecordType = @"CoffeeImageData";*/
         [tempResultsSet removeAllObjects]; // get rid of the temp results array
         /*if (cursor != nil) {
             NSLog(@"INFO: More records to fetch from CloudKit!");
-            CKQueryOperation *newOperation = [[CKQueryOperation alloc] initWithCursor:cursor];
-            newOperation.resultsLimit = 25;
+            //CKQueryOperation *newOperation = [[CKQueryOperation alloc] initWithCursor:cursor];
+            //newOperation.recordFetchedBlock = weakself.recordFetchedBlock;
+            //newOperation.queryCompletionBlock = weakself.queryCompletionBlock;
             //[self.publicDatabase addOperation:newOperation];
-            newOperation.recordFetchedBlock = ckQueryOperation.recordFetchedBlock;
-            newOperation.queryCompletionBlock = ckQueryOperation.queryCompletionBlock;
-            ckQueryOperation = newOperation;
-            [self.publicDatabase addOperation:ckQueryOperation];
+            [self loadCloudKitDataFromCursor:cursor withCompletionHandler:^(NSArray *results, CKQueryCursor *cursor, NSError *error) {
+                if (!error) {
+                    if ([results count] > 0) {
+                        NSLog(@"INFO: loadCloudKitDataWithCompletionHandler - cursor block has %lu results!", (unsigned long)[results count]);
+                        results = [tempResultsSet copy];
+                        [tempResultsSet removeAllObjects]; // get rid of the temp results array
+                        //completionHandler(results, cursor, error);
+                    }
+                }
+            }];
         }*/
+        NSLog(@"INFO: loadCloudKitDataWithCompletionHandler - sending back completion handler with %lu results!", (unsigned long)[results count]);
         completionHandler(results, cursor, error);
     };
     
     [self.publicDatabase addOperation:ckQueryOperation];
+}
+
+/**
+ * Method called by loadCloudKitDataWithCompletionHandler if there is a cursor object. This method is almost identical
+ * to it's calling method, but takes a CKQueryCursor in addition.
+ * @param CKQueryCursor - cursor marking last record fetched
+ * @param NSArray for results set
+ * @param CKQueryCursor to mark the cursor point of last record fetched
+ * @param NSError if error is returned
+ * @param CompletionHandler - will be returned when query/operation is completed
+ * @return void
+ */
+- (void)loadCloudKitDataFromCursor:(CKQueryCursor *)cursor withCompletionHandler:(void (^)(NSArray *, CKQueryCursor *, NSError *))completionHandler {
+    NSLog(@"INFO: Entered loadCloudKitDataFromCursorWithCompletionHandler...");
+    NSMutableArray *cursorResultSet = [[NSMutableArray alloc] init];
+    __block NSArray *results;
+    
+    if (cursor) { // make sure we have a cursor to continue from
+        //NSLog(@"INFO: Preparing to load records from cursor...");
+        CKQueryOperation *cursorOperation = [[CKQueryOperation alloc] initWithCursor:cursor];
+        cursorOperation.resultsLimit = TWENTY_FIVE;
+        
+        // processes for each record returned
+        cursorOperation.recordFetchedBlock = ^(CKRecord *record) {
+            NSLog(@"RecordFetchBlock returned from cursor CID record: %@", record.recordID.recordName);
+            [cursorResultSet addObject:record];
+        };
+        // query has completed
+        cursorOperation.queryCompletionBlock = ^(CKQueryCursor *cursor, NSError *error) {
+            results = [cursorResultSet copy];
+            [cursorResultSet removeAllObjects]; // get rid of the temp results array
+            //completionHandler(results, cursor, error);
+            if (cursor) {
+                //NSLog(@"INFO: Calling self to fetch more data from cursor point...");
+                [self loadCloudKitDataFromCursor:cursor withCompletionHandler:^(NSArray *results, CKQueryCursor *cursor, NSError *error) {
+                    results = [cursorResultSet copy];
+                    [cursorResultSet removeAllObjects]; // get rid of the temp results array
+                    //completionHandler(results, cursor, error);
+                }];
+            }
+            NSLog(@"INFO: loadCloudKitDataFromCursor: WithCompletionHandler - sending back completion handler with %lu results!", (unsigned long)[results count]);
+            completionHandler(results, cursor, error);
+        };
+        
+        [self.publicDatabase addOperation:cursorOperation];
+    }
+    
 }
 
 - (void)loadRecipeDataWithCompletionHandler:(void (^)(NSArray *, CKQueryCursor *, NSError *))completionHandler {

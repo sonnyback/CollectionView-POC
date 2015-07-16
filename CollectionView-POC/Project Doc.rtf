@@ -1,8 +1,9 @@
-{\rtf1\ansi\ansicpg1252\cocoartf1344\cocoasubrtf720
+{\rtf1\ansi\ansicpg1252\cocoartf1348\cocoasubrtf170
 {\fonttbl\f0\fswiss\fcharset0 Helvetica;\f1\fnil\fcharset0 Menlo-Regular;\f2\fswiss\fcharset0 ArialMT;
-}
+\f3\fnil\fcharset0 Consolas;}
 {\colortbl;\red255\green255\blue255;\red37\green127\blue159;\red234\green234\blue234;\red0\green116\blue0;
-}
+\red0\green0\blue120;\red234\green234\blue234;\red0\green0\blue0;\red109\green109\blue109;\red37\green127\blue159;
+\red107\green0\blue1;\red43\green39\blue19;}
 \margl1440\margr1440\vieww9000\viewh8400\viewkind0
 \pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
 
@@ -83,6 +84,153 @@ CKRecords:\
 - recordType (CoffeeImageData). May create a recordType for RecipeImageData if needed\
 - creationDate\
 - creatorUserRecordID (will use this to know who submitted image/recipe)\
+\
+\pard\pardeftab720
+
+\f3\fs26 \cf5 \cb6 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec5 private\cf7 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec7  func _fetchRecordChangesFromCloud() \{\
+    \cf5 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec5 if\cf7 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec7  !_fetching \{\
+        \cf8 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec8 // this is the first and only time this code is called in GCD recusion\cf7 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec7 \
+\
+        \cf8 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec8 // we clean the caches we use to collect the results of the fetch\cf7 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec7 \
+        \cf8 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec8 // so we can then save the record in the correct order so references can be created\cf7 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec7 \
+        _fetchedModifiedRecords = []\
+        _fetchedDeletedRecordIDs = []\
+\
+        \cf8 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec8 // mark fetching has started\cf7 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec7 \
+        _fetching = \cf5 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec5 true\cf7 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec7 \
+    \}\
+\
+    let operation = \cf9 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec9 CKFetchRecordChangesOperation\cf7 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec7 (recordZoneID: _customRecordZoneID, previousServerChangeToken: _serverChangeToken)\
+\
+    operation.recordChangedBlock = \{ (record: \cf9 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec9 CKRecord\cf7 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec7 ?) in\
+        \cf5 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec5 if\cf7 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec7  let record = record \{\
+            println(\cf10 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec10 "Received record to save: \\(record)"\cf7 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec7 )\
+            self._fetchedModifiedRecords.append(record)\
+        \}\
+    \}\
+\
+    operation.recordWithIDWasDeletedBlock = \{ (recordID: \cf9 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec9 CKRecordID\cf7 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec7 ?) in\
+        \cf5 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec5 if\cf7 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec7  let recordID = recordID \{\
+            println(\cf10 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec10 "Received recordID to delete: \\(recordID)"\cf7 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec7 )\
+            self._fetchedDeletedRecordIDs.append(recordID)\
+        \}\
+    \}\
+\
+    operation.fetchRecordChangesCompletionBlock = \{\
+        (serverChangeToken: \cf9 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec9 CKServerChangeToken\cf7 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec7 ?, clientChangeToken: \cf9 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec9 NSData\cf7 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec7 ?, error: \cf9 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec9 NSError\cf7 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec7 ?) -> \cf9 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec9 Void\cf7 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec7  in\
+\
+        \cf5 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec5 if\cf7 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec7  let error = error \{\
+            println(\cf10 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec10 "Error in fetching record changes: \\(error)"\cf7 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec7 )\
+            \cf8 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec8 // try again next sync\cf7 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec7 \
+            self._fetchAfterNextSuccessfullSync = \cf5 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec5 true\cf7 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec7 \
+            self._fetching = \cf5 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec5 false\cf7 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec7 \
+            \cf5 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec5 return\cf7 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec7 \
+        \}\
+\
+        \cf8 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec8 // fetched records successfuly\cf7 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec7 \
+        println(\cf10 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec10 "fetched records successfuly"\cf7 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec7 )\
+\
+        \cf5 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec5 if\cf7 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec7  let serverChangeToken = serverChangeToken \{\
+            self._serverChangeToken = serverChangeToken\
+        \}\
+\
+        \cf5 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec5 if\cf7 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec7  operation.moreComing \{\
+            \cf8 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec8 // we need to create another operation object and do it again\cf7 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec7 \
+            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, \cf10 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec10 0\cf7 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec7 )) \{\
+                self._fetchRecordChangesFromCloud()\
+            \}\
+        \} \cf5 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec5 else\cf7 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec7  \{\
+            \cf8 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec8 // we are finally done\cf7 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec7 \
+\
+            \cf8 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec8 // process the fetched records\cf7 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec7 \
+            self._processFetchedRecords()\
+\
+            \cf8 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec8 // save all changes back to persistent store\cf7 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec7 \
+            self._saveBackgroundContext()\
+\
+            \cf8 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec8 // we are done\cf7 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec7 \
+            self._fetching = \cf5 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec5 false\cf7 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec7 \
+        \}\
+    \}\
+\
+    self._privateDatabase.addOperation(operation)\
+\}\cf11 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec11 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+
+\f0\fs24 \cf0 \cb1 \kerning1\expnd0\expndtw0 \outl0\strokewidth0 \
 \
  \
 }

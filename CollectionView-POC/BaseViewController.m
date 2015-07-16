@@ -14,7 +14,6 @@
 #import "ImageLoadManager.h"
 #import "CoffeeImageData.h"
 #import "Helper.h"
-#import "UIImage+CS193p.h"
 #import <QuartzCore/QuartzCore.h>
 #import <CloudKit/CloudKit.h>
 #import "SDImageCache.h"
@@ -52,6 +51,7 @@
 @property (nonatomic) BOOL userBarButtonSelected;
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *cameraBarButton;
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *reloadBarButton;
+@property (strong, nonatomic) CKQueryCursor *cursor;
 @end
 
 @implementation BaseViewController
@@ -391,6 +391,12 @@ dispatch_queue_t queue;
     
     CoffeeViewCell *selectedCell = (CoffeeViewCell *)[collectionView cellForItemAtIndexPath:indexPath];
     NSLog(@"INFO: didSelectItemAtIndexPath");
+    UICollectionViewLayoutAttributes *attributes = [collectionView layoutAttributesForItemAtIndexPath:indexPath];
+    CGRect cellRect = attributes.frame;
+    NSLog(@"INFO: selectedCell attributes, x:%f, y:%f ", cellRect.origin.x, cellRect.origin.y);
+    CGRect cellFrameInSuperview = [collectionView convertRect:cellRect toView:[collectionView superview]];
+    NSLog(@"INFO: selectedCell in super view, x:%f, y:%f", cellFrameInSuperview.origin.x, cellFrameInSuperview.origin.y);
+    
     CoffeeImageData *coffeeImageData;
     RecipeImageData *recipeImageData;
     self.fullScreenImage = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width-10, self.view.bounds.size.height-15)];
@@ -462,13 +468,10 @@ dispatch_queue_t queue;
     // if ! isFullScreen, then not yet viewing fullscreen image, so animate to fullScreen view
     if (!self.isFullScreen) {
         self.fullScreenImage.transform = CGAffineTransformMakeScale(0.1, 0.1);
-        /*CGPoint animationPoint = CGPointMake(selectedCell.bounds.origin.x/2, selectedCell.bounds.origin.y/2);
-        self.fullScreenImage.center = animationPoint;
-        self.fullScreenImage.transform = CGAffineTransformMakeScale(0.1, 0.1);*/
         __weak BaseViewController *weakSelf = self; // to make sure we don't have retain cycles. is this really needed here?
         [UIView animateWithDuration:0.5 delay:0 options:0 animations:^{
             NSLog(@"Starting animiation!");
-            /** NOTE: replaced "self" with "weakSelf below to avoid retain cycles! **/
+            /// NOTE: replaced "self" with "weakSelf below to avoid retain cycles!
             weakSelf.view.backgroundColor = [UIColor blackColor];
             weakSelf.myCollectionView.backgroundColor = [UIColor blackColor];
             weakSelf.searchBar.hidden = YES;
@@ -669,10 +672,11 @@ dispatch_queue_t queue;
         [self.ckManager loadCloudKitDataWithCompletionHandler:^(NSArray *results, CKQueryCursor *cursor, NSError *error) {
             if (!error) {
                 if ([results count] > 0) {
+                    self.cursor = cursor;
                     self.numberOfItemsInSection = [results count];
                     NSLog(@"INFO: Success querying the cloud for %lu results!!!", (unsigned long)[results count]);
-                    // fetch the recipe images from CloudKit
-                    [self loadRecipeDataFromCloudKit];
+                    //[self loadRecipeDataFromCloudKit]; // fetch the recipe images from CloudKit
+                    // parse the records in the results array
                     for (CKRecord *record in results) {
                         // create CoffeeImageData object to store data in the array for each image
                         CoffeeImageData *coffeeImageData = [[CoffeeImageData alloc] init];
@@ -741,7 +745,18 @@ dispatch_queue_t queue;
                     [reloadAlert show];
                 });
             }
+            
+            [self loadMoreRecordsFromCursor];
+            // cursor is done so no more results to fetch...this is how I get the CV to refresh once all results are fetched
+            /*if (cursor == nil) {
+                NSLog(@"INFO: Cursor is nil, updatingUI...");
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    self.numberOfItemsInSection = [self.imageLoadManager.coffeeImageDataArray count];
+                    [self updateUI];
+                });
+            }*/
         }];
+        [self loadRecipeDataFromCloudKit]; // fetch the recipe images from CloudKit
     });
     
     NSLog(@"INFO: beginLoadingCloudKitData...ended!");
@@ -800,6 +815,75 @@ dispatch_queue_t queue;
             [self getRIDCacheKeys];
         } else {
             NSLog(@"Error trying to fetch the RecipeImageData records...%@", error.localizedDescription);
+        }
+    }];
+}
+
+/**
+ * Method to fetch more records from CK from the point of the cursor.
+ *
+ * @param ^Block(NSArray *, CKQueryCursor *, NSError *)
+ * @return void
+ */
+- (void)loadMoreRecordsFromCursor {
+    
+    NSLog(@"INFO: loadMoreRecordsFromCursor...");
+    [self.ckManager loadCloudKitDataFromCursor:self.cursor withCompletionHandler:^(NSArray *results, CKQueryCursor *cursor, NSError *error) {
+        if (!error) {
+            if ([results count] > 0) {
+                if (cursor) { // check to see if a cursor was returned in the completionhandler
+                    self.cursor = cursor; // update the cursor from the result set
+                    // recursively call this ourselves to get the next batch of records
+                    [self loadMoreRecordsFromCursor];
+                } else {
+                    NSLog(@"INFO: All records fetched successfully!");
+                    self.cursor = nil;
+                }
+                self.numberOfItemsInSection += [results count]; // UPDATE the number of items in section
+                NSLog(@"INFO: Success querying the cloud for %lu results!!!", (unsigned long)[results count]);
+                // parse the records in the results array
+                for (CKRecord *record in results) {
+                    // create CoffeeImageData object to store data in the array for each image
+                    CoffeeImageData *coffeeImageData = [[CoffeeImageData alloc] init];
+                    CKAsset *imageAsset = record[IMAGE];
+                    coffeeImageData.imageURL = imageAsset.fileURL;
+                    //NSLog(@"asset URL: %@", coffeeImageData.imageURL);
+                    coffeeImageData.imageName = record[IMAGE_NAME];
+                    //NSLog(@"Image name: %@", coffeeImageData.imageName);
+                    coffeeImageData.imageDescription = record[IMAGE_DESCRIPTION];
+                    coffeeImageData.userID = record[USER_ID];
+                    coffeeImageData.imageBelongsToCurrentUser = [record[IMAGE_BELONGS_TO_USER] boolValue];
+                    coffeeImageData.recipe = [record[RECIPE] boolValue];
+                    coffeeImageData.liked = [record[LIKED] boolValue]; // 0 = No, 1 = Yes
+                    coffeeImageData.recordID = record.recordID.recordName;
+                    // check to see if the recordID of the current CID is userActivityDictionary. If so, it's in the user's private
+                    // data so set liked value = YES
+                    if ([self.imageLoadManager lookupRecordIDInUserData:coffeeImageData.recordID]) {
+                        //NSLog(@"RecordID found in userActivityDictiontary!");
+                        coffeeImageData.liked = YES;
+                    }
+                    // add the CID object to the array
+                    [self.imageLoadManager.coffeeImageDataArray addObject:coffeeImageData];
+                        
+                    // cache the image with the string representation of the absolute URL as the cache key
+                    if (coffeeImageData.imageURL) { // make sure there's an image URL to cache
+                        if (self.imageCache) {
+                            [self.imageCache storeImage:[UIImage imageWithContentsOfFile:coffeeImageData.imageURL.path] forKey:coffeeImageData.imageURL.absoluteString toDisk:YES];
+                            //NSLog(@"Printing cache: %@", [[SDImageCache sharedImageCache] description]);
+                        }
+                    } else {
+                        NSLog(@"WARN: CID imageURL is nil...cannot cache.");
+
+                    }
+                }
+                // update the UI on the main queue
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    //[self updateUI]; // reload the collectionview after getting all the data from CK
+                    [self.myCollectionView reloadData];
+                });
+            }
+            // load the keys to be used for cache look up
+            [self getCIDCacheKeys];
         }
     }];
 }

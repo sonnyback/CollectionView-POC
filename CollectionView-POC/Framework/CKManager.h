@@ -15,21 +15,12 @@
 
 @interface CKManager : NSObject
 
-// public constants
-/*extern NSString *const ImageName;
-extern NSString *const ImageBelongsToUser; // will be interpreted as BOOL
-extern NSString *const ImageDescription;
-extern NSString *const UserID;
-extern NSString *const Recipe; // will be interpreted as BOOL
-extern NSString *const Image; // CKAsset
-extern NSString *const CoffeeImageDataRecordType;*/
-
 // public properties
 @property (strong, nonatomic) CKRecordID *userRecordID; // unique user identifier
 
 // public methods
-//- (void)loadCloudKitDataWithCompletionHandler:(void (^)(NSArray *results, NSError *error))completionHandler;
 - (void)loadCloudKitDataWithCompletionHandler:(void (^)(NSArray *results, CKQueryCursor *cursor, NSError *error))completionHandler;
+- (void)loadCloudKitDataFromCursor:(CKQueryCursor *)cursor withCompletionHandler:(void (^)(NSArray *results, CKQueryCursor *cursor, NSError *error))completionHandler;
 - (void)loadRecipeDataWithCompletionHandler:(void (^)(NSArray *results, CKQueryCursor *cursor, NSError *error))completionHandler;
 - (void)getUserActivityPrivateDataForCIDWithCompletionHandler:(void (^)(NSArray *results, NSError *error))completionHandler;
 - (void)getUserActivityPrivateDataForRIDWithCompletionHandler:(void (^)(NSArray *results, NSError *error))completionHandler;
