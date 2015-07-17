@@ -16,7 +16,6 @@
 @property (nonatomic, readonly) CKContainer *container;
 @property (nonatomic, readonly) CKDatabase *publicDatabase;
 @property (nonatomic, readonly) CKDatabase *privateDatabase;
-@property (strong, nonatomic) CKQueryCursor *cursorProperty;
 @end
 
 @implementation CKManager

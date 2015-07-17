@@ -672,6 +672,8 @@ dispatch_queue_t queue;
         [self.ckManager loadCloudKitDataWithCompletionHandler:^(NSArray *results, CKQueryCursor *cursor, NSError *error) {
             if (!error) {
                 if ([results count] > 0) {
+                    // show network activity indicator
+                    [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:YES];
                     self.cursor = cursor;
                     self.numberOfItemsInSection = [results count];
                     NSLog(@"INFO: Success querying the cloud for %lu results!!!", (unsigned long)[results count]);
@@ -709,7 +711,6 @@ dispatch_queue_t queue;
                         } else {
                             NSLog(@"WARN: CID imageURL is nil...cannot cache.");
                             dispatch_async(dispatch_get_main_queue(), ^{
-                                //[self alertWithTitle:@"Yikes!" andMessage:@"There was an error trying to load the coffee images from the Cloud. Please try again."];
                                 UIAlertView *reloadAlert = [[UIAlertView alloc] initWithTitle:YIKES_TITLE message:ERROR_LOADING_CK_DATA_MSG delegate:nil cancelButtonTitle:CANCEL_BUTTON otherButtonTitles:TRY_AGAIN_BUTTON, nil];
                                 reloadAlert.delegate = self;
                                 [reloadAlert show];
@@ -732,7 +733,7 @@ dispatch_queue_t queue;
                         }
                         [self updateUI]; // reload the collectionview after getting all the data from CK
                     });
-                    NSLog(@"CoffeeImageDataArray size %lu", (unsigned long)[self.imageLoadManager.coffeeImageDataArray count]);
+                    NSLog(@"INFO: CoffeeImageDataArray size %lu", (unsigned long)[self.imageLoadManager.coffeeImageDataArray count]);
                 }
                 // load the keys to be used for cache look up
                 [self getCIDCacheKeys];
@@ -745,16 +746,8 @@ dispatch_queue_t queue;
                     [reloadAlert show];
                 });
             }
-            
+            // fetch additional records from point of cursor
             [self loadMoreRecordsFromCursor];
-            // cursor is done so no more results to fetch...this is how I get the CV to refresh once all results are fetched
-            /*if (cursor == nil) {
-                NSLog(@"INFO: Cursor is nil, updatingUI...");
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    self.numberOfItemsInSection = [self.imageLoadManager.coffeeImageDataArray count];
-                    [self updateUI];
-                });
-            }*/
         }];
         [self loadRecipeDataFromCloudKit]; // fetch the recipe images from CloudKit
     });
@@ -838,6 +831,8 @@ dispatch_queue_t queue;
                 } else {
                     NSLog(@"INFO: All records fetched successfully!");
                     self.cursor = nil;
+                    // kill the network activity indicator
+                    [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
                 }
                 self.numberOfItemsInSection += [results count]; // UPDATE the number of items in section
                 NSLog(@"INFO: Success querying the cloud for %lu results!!!", (unsigned long)[results count]);
@@ -1407,7 +1402,21 @@ dispatch_queue_t queue;
 - (IBAction)reloadButtonPressed:(UIBarButtonItem *)sender {
     
     NSLog(@"INFO: reloadButtonPressed...");
+    //self.numberOfItemsInSection = 0;
+    //[self updateUI];
     [self.spinner startAnimating]; // start the spinner for the reload
+    
+    // clear out all data from imageLoadMager...
+    [self.imageLoadManager.coffeeImageDataArray removeAllObjects];
+    [self.imageLoadManager.recipeImageDataArray removeAllObjects];
+    [self.imageLoadManager.userActivityDictionary removeAllObjects];
+    // clear out the cache keys...
+    [self.cidCacheKeys removeAllObjects];
+    [self.ridCacheKeys removeAllObjects];
+    
+    // wipe out the collecitonview cells before reloading...
+    self.numberOfItemsInSection = [self.imageLoadManager.coffeeImageDataArray count];
+    [self updateUI];
     
     // disable user interaction buttons while data is being retrieved from the Cloud...
     self.reloadBarButton.enabled = NO;
@@ -1419,13 +1428,9 @@ dispatch_queue_t queue;
         [self.userBarButtonItem setImage:[UIImage imageNamed:USER_MALE_25]];
     }*/
     
-    // clear out all data from imageLoadMager...
-    [self.imageLoadManager.coffeeImageDataArray removeAllObjects];
-    [self.imageLoadManager.recipeImageDataArray removeAllObjects];
-    [self.imageLoadManager.userActivityDictionary removeAllObjects];
-    // clear out the cache keys...
-    [self.cidCacheKeys removeAllObjects];
-    [self.ridCacheKeys removeAllObjects];
+    // clear the cache
+    [self.imageCache clearMemory];
+    [self.imageCache clearDisk];
     
     self.userAccountStatus = [self.ckManager getUsersCKStatus]; // get the user's iCloud login status
     // load the user's private (saved) data if they're signed into iCloud
@@ -1547,6 +1552,7 @@ dispatch_queue_t queue;
         if (self.coffeeImageDataAddedFromCamera) {
             NSLog(@"Yay! We have a CID from Unwinding!");
             //NSLog(@"image url %@", self.coffeeImageDataAddedFromCamera.imageURL);
+            [self.myCollectionView setContentOffset:CGPointZero animated:YES]; // do this so HUD is visible
             self.hud = [MRProgressOverlayView showOverlayAddedTo:self.myCollectionView animated:YES];
             self.hud.mode = MRProgressOverlayViewModeDeterminateCircular;
             self.hud.titleLabelText = UPLOADING_COFFEE_MSG;
@@ -1617,7 +1623,7 @@ dispatch_queue_t queue;
 {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
-    NSLog(@"Did Receive Memory Warning...clearing cache!");
+    NSLog(@"INFO: Did Receive Memory Warning...clearing cache!");
     [self.imageCache clearMemory];
 }
 
