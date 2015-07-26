@@ -410,6 +410,9 @@ dispatch_queue_t queue;
     self.tap.numberOfTapsRequired = 1;
     [self.fullScreenImage addGestureRecognizer:self.tap];
     
+    UISwipeGestureRecognizer *swipe = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(recognizeSwipe)];
+    [self.fullScreenImage addGestureRecognizer:swipe];
+    
     CGFloat xCoord = self.fullScreenImage.bounds.size.width;
     CGFloat yCoord = self.fullScreenImage.bounds.size.height;
     CGFloat yPoint = self.fullScreenImage.bounds.origin.y;
@@ -1445,6 +1448,11 @@ dispatch_queue_t queue;
     
     NSLog(@"INFO: recipeButtonPressed...");
     [self performSegueWithIdentifier:SHOW_RECIPE_SEGUE sender:self];
+}
+
+- (void)recognizeSwipe {
+    
+    NSLog(@"Swipe!");
 }
 
 #pragma mark - VC Lifecyle Methods
