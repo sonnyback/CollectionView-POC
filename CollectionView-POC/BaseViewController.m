@@ -399,7 +399,9 @@ dispatch_queue_t queue;
     
     CoffeeImageData *coffeeImageData;
     RecipeImageData *recipeImageData;
+    /* Below line is original code for animation - causes images to animate from and back to center of screen */
     self.fullScreenImage = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width-10, self.view.bounds.size.height-15)];
+    //self.fullScreenImage = [[UIImageView alloc] initWithFrame:CGRectMake(cellFrameInSuperview.origin.x, cellFrameInSuperview.origin.y, self.view.bounds.size.width-10, self.view.bounds.size.height-15)];
     self.fullScreenImage.contentMode = UIViewContentModeScaleAspectFit;
     self.fullScreenImage.tag = 1000; // set it to this value so it will never conflict with likeButton.tag value
     /** REQUIRED for likeButton to work. Otherwise, button is visible but doesn't respond */
@@ -452,10 +454,6 @@ dispatch_queue_t queue;
     // get the correct CID/RID object for this cell
     NSLog(@"DEBUG: Image selected for recordID: %@", (self.displayImages) ? coffeeImageData.recordID : recipeImageData.recordID);
     
-    /*selectedCell.imageIsLiked = coffeeImageData.isLiked;
-    //likeButton.selected = selectedCell.imageIsLiked;
-    likeButton.selected = coffeeImageData.isLiked;*/
-    
     selectedCell.imageIsLiked = (coffeeImageData) ? coffeeImageData.isLiked : recipeImageData.isLiked;
     likeButton.selected = (coffeeImageData) ? coffeeImageData.isLiked : recipeImageData.isLiked;
     
@@ -467,6 +465,7 @@ dispatch_queue_t queue;
     } else {
         [likeButton setImage:[UIImage imageNamed:HEART_BLUE] forState:UIControlStateNormal];
     }
+    
     
     // if ! isFullScreen, then not yet viewing fullscreen image, so animate to fullScreen view
     if (!self.isFullScreen) {

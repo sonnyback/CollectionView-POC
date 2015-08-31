@@ -2,7 +2,7 @@
 # platform :ios, '7.0'
 
 target 'CollectionView-POC' do
-pod 'SDWebImage', '~>3.6'
+pod 'SDWebImage', '~>3.7'
 pod 'MRProgress'
 
 end

@@ -78,11 +78,13 @@ CloudKit:\
 - Containers must use unique identifier, such as reverse DNS naming convention\
 - Database (CKDatabase) - each app has access to 2 databases, public and private. Public db for shared data, private db for user's data.\
 \
-CKRecords:\
-- recordID (will let cloudkit create the ids)\
-- recordType (CoffeeImageData). May create a recordType for RecipeImageData if needed\
-- creationDate\
-- creatorUserRecordID (will use this to know who submitted image/recipe)\
+\ul Cocoapods/Gems Unix commands for updating cocoapods and gems:\ulnone \
+gem -v (tells which version of ruby gems installed)\
+which gem (tells where ruby gems are installed)\
+gem list (shows all installed gems)\
+gem update --system (update to the latest ruby gem)\
+pod outdated (will check to see if there are any newer versions of pods)\
+pod update\
 \
 below code from {\field{\*\fldinst{HYPERLINK "http://stackoverflow.com/questions/30179107/ckqueryoperation-working-with-big-batch"}}{\fldrslt http://stackoverflow.com/questions/30179107/ckqueryoperation-working-with-big-batch}}\
 \pard\pardeftab720

@@ -4,12 +4,7 @@
 <dict>
 	<key>SchemeUserState</key>
 	<dict>
-		<key>Pods-CollectionView-POC-MRProgress.xcscheme</key>
-		<dict>
-			<key>isShown</key>
-			<false/>
-		</dict>
-		<key>Pods-CollectionView-POC-SDWebImage.xcscheme</key>
+		<key>MRProgress.xcscheme</key>
 		<dict>
 			<key>isShown</key>
 			<false/>
@@ -19,20 +14,25 @@
 			<key>isShown</key>
 			<false/>
 		</dict>
+		<key>SDWebImage.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
 	</dict>
 	<key>SuppressBuildableAutocreation</key>
 	<dict>
-		<key>224F78F9A67D88910D57CACB</key>
+		<key>5352D432641F0656C90741034E32F31E</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>9FDCF1BE73285EC891AF7E27</key>
+		<key>CD14AB124F1B726729AA0F3D70FF2621</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>AE21DAA0BF341F048B46194D</key>
+		<key>E771CD15BF19032F0E51B9F618A5F867</key>
 		<dict>
 			<key>primary</key>
 			<true/>
