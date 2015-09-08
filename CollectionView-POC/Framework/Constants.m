@@ -96,4 +96,7 @@ NSString *const COFFEE_UPLOAD_SUCCESS_MSG           = @"Your coffee photo was su
 
 // Actions
 NSString *const PHOTO_BRANCH_ACTION                 = @"How would you like to submit your coffee photo?";
+
+// Predicate Strings
+NSString *PREDICATE_IS_LIKED_YES                    = @"isLiked = YES";
 @end

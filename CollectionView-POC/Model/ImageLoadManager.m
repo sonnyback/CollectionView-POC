@@ -335,13 +335,13 @@
         // copy the data from the CID array to the userSavedImages array before filtering
         self.userSavedImages = [self.coffeeImageDataArray mutableCopy];
         // predicate to filter out non-saved (liked) images
-        NSPredicate *filterPredicate = [NSPredicate predicateWithFormat:@"isLiked = YES"];
+        NSPredicate *filterPredicate = [NSPredicate predicateWithFormat:PREDICATE_IS_LIKED_YES];
         [self.userSavedImages filterUsingPredicate:filterPredicate]; // filter based on predicate
     } else if ([selection isEqualToString:RECIPES_SEGMENTED_CTRL]) {
         // copy the data from the CID array to the userSavedImages array before filtering
         self.userSavedImages = [self.recipeImageDataArray mutableCopy];
         // predicate to filter out non-saved (liked) images
-        NSPredicate *filterPredicate = [NSPredicate predicateWithFormat:@"isLiked = YES"];
+        NSPredicate *filterPredicate = [NSPredicate predicateWithFormat:PREDICATE_IS_LIKED_YES];
         [self.userSavedImages filterUsingPredicate:filterPredicate]; // filter based on predicate
     }
 }

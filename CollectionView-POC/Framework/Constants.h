@@ -96,4 +96,7 @@ extern NSString *const COFFEE_UPLOAD_SUCCESS_MSG;
 
 // Actions
 extern NSString *const PHOTO_BRANCH_ACTION;
+
+// Predicate Strings
+extern NSString *PREDICATE_IS_LIKED_YES;
 @end
