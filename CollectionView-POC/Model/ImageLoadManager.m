@@ -234,6 +234,13 @@
     return self;
 }
 
+/**
+ * Method for adding a new CID object on the top of the CIDArray. This is so
+ * the collectionview can be updated when the user adds a new phot from the camera
+ * or library.
+ *
+ * @param CoffeeImageData *
+ */
 - (void)addCIDForNewUserImage:(CoffeeImageData *)newImageData {
     
     NSLog(@"Entered addCIDForNewUserImage...");
@@ -266,6 +273,12 @@
     NSLog(@"Like value for current CID %d", cid.isLiked);
 }
 
+/**
+ * Method that removes a CID or RID object from the UADictionary based on recordID
+ * when a user unlikes an image.
+ *
+ * @param NSString *recordID
+ */
 - (void)removeUserActivityDataFromDictionary:(NSString *)recordID {
     
     NSLog(@"Entered removeUserActivityDataFromDictionary...");
@@ -304,9 +317,10 @@
 }
 
 /**
- * Method to create mutable array 
+ * Method that takes all of the images from CID and RID arrays based on selected segment
+ * and filters them out for only the liked images. Does this via a predicate
  *
- *
+ * @param NSString *selection (selected segment)
  */
 - (void)getUserSavedImagesForSelection:(NSString *)selection {
     

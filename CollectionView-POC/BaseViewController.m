@@ -767,6 +767,7 @@ dispatch_queue_t queue;
 - (void)loadRecipeDataFromCloudKit {
     
     NSLog(@"INFO: loadRecipeDataFromCloudKit...started!");
+    
     [self.ckManager loadRecipeDataWithCompletionHandler:^(NSArray *results, CKQueryCursor *cursor, NSError *error) {
         if (!error) {
             if ([results count] > 0) {
@@ -823,6 +824,7 @@ dispatch_queue_t queue;
 - (void)loadMoreRecordsFromCursor {
     
     NSLog(@"INFO: loadMoreRecordsFromCursor...");
+    
     [self.ckManager loadCloudKitDataFromCursor:self.cursor withCompletionHandler:^(NSArray *results, CKQueryCursor *cursor, NSError *error) {
         if (!error) {
             if ([results count] > 0) {
@@ -836,7 +838,14 @@ dispatch_queue_t queue;
                     // kill the network activity indicator
                     [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
                 }
-                self.numberOfItemsInSection += [results count]; // UPDATE the number of items in section
+                
+                /* BUG FOR HITTING USER BUTTON WHEN LOADING MORE RECORDS BEING ADDRESSED WITH THIS CODE...*/
+                //if (self.userBarButtonSelected) {
+                  //  self.numberOfItemsInSection = [self.imageLoadManager.userSavedImages count];
+                //} else {
+                  //  self.numberOfItemsInSection += [results count]; // UPDATE the number of items in section
+                //}
+                
                 NSLog(@"INFO: Success querying the cloud for %lu results!!!", (unsigned long)[results count]);
                 // parse the records in the results array
                 for (CKRecord *record in results) {
@@ -861,6 +870,8 @@ dispatch_queue_t queue;
                     }
                     // add the CID object to the array
                     [self.imageLoadManager.coffeeImageDataArray addObject:coffeeImageData];
+                    // get updated user saved images from newly fetched records
+                    [self.imageLoadManager getUserSavedImagesForSelection:[self getSelectedSegmentTitle]];
                         
                     // cache the image with the string representation of the absolute URL as the cache key
                     if (coffeeImageData.imageURL) { // make sure there's an image URL to cache
@@ -873,10 +884,18 @@ dispatch_queue_t queue;
 
                     }
                 }
+                
+                // need to check to see if user button is pressed so we can update NOIIS accordingly
+                if (self.userBarButtonSelected) {
+                    // update NOIIS for new records that are in user's profile
+                  self.numberOfItemsInSection = [self.imageLoadManager.userSavedImages count];
+                } else {
+                  self.numberOfItemsInSection += [results count]; // UPDATE the number of items in section for new records
+                }
+                
                 // update the UI on the main queue
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    //[self updateUI]; // reload the collectionview after getting all the data from CK
-                    [self.myCollectionView reloadData];
+                    [self.myCollectionView reloadData]; // reload the collectionview after getting more results
                 });
             }
             // load the keys to be used for cache look up
@@ -1354,7 +1373,7 @@ dispatch_queue_t queue;
             [self.userBarButtonItem setImage:[UIImage imageNamed:USER_MALE_25]];
         } else {
             [self.userBarButtonItem setImage:[UIImage imageNamed:USER_MALE_FILLED_25]];
-            NSLog(@"*******Should be showing liked images only!********");
+            NSLog(@"*******Showing liked images only!********");
         }
         // toggle the button selection status
         self.userBarButtonSelected = !self.userBarButtonSelected;
