@@ -62,7 +62,7 @@ dispatch_queue_t queue;
 
 //#define ITEM_SIZE 290.0 // item size for the cell **SHOULD ALWAYS MATCH CellWidth constant!
 //#define ITEM_SIZE 140.0 // item size for the cell - use this size for 2 columns of cells
-#define ITEM_SIZE 90.0 // item size for the cell - use this for 3 columns of cells
+#define ITEM_SIZE 110.0 // item size for the cell - use this for 3 columns of cells
 
 #pragma mark - Lazy Instantiation
 
@@ -839,13 +839,6 @@ dispatch_queue_t queue;
                     [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
                 }
                 
-                /* BUG FOR HITTING USER BUTTON WHEN LOADING MORE RECORDS BEING ADDRESSED WITH THIS CODE...*/
-                //if (self.userBarButtonSelected) {
-                  //  self.numberOfItemsInSection = [self.imageLoadManager.userSavedImages count];
-                //} else {
-                  //  self.numberOfItemsInSection += [results count]; // UPDATE the number of items in section
-                //}
-                
                 NSLog(@"INFO: Success querying the cloud for %lu results!!!", (unsigned long)[results count]);
                 // parse the records in the results array
                 for (CKRecord *record in results) {
@@ -881,17 +874,29 @@ dispatch_queue_t queue;
                         }
                     } else {
                         NSLog(@"WARN: CID imageURL is nil...cannot cache.");
-
                     }
                 }
                 
+                /* BUG FOR HITTING USER BUTTON WHEN LOADING MORE RECORDS BEING ADDRESSED WITH THIS CODE...*/
+                // check segmented control && user profile button to display the CV accordingly
+                if ([[self getSelectedSegmentTitle] isEqualToString:IMAGES_SEGMENTED_CTRL] && !self.userBarButtonSelected) {
+                    self.numberOfItemsInSection = [self.imageLoadManager.coffeeImageDataArray count];
+                } else if ([[self getSelectedSegmentTitle] isEqualToString:IMAGES_SEGMENTED_CTRL] && self.userBarButtonSelected) {
+                    self.numberOfItemsInSection = [self.imageLoadManager.userSavedImages count];
+                } else if ([[self getSelectedSegmentTitle] isEqualToString:RECIPES_SEGMENTED_CTRL] && !self.userBarButtonSelected) {
+                    self.numberOfItemsInSection = [self.imageLoadManager.recipeImageDataArray count];
+                } else if ([[self getSelectedSegmentTitle] isEqualToString:RECIPES_SEGMENTED_CTRL] && self.userBarButtonSelected) {
+                    /// NOTE: This may need to be changed to handle recipe saved images!
+                    self.numberOfItemsInSection = [self.imageLoadManager.userSavedImages count];
+                }
+                
                 // need to check to see if user button is pressed so we can update NOIIS accordingly
-                if (self.userBarButtonSelected) {
+                /*if (self.userBarButtonSelected) {
                     // update NOIIS for new records that are in user's profile
                   self.numberOfItemsInSection = [self.imageLoadManager.userSavedImages count];
                 } else {
                   self.numberOfItemsInSection += [results count]; // UPDATE the number of items in section for new records
-                }
+                }*/
                 
                 // update the UI on the main queue
                 dispatch_async(dispatch_get_main_queue(), ^{
@@ -1394,7 +1399,8 @@ dispatch_queue_t queue;
         
         [self updateUI];
     } else {
-        [self alertWithTitle:@"No saved images in your profile..." andMessage:@"You have not liked any images or recipes to be saved to your profile. Once you have liked images, they will be displayed when tapping this icon."];
+        // alert user that they have no favorited images
+        [self alertWithTitle:NO_FAVORITED_IMAGES_TITLE andMessage:NO_FAVORITED_IMAGES_MSG];
     }
 }
 
@@ -1458,6 +1464,10 @@ dispatch_queue_t queue;
     if (self.userAccountStatus == 1) {
         [self getUserActivityPrivateData];
     }
+    
+    // set the segmented control to default (images)
+    self.imageRecipeSegmentedControl.selectedSegmentIndex = 0;
+    
     // reload all the data from the cloud....
     [self beginLoadingCloudKitData];
 }

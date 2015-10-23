@@ -54,6 +54,8 @@
     //create the query
     CKQuery *query = [[CKQuery alloc] initWithRecordType:COFFEE_IMAGE_DATA_RECORD_TYPE predicate:predicate];
     CKQueryOperation *ckQueryOperation = [[CKQueryOperation alloc] initWithQuery:query];
+    /* NOTE: required to work with iOS 9/xcode 7 */
+    ckQueryOperation.qualityOfService = NSQualityOfServiceUserInteractive;
     //__weak CKQueryOperation *weakself = ckQueryOperation;
     //ckQueryOperation.resultsLimit = CKQueryOperationMaximumResults; // get all the results
     ckQueryOperation.resultsLimit = TWENTY_FIVE;
@@ -67,23 +69,6 @@
     ckQueryOperation.queryCompletionBlock = ^(CKQueryCursor *cursor, NSError *error) {
         results = [tempResultsSet copy];
         [tempResultsSet removeAllObjects]; // get rid of the temp results array
-        /*if (cursor != nil) {
-            NSLog(@"INFO: More records to fetch from CloudKit!");
-            //CKQueryOperation *newOperation = [[CKQueryOperation alloc] initWithCursor:cursor];
-            //newOperation.recordFetchedBlock = weakself.recordFetchedBlock;
-            //newOperation.queryCompletionBlock = weakself.queryCompletionBlock;
-            //[self.publicDatabase addOperation:newOperation];
-            [self loadCloudKitDataFromCursor:cursor withCompletionHandler:^(NSArray *results, CKQueryCursor *cursor, NSError *error) {
-                if (!error) {
-                    if ([results count] > 0) {
-                        NSLog(@"INFO: loadCloudKitDataWithCompletionHandler - cursor block has %lu results!", (unsigned long)[results count]);
-                        results = [tempResultsSet copy];
-                        [tempResultsSet removeAllObjects]; // get rid of the temp results array
-                        //completionHandler(results, cursor, error);
-                    }
-                }
-            }];
-        }*/
         NSLog(@"INFO: loadCloudKitDataWithCompletionHandler - sending back completion handler with %lu results!", (unsigned long)[results count]);
         completionHandler(results, cursor, error);
     };
@@ -110,6 +95,8 @@
         //NSLog(@"INFO: Preparing to load records from cursor...");
         CKQueryOperation *cursorOperation = [[CKQueryOperation alloc] initWithCursor:cursor];
         cursorOperation.resultsLimit = TWENTY_FIVE;
+        /* NOTE: required to work with iOS 9/xcode 7 */
+        cursorOperation.qualityOfService = NSQualityOfServiceUserInteractive;
         
         // processes for each record returned
         cursorOperation.recordFetchedBlock = ^(CKRecord *record) {
@@ -149,6 +136,8 @@
     CKQuery *recipeQuery = [[CKQuery alloc] initWithRecordType:RECIPE_IMAGE_DATA_RECORD_TYPE predicate:recipePredicate];
     CKQueryOperation *recipeQueryOperation = [[CKQueryOperation alloc] initWithQuery:recipeQuery];
     recipeQueryOperation.resultsLimit = CKQueryOperationMaximumResults; // get all the results
+    /* NOTE: required to work with iOS 9/xcode 7 */
+    recipeQueryOperation.qualityOfService = NSQualityOfServiceUserInteractive;
     
     // process each record returned
     recipeQueryOperation.recordFetchedBlock = ^(CKRecord *record) {

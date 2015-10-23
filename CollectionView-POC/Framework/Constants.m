@@ -79,9 +79,9 @@ NSString *const SHOW_RECIPE_SEGUE                   = @"Show Recipe Details";
 NSString *const YIKES_TITLE                         = @"Yikes!";
 NSString *const YAY_TITLE                           = @"Yay!";
 NSString *const NO_SAVED_DATA_TITLE                 = @"Saved Data Not Available";
-NSString *const ERROR_LOADING_SAVED_DATA_MSG        = @"There was an error trying to load your saved coffee. We will not be able to show which images and recipes you liked.";
+NSString *const ERROR_LOADING_SAVED_DATA_MSG        = @"There was an error trying to load your saved coffee. We will not be able to show which images and recipes you've favorited.";
 NSString *const ERROR_LOADING_CK_DATA_MSG           = @"We encountered an error trying to load the coffee images from the Cloud. Let's try this again, shall we?";
-NSString *const ERROR_SAVING_LIKED_IMAGE_MSG        = @"Whoops! We encountered a problem while trying to save this coffee drink to your profile. Try clicking the heart button again, please.";
+NSString *const ERROR_SAVING_LIKED_IMAGE_MSG        = @"Whoops! We encountered a problem while trying to save this coffee drink to your favorites. Try clicking the heart button again, please.";
 NSString *const CANCEL_BUTTON                       = @"Cancel";
 NSString *const TRY_AGAIN_BUTTON                    = @"Try Again";
 NSString *const ICLOUD_LOGIN_REQ_TITLE              = @"iCloud Login Required";
@@ -93,6 +93,8 @@ NSString *const ICLOUD_STATUS_UNDETERMINED_MSG      = @"We could not determine y
 NSString *const ERROR_SAVING_PHOTO_MSG              = @"We encountered an issue trying to upload your photo to the cloud. It was probably one of those pesky network errors. Would you mind trying to submit it again?";
 NSString *const UPLOADING_COFFEE_MSG                = @"Uploading your coffee...";
 NSString *const COFFEE_UPLOAD_SUCCESS_MSG           = @"Your coffee photo was successfully sent up to the clouds for everyone to see!";
+NSString *const NO_FAVORITED_IMAGES_TITLE           = @"No favorited images in your profile...";
+NSString *const NO_FAVORITED_IMAGES_MSG             = @"You have not favorited any images or recipes to your profile. Once you have favorited any images, they will be displayed when tapping this icon.";
 
 // Actions
 NSString *const PHOTO_BRANCH_ACTION                 = @"How would you like to submit your coffee photo?";

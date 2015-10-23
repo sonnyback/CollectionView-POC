@@ -93,6 +93,8 @@ extern NSString *const ICLOUD_STATUS_UNDETERMINED_MSG;
 extern NSString *const ERROR_SAVING_PHOTO_MSG;
 extern NSString *const UPLOADING_COFFEE_MSG;
 extern NSString *const COFFEE_UPLOAD_SUCCESS_MSG;
+extern NSString *const NO_FAVORITED_IMAGES_TITLE;
+extern NSString *const NO_FAVORITED_IMAGES_MSG;
 
 // Actions
 extern NSString *const PHOTO_BRANCH_ACTION;
