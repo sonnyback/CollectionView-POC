@@ -50,6 +50,24 @@
     return YES;
 }
 
+- (NSArray *) layoutAttributesForElementsInRect:(CGRect)rect {
+    NSArray *layoutRect = [super layoutAttributesForElementsInRect:rect];
+    
+    for(int i = 1; i < [layoutRect count]; ++i) {
+        UICollectionViewLayoutAttributes *currentLayoutAttributes = layoutRect[i];
+        UICollectionViewLayoutAttributes *prevLayoutAttributes = layoutRect[i - 1];
+        NSInteger maximumSpacing = 5;
+        NSInteger origin = CGRectGetMaxX(prevLayoutAttributes.frame);
+        
+        if(origin + maximumSpacing + currentLayoutAttributes.frame.size.width < self.collectionViewContentSize.width) {
+            CGRect frame = currentLayoutAttributes.frame;
+            frame.origin.x = origin + maximumSpacing;
+            currentLayoutAttributes.frame = frame;
+        }
+    }
+    return layoutRect;
+}
+
 /**
  * This implementation is specific to the *horizontal* layout
  * My implementation, modified from code taken from the web

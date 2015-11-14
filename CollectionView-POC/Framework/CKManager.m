@@ -34,6 +34,7 @@
 }
 
 #define TWENTY_FIVE 25
+#define FIFTEEN 15
 /**
  * Method to load initial data from CloudKit as the app loads. Also, this method is called if
  * the user taps the reload button. It uses CKQueryOperation to be able to load the data in chunks
@@ -58,7 +59,7 @@
     ckQueryOperation.qualityOfService = NSQualityOfServiceUserInteractive;
     //__weak CKQueryOperation *weakself = ckQueryOperation;
     //ckQueryOperation.resultsLimit = CKQueryOperationMaximumResults; // get all the results
-    ckQueryOperation.resultsLimit = TWENTY_FIVE;
+    ckQueryOperation.resultsLimit = FIFTEEN;
     
     // process each record returned
     ckQueryOperation.recordFetchedBlock = ^(CKRecord *record) {
@@ -94,7 +95,7 @@
     if (cursor) { // make sure we have a cursor to continue from
         //NSLog(@"INFO: Preparing to load records from cursor...");
         CKQueryOperation *cursorOperation = [[CKQueryOperation alloc] initWithCursor:cursor];
-        cursorOperation.resultsLimit = TWENTY_FIVE;
+        cursorOperation.resultsLimit = FIFTEEN;
         /* NOTE: required to work with iOS 9/xcode 7 */
         cursorOperation.qualityOfService = NSQualityOfServiceUserInteractive;
         

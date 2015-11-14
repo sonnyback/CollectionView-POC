@@ -35,7 +35,6 @@
 @property (weak, nonatomic) IBOutlet UITextField *searchBar;
 @property (weak, nonatomic) IBOutlet UIToolbar *toolBar;
 @property (strong, nonatomic) UIImageView *fullScreenImage;
-@property (strong, nonatomic) CustomFlowLayout *flowLayout;
 @property (strong, nonatomic) CoffeeImageData *coffeeImageDataAddedFromCamera;
 @property (weak, nonatomic) IBOutlet UIActivityIndicatorView *spinner;
 @property (nonatomic) NSInteger numberOfItemsInSection; // property for number of items in collectionview
@@ -372,7 +371,7 @@ dispatch_queue_t queue;
  * @param UICollectionView*, UICollectionViewLayout*, NSInteger - section
  * @return UIEdgeInsets* - 
  */
-- (UIEdgeInsets)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout insetForSectionAtIndex:(NSInteger)section {
+/*- (UIEdgeInsets)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout insetForSectionAtIndex:(NSInteger)section {
     
     NSLog(@"insetForSectionAtIndex");
     // below coded used only for horizontal layout, which was the initial layout
@@ -380,8 +379,10 @@ dispatch_queue_t queue;
     //NSInteger edgeInsets = (self.view.frame.size.width - (numberOfCells * CellWidth)) / (numberOfCells + 1);
     
     //return UIEdgeInsetsMake(0, edgeInsets, 0, edgeInsets);
-    return UIEdgeInsetsMake(10, 12, 10, 12);
-}
+    //return UIEdgeInsetsMake(8, 8, 8, 8);
+    return UIEdgeInsetsMake(10, 10, 10, 10);
+    //return UIEdgeInsetsMake(0, 0, 0, 0);
+}*/
 
 #define LIKE_BUTTON_WIDTH 38.0
 #define LIKE_BUTTON_HEIGHT 38.0
@@ -544,9 +545,18 @@ dispatch_queue_t queue;
     
     UICollectionViewFlowLayout *flowLayout=[[UICollectionViewFlowLayout alloc] init];
     //CustomFlowLayout *flowLayout = [[CustomFlowLayout alloc] init];
-    flowLayout.itemSize = CGSizeMake(ITEM_SIZE, ITEM_SIZE); // globally sets the item (cell) size
-    //self.flowLayout = [[CustomFlowLayout alloc] init];
-    //self.flowLayout.itemSize = CGSizeMake(ITEM_SIZE, ITEM_SIZE);
+    //flowLayout.itemSize = CGSizeMake(ITEM_SIZE, ITEM_SIZE); // globally sets the item (cell) size
+    flowLayout.minimumInteritemSpacing = 0.0;
+    flowLayout.minimumLineSpacing = 0.0;
+    flowLayout.sectionInset = UIEdgeInsetsMake(5, 5, 5, 5);
+    
+    /* DYNAMIC setting of the cell size and items per row... */
+    CGFloat leftAndRightPaddings = 10.0;
+    CGFloat numberOfItemsPerRow = 3.0;
+    CGFloat heightAdjustment = 30.0;
+    CGFloat cellWidth = (CGRectGetWidth(self.view.frame) - leftAndRightPaddings) / numberOfItemsPerRow;
+    flowLayout.itemSize = CGSizeMake(cellWidth, cellWidth + heightAdjustment);
+    //flowLayout.itemSize = CGSizeMake(ITEM_SIZE, ITEM_SIZE + 30.0);
     
     
     //flowLayout.itemSize = CGSizeMake(80, 100);
@@ -571,8 +581,6 @@ dispatch_queue_t queue;
     [self.myCollectionView addSubview:refreshControl];
     
     [self.myCollectionView setCollectionViewLayout:flowLayout];
-    
-    //[self.myCollectionView setCollectionViewLayout:self.flowLayout];
 }
 
 #define BUTTON_WIDTH 105.0
