@@ -528,8 +528,8 @@ dispatch_queue_t queue;
 - (void)updateUI {
     
     NSLog(@"updateUI...");
-    
-    [self.myCollectionView reloadData]; // reload data for new user taken images
+    // reload data for new user taken images
+    [self.myCollectionView reloadData];
     // make sure collectionview is automatically scrolled back to the top
     [self.myCollectionView setContentOffset:CGPointZero animated:YES];
 }
@@ -546,12 +546,13 @@ dispatch_queue_t queue;
     UICollectionViewFlowLayout *flowLayout=[[UICollectionViewFlowLayout alloc] init];
     //CustomFlowLayout *flowLayout = [[CustomFlowLayout alloc] init];
     //flowLayout.itemSize = CGSizeMake(ITEM_SIZE, ITEM_SIZE); // globally sets the item (cell) size
-    flowLayout.minimumInteritemSpacing = 0.0;
-    flowLayout.minimumLineSpacing = 0.0;
+    flowLayout.minimumInteritemSpacing = 2.0;
+    flowLayout.minimumLineSpacing = 10.0;
     flowLayout.sectionInset = UIEdgeInsetsMake(5, 5, 5, 5);
     
     /* DYNAMIC setting of the cell size and items per row... */
-    CGFloat leftAndRightPaddings = 10.0;
+    CGFloat leftAndRightPaddings = 32.0;
+    //CGFloat leftAndRightPaddings = 12.0;
     CGFloat numberOfItemsPerRow = 3.0;
     CGFloat heightAdjustment = 30.0;
     CGFloat cellWidth = (CGRectGetWidth(self.view.frame) - leftAndRightPaddings) / numberOfItemsPerRow;
