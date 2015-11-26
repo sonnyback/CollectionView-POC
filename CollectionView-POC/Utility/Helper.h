@@ -17,5 +17,7 @@
 + (UIColor *)colorFromRed:(CGFloat)red Green:(CGFloat)green
                      Blue:(CGFloat)blue Alpha:(CGFloat)alpha;
 + (UIImage *)imageWithImage:(UIImage *)image scaledToSize:(CGSize)newSize;
-+(UIImage*)imageWithImage: (UIImage*) sourceImage scaledToWidth: (float) i_width;
++ (UIImage *)imageWithImage:(UIImage *)image scaledToFillSize:(CGSize)size;
++(UIImage*)imageWithImage:(UIImage*)sourceImage scaledToWidth:(float)i_width;
++ (UIImage *)generatePhotoThumbnail:(UIImage *)image;
 @end

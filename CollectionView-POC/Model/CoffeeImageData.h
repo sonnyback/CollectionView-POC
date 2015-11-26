@@ -11,6 +11,7 @@
 @interface CoffeeImageData : NSObject
 
 @property (strong, nonatomic) UIImage *image;
+@property (strong, nonatomic) UIImage *thumbnail;
 @property (strong, nonatomic) NSString *imageName;
 @property (strong, nonatomic) NSString *imageDescription;
 @property (strong, nonatomic) NSString *userID; // image owner's ID

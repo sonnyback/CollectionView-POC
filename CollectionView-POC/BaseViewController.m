@@ -51,6 +51,7 @@
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *cameraBarButton;
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *reloadBarButton;
 @property (strong, nonatomic) CKQueryCursor *cursor;
+@property (nonatomic) CGSize cellSize;
 @end
 
 @implementation BaseViewController
@@ -224,15 +225,17 @@ dispatch_queue_t queue;
         /* UIViewContentMode options from here....*/
         //cell.coffeeImageView.contentMode = UIViewContentModeScaleToFill; // distorts the image
         cell.coffeeImageView.contentMode = UIViewContentModeScaleAspectFill; // fills out image area, but image is cropped
+        //cell.coffeeImageView.contentMode = UIViewContentModeCenter;
         //cell.coffeeImageView.contentMode = UIViewContentModeScaleAspectFit; // maintains aspect, but does not always fill image area
         /*...to here...*/
         
         // load placeholder image. will only been seen if loading from very weak signal or during scrolling after being idle
         cell.coffeeImageView.image = [UIImage imageNamed:PLACE_HOLDER];
         
-        // if user button has been selected, only display the saved (liked) images
+        // if user button has been selected, only display the saved (favorited) images
         if (self.userBarButtonSelected) {
-            NSLog(@"INFO: ****Showing saved images only****");
+            NSLog(@"INFO: ****Showing favorited images only****");
+            // get the CID from the savedimages array
             CoffeeImageData *coffeeImageData = self.imageLoadManager.userSavedImages[indexPath.row];
             if (coffeeImageData) {
                 NSString *cacheKey = coffeeImageData.imageURL.absoluteString;
@@ -240,7 +243,9 @@ dispatch_queue_t queue;
                     [self.imageCache queryDiskCacheForKey:cacheKey done:^(UIImage *image, SDImageCacheType cacheType) {
                         if (image) {
                             NSLog(@"Image found in cache!");
-                            cell.coffeeImageView.image = image;
+                            //cell.coffeeImageView.image = image;
+                            UIImage *thumbnail = [Helper imageWithImage:image scaledToSize:self.cellSize];
+                            cell.coffeeImageView.image = thumbnail;
                         } else {
                             NSLog(@"Image not found in cache, getting image from CID!");
                             cell.coffeeImageView.image = [UIImage imageWithContentsOfFile:coffeeImageData.imageURL.path];
@@ -269,9 +274,10 @@ dispatch_queue_t queue;
                             [self.imageCache queryDiskCacheForKey:cacheKey done:^(UIImage *image, SDImageCacheType cacheType) {
                                 if (image) { // image is found in the cache
                                     NSLog(@"Image found in cache!");
-                                    //UIImage *thumbnail = [Helper imageWithImage:image scaledToWidth:ITEM_SIZE];
-                                    //cell.coffeeImageView.image = thumbnail;
-                                    cell.coffeeImageView.image = image;
+                                    // set the cell's image...
+                                    UIImage *thumbnail = [Helper imageWithImage:image scaledToSize:self.cellSize];
+                                    cell.coffeeImageView.image = thumbnail;
+                                    //cell.coffeeImageView.image = image;
                                 } else {
                                     NSLog(@"Image not found in cache, getting image from CID!");
                                     if (coffeeImageData.imageURL.path) {
@@ -455,6 +461,7 @@ dispatch_queue_t queue;
     // get the correct CID/RID object for this cell
     NSLog(@"DEBUG: Image selected for recordID: %@", (self.displayImages) ? coffeeImageData.recordID : recipeImageData.recordID);
     
+    // check to see if the selected cell is for CID or RID, then determine like status
     selectedCell.imageIsLiked = (coffeeImageData) ? coffeeImageData.isLiked : recipeImageData.isLiked;
     likeButton.selected = (coffeeImageData) ? coffeeImageData.isLiked : recipeImageData.isLiked;
     
@@ -483,10 +490,12 @@ dispatch_queue_t queue;
             weakSelf.navigationController.navigationBarHidden = YES;
             weakSelf.fullScreenImage.center = self.view.center;
             weakSelf.fullScreenImage.backgroundColor = [UIColor blackColor];
-            if (coffeeImageData) // display image for CID if we're looking at images
+            if (coffeeImageData) { // display image for CID if we're looking at images
                 weakSelf.fullScreenImage.image = [UIImage imageWithContentsOfFile:coffeeImageData.imageURL.path];
-            else // display image for RID if we're looking at recipes
+            }
+            else {// display image for RID if we're looking at recipes
                 weakSelf.fullScreenImage.image = [UIImage imageWithContentsOfFile:recipeImageData.imageURL.path];
+            }
             //weakSelf.fullScreenImage.image = [UIImage imageWithData:[NSData dataWithContentsOfURL:coffeeImageData.imageURL]];
             //self.fullScreenImage.transform = CGAffineTransformMakeScale(1.0, 1.0); // zoom in effect
             weakSelf.fullScreenImage.transform = CGAffineTransformIdentity; // zoom in effect
@@ -557,6 +566,7 @@ dispatch_queue_t queue;
     CGFloat heightAdjustment = 30.0;
     CGFloat cellWidth = (CGRectGetWidth(self.view.frame) - leftAndRightPaddings) / numberOfItemsPerRow;
     flowLayout.itemSize = CGSizeMake(cellWidth, cellWidth + heightAdjustment);
+    self.cellSize = flowLayout.itemSize; // in case we need to pass the cell size to other methods
     //flowLayout.itemSize = CGSizeMake(ITEM_SIZE, ITEM_SIZE + 30.0);
     
     
