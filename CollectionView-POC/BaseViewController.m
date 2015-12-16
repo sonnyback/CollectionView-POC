@@ -242,7 +242,7 @@ dispatch_queue_t queue;
                 if (cacheKey) {
                     [self.imageCache queryDiskCacheForKey:cacheKey done:^(UIImage *image, SDImageCacheType cacheType) {
                         if (image) {
-                            NSLog(@"Image found in cache!");
+                            NSLog(@"INFO: Image found in SDWebImage cache!");
                             //cell.coffeeImageView.image = image;
                             UIImage *thumbnail = [Helper imageWithImage:image scaledToSize:self.cellSize];
                             cell.coffeeImageView.image = thumbnail;
@@ -273,7 +273,7 @@ dispatch_queue_t queue;
                             NSLog(@"cacheKey found!");
                             [self.imageCache queryDiskCacheForKey:cacheKey done:^(UIImage *image, SDImageCacheType cacheType) {
                                 if (image) { // image is found in the cache
-                                    NSLog(@"Image found in cache!");
+                                    NSLog(@"INFO: Image found in SDWebImage cache!");
                                     // set the cell's image...
                                     UIImage *thumbnail = [Helper imageWithImage:image scaledToSize:self.cellSize];
                                     cell.coffeeImageView.image = thumbnail;
@@ -316,7 +316,7 @@ dispatch_queue_t queue;
                             NSLog(@"cacheKey found!");
                             [self.imageCache queryDiskCacheForKey:cacheKey done:^(UIImage *image, SDImageCacheType cacheType) {
                                 if (image) { // image is found in the cache
-                                    NSLog(@"Image found in cache!");
+                                    NSLog(@"INFO: Image found in SDWebImage cache!");
                                     //UIImage *thumbnail = [Helper imageWithImage:image scaledToWidth:ITEM_SIZE];
                                     //cell.coffeeImageView.image = thumbnail;
                                     cell.coffeeImageView.image = image;
@@ -1561,6 +1561,8 @@ dispatch_queue_t queue;
 - (void)viewDidAppear:(BOOL)animated {
     
     [super viewDidAppear:animated];
+    
+    NSLog(@"INFO: viewDidAppear...");
     /* Need to make sure when coming *back* from CafeLocatorTableVC segue that Cafes does not stay selected.
      * Otherwise, user has to manually tap another segment control, then tap Cafes again to go back to cafe
      * locator. Will make this go back to Images segment. However, this may be better handled by a delegate -
