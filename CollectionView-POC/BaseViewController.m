@@ -150,7 +150,7 @@ dispatch_queue_t queue;
     self.coffeeImageDataAddedFromCamera = [[CoffeeImageData alloc] init];
     self.coffeeImageDataAddedFromCamera.image = image;
     self.coffeeImageDataAddedFromCamera.imageName = DEFAULT_NAME; // i think this will be an image file URL
-    self.coffeeImageDataAddedFromCamera.imageDescription = @"description";
+    self.coffeeImageDataAddedFromCamera.imageDescription = DESCRIPTION;
     self.coffeeImageDataAddedFromCamera.userID = self.ckManager.userRecordID.recordName;
     self.coffeeImageDataAddedFromCamera.imageBelongsToCurrentUser = NO; // user took this photo but should be set to NO initially
     self.coffeeImageDataAddedFromCamera.liked = NO; // should always be NO for the public data. Will only be set to YES in code if there is a reference in user's data

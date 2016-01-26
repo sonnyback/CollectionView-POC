@@ -21,6 +21,7 @@ extern NSString *const PHOTO_LIBRARY;
 extern NSString *const SPACE;
 extern NSString *const BLANK;
 extern NSString *const NAME_YOUR_DRINK;
+extern NSString *const DESCRIPTION;
 
 // Ingredients
 extern NSString *const SELECT_INGREDIENTS;

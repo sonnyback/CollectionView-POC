@@ -21,6 +21,7 @@ NSString *const PHOTO_LIBRARY                       = @"Photo Library";
 NSString *const SPACE                               = @" ";
 NSString *const BLANK                               = @"";
 NSString *const NAME_YOUR_DRINK                     = @"Name your drink";
+NSString *const DESCRIPTION                         = @"description";
 
 // Ingredients
 NSString *const SELECT_INGREDIENTS                  = @"Select Ingredients Below:";
