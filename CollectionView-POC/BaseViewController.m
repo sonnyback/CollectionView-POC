@@ -570,8 +570,6 @@ dispatch_queue_t queue;
     //flowLayout.itemSize = CGSizeMake(ITEM_SIZE, ITEM_SIZE + 30.0);
     
     
-    //flowLayout.itemSize = CGSizeMake(80, 100);
-    //flowLayout.itemSize = CGSizeMake(ITEM_SIZE, ITEM_SIZE);
     self.myCollectionView.userInteractionEnabled = YES;
     self.myCollectionView.delaysContentTouches = NO;
     [self.myCollectionView setShowsVerticalScrollIndicator:YES];
