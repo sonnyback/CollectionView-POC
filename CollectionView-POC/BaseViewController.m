@@ -165,11 +165,11 @@ dispatch_queue_t queue;
     //dataForNewImage.imageURL = localURL;
     //NSLog(@"CID.imageURL: %@", dataForNewImage.imageURL);
     self.coffeeImageDataAddedFromCamera.imageURL = localURL;
-    NSLog(@"CIDAddedFromCamera.imageURL: %@", self.coffeeImageDataAddedFromCamera.imageURL);
+    NSLog(@"INFO: CIDAddedFromCamera.imageURL: %@", self.coffeeImageDataAddedFromCamera.imageURL);
     
     [self dismissViewControllerAnimated:YES completion:nil];
     
-    [self performSegueWithIdentifier:@"Add New Photo" sender:self];
+    [self performSegueWithIdentifier:ADD_NEW_PHOTO_SEGUE sender:self];
 }
 
 - (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker {
@@ -730,9 +730,11 @@ dispatch_queue_t queue;
                         } else {
                             NSLog(@"WARN: CID imageURL is nil...cannot cache.");
                             dispatch_async(dispatch_get_main_queue(), ^{
-                                UIAlertView *reloadAlert = [[UIAlertView alloc] initWithTitle:YIKES_TITLE message:ERROR_LOADING_CK_DATA_MSG delegate:nil cancelButtonTitle:CANCEL_BUTTON otherButtonTitles:TRY_AGAIN_BUTTON, nil];
+                                // below block is commented out...this was pre-iOS 8 way and now depricated
+                                /*UIAlertView *reloadAlert = [[UIAlertView alloc] initWithTitle:YIKES_TITLE message:ERROR_LOADING_CK_DATA_MSG delegate:nil cancelButtonTitle:CANCEL_BUTTON otherButtonTitles:TRY_AGAIN_BUTTON, nil];
                                 reloadAlert.delegate = self;
-                                [reloadAlert show];
+                                [reloadAlert show];*/
+                                [self actionButtonClicked:self]; // call method for handling action button(s)
                             });
                         }
                     }
@@ -759,10 +761,11 @@ dispatch_queue_t queue;
             } else {
                 NSLog(@"Error: there was an error fetching cloud data... %@", error.localizedDescription);
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    //[self alertWithTitle:@"Yikes!" andMessage:@"There was an error trying to load the coffee images from the Cloud. Please try again."];
-                    UIAlertView *reloadAlert = [[UIAlertView alloc] initWithTitle:YIKES_TITLE message:ERROR_LOADING_CK_DATA_MSG delegate:nil cancelButtonTitle:CANCEL_BUTTON otherButtonTitles:TRY_AGAIN_BUTTON, nil];
+                    // below block is commented out...this was pre-iOS 8 way and now depricated
+                    /*UIAlertView *reloadAlert = [[UIAlertView alloc] initWithTitle:YIKES_TITLE message:ERROR_LOADING_CK_DATA_MSG delegate:nil cancelButtonTitle:CANCEL_BUTTON otherButtonTitles:TRY_AGAIN_BUTTON, nil];
                     reloadAlert.delegate = self;
-                    [reloadAlert show];
+                    [reloadAlert show];*/
+                    [self actionButtonClicked:self]; // call method for handling action button(s)
                 });
             }
             // fetch additional records from point of cursor
@@ -1091,23 +1094,54 @@ dispatch_queue_t queue;
  * @return void
  */
 - (void)alertWithTitle:(NSString *)title andMessage:(NSString *)msg {
-    
-    [[[UIAlertView alloc] initWithTitle:title
+    NSLog(@"DEBUG: alertWithTitle....");
+    // UIAlertView deprecated in iOS 8...
+    /*[[[UIAlertView alloc] initWithTitle:title
                                 message:msg
                                delegate:nil
                       cancelButtonTitle:nil
-                      otherButtonTitles:@"OK", nil] show];
+                      otherButtonTitles:@"OK", nil] show];*/
     
     /* NOTE: This is the iOS 8 way of handling alerts. UIAlertView has been deprecated for iOS 8*/
-    /*UIAlertController *alert = [UIAlertController alertControllerWithTitle:title message:msg preferredStyle:UIAlertControllerStyleAlert];
-    UIAlertAction* defaultAction = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:title message:msg preferredStyle:UIAlertControllerStyleAlert];
+    UIAlertAction* defaultAction = [UIAlertAction actionWithTitle:OK style:UIAlertActionStyleDefault
                                                           handler:^(UIAlertAction * action) {}];
     [alert addAction:defaultAction];
-    [self presentViewController:alert animated:YES completion:nil];*/
+    [self presentViewController:alert animated:YES completion:nil];
 }
 
-- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
+/**
+ * Method to handle action event if error occurs when loading CK data. This is updated
+ * for iOS 8 to use UIAlertController in place of UIAlert and UIActionSheet.
+ *
+ * @param id - sender button
+ * @return void
+ */
+- (IBAction)actionButtonClicked:(id)sender {
     
+    NSLog(@"DEBUG: actionButtonClicked...");
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:YIKES_TITLE message:ERROR_LOADING_CK_DATA_MSG preferredStyle:UIAlertControllerStyleActionSheet];
+    
+    UIAlertAction *tryAgainAction = [UIAlertAction actionWithTitle:TRY_AGAIN_BUTTON
+                                                             style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+                                                                 NSLog(@"INFO: Attempting to reload coffee images from CloudKit...");
+                                                                 [self beginLoadingCloudKitData];
+                                                             }];
+    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:CANCEL_BUTTON
+                                                             style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+                                                                 NSLog(@"INFO: Cancel button, so do nothing...");
+                                                                 [self.spinner stopAnimating];
+                                                             }];
+    
+    [alert addAction:tryAgainAction];
+    [alert addAction:cancelAction];
+    
+    [self presentViewController:alert animated:YES completion:nil];
+}
+
+// Pre-iOS 8 way of handling action events, now depricated. Also required CustomActionSheet class.
+/*- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
+    NSLog(@"DEBUG: alertView clickedButtonAtIndex...");
     if (buttonIndex != [alertView cancelButtonIndex]) {
         NSLog(@"INFO: Attempting to reload coffee images from CloudKit...");
         [self beginLoadingCloudKitData];
@@ -1115,7 +1149,7 @@ dispatch_queue_t queue;
         NSLog(@"Do nothing");
         [self.spinner stopAnimating];
     }
-}
+}*/
 
 /**
  * Action Method to track the segmented control being changed

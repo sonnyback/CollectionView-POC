@@ -22,6 +22,7 @@ NSString *const SPACE                               = @" ";
 NSString *const BLANK                               = @"";
 NSString *const NAME_YOUR_DRINK                     = @"Name your drink";
 NSString *const DESCRIPTION                         = @"description";
+NSString *const OK                                  = @"OK";
 
 // Ingredients
 NSString *const SELECT_INGREDIENTS                  = @"Select Ingredients Below:";
