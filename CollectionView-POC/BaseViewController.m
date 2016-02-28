@@ -242,12 +242,12 @@ dispatch_queue_t queue;
                 if (cacheKey) {
                     [self.imageCache queryDiskCacheForKey:cacheKey done:^(UIImage *image, SDImageCacheType cacheType) {
                         if (image) {
-                            NSLog(@"INFO: Image found in SDWebImage cache!");
+                            NSLog(@"INFO: Image found in SDWebImage cache for recordID <%@>!", coffeeImageData.recordID);
                             //cell.coffeeImageView.image = image;
                             UIImage *thumbnail = [Helper imageWithImage:image scaledToSize:self.cellSize];
                             cell.coffeeImageView.image = thumbnail;
                         } else {
-                            NSLog(@"Image not found in cache, getting image from CID!");
+                            NSLog(@"Image not found in cache for recordID <%@>, getting image from CID!", coffeeImageData.recordID);
                             cell.coffeeImageView.image = [UIImage imageWithContentsOfFile:coffeeImageData.imageURL.path];
                         }
                     }];
@@ -273,13 +273,13 @@ dispatch_queue_t queue;
                             NSLog(@"cacheKey found!");
                             [self.imageCache queryDiskCacheForKey:cacheKey done:^(UIImage *image, SDImageCacheType cacheType) {
                                 if (image) { // image is found in the cache
-                                    NSLog(@"INFO: Image found in SDWebImage cache!");
+                                    NSLog(@"INFO: Image found in SDWebImage cache for recordID <%@>!", coffeeImageData.recordID);
                                     // set the cell's image...
                                     UIImage *thumbnail = [Helper imageWithImage:image scaledToSize:self.cellSize];
                                     cell.coffeeImageView.image = thumbnail;
                                     //cell.coffeeImageView.image = image;
                                 } else {
-                                    NSLog(@"Image not found in cache, getting image from CID!");
+                                    NSLog(@"Image not found in cache for recordID <%@>, getting image from CID!", coffeeImageData.recordID);
                                     if (coffeeImageData.imageURL.path) {
                                         cell.coffeeImageView.image = [UIImage imageWithContentsOfFile:coffeeImageData.imageURL.path];
                                     }
@@ -316,12 +316,12 @@ dispatch_queue_t queue;
                             NSLog(@"cacheKey found!");
                             [self.imageCache queryDiskCacheForKey:cacheKey done:^(UIImage *image, SDImageCacheType cacheType) {
                                 if (image) { // image is found in the cache
-                                    NSLog(@"INFO: Image found in SDWebImage cache!");
+                                    NSLog(@"INFO: Image found in SDWebImage cache for recordID <%@>!", recipeImageData.recordID);
                                     //UIImage *thumbnail = [Helper imageWithImage:image scaledToWidth:ITEM_SIZE];
                                     //cell.coffeeImageView.image = thumbnail;
                                     cell.coffeeImageView.image = image;
                                 } else {
-                                    NSLog(@"Image not found in cache, getting image from RID!");
+                                    NSLog(@"Image not found in cache for recordID <%@>, getting image from RID!", recipeImageData.recordID);
                                     if (recipeImageData.imageURL.path) {
                                         cell.coffeeImageView.image = [UIImage imageWithContentsOfFile:recipeImageData.imageURL.path];
                                     }
