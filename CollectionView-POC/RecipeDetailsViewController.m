@@ -34,18 +34,12 @@
  */
 - (void)alertWithTitle:(NSString *)title andMessage:(NSString *)msg {
     
-    [[[UIAlertView alloc] initWithTitle:title
-                                message:msg
-                               delegate:nil
-                      cancelButtonTitle:nil
-                      otherButtonTitles:@"OK", nil] show];
-    
     /* NOTE: This is the iOS 8 way of handling alerts. UIAlertView has been deprecated for iOS 8*/
-    /*UIAlertController *alert = [UIAlertController alertControllerWithTitle:title message:msg preferredStyle:UIAlertControllerStyleAlert];
-     UIAlertAction* defaultAction = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault
-     handler:^(UIAlertAction * action) {}];
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:title message:msg preferredStyle:UIAlertControllerStyleAlert];
+    UIAlertAction* defaultAction = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault
+                                                          handler:^(UIAlertAction * action) {}];
      [alert addAction:defaultAction];
-     [self presentViewController:alert animated:YES completion:nil];*/
+     [self presentViewController:alert animated:YES completion:nil];
 }
 
 - (IBAction)cancelButtonPressed:(UIButton *)sender {

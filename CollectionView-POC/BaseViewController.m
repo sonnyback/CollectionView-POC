@@ -19,7 +19,6 @@
 #import "SDImageCache.h"
 #import "CKManager.h"
 #import "UserActivity.h"
-#import "CustomActionSheet.h"
 #import "MRProgress.h"
 #import "RecipeImageData.h"
 #import "RecipeDetailsViewController.h"
@@ -43,7 +42,6 @@
 @property (strong, nonatomic) NSMutableArray *ridCacheKeys; // holds all the image URL strings from the cache for RID objects
 @property (strong, nonatomic) CKManager *ckManager; // CloudKitManager class
 @property (nonatomic) CKAccountStatus userAccountStatus; // for tracking user's iCloud login status
-@property (strong, nonatomic) CustomActionSheet *customActionSheet;
 @property (strong, nonatomic) MRProgressOverlayView *hud;
 @property (nonatomic) BOOL displayImages; // based on selection of imageRecipeSegmentedControl
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *userBarButtonItem;
@@ -1128,7 +1126,7 @@ dispatch_queue_t queue;
                                                                  [self beginLoadingCloudKitData];
                                                              }];
     UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:CANCEL_BUTTON
-                                                             style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+                                                             style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) {
                                                                  NSLog(@"INFO: Cancel button, so do nothing...");
                                                                  [self.spinner stopAnimating];
                                                              }];
@@ -1361,9 +1359,45 @@ dispatch_queue_t queue;
         //NSLog(@"User is logged into CK - user can upload pics!");
         UIImagePickerController *picker = [[UIImagePickerController alloc] init];
         picker.delegate = self; // set the deleage for the ImagePickerController
-        self.customActionSheet = [[CustomActionSheet alloc] initWithTitle:PHOTO_BRANCH_ACTION delegate:nil cancelButtonTitle:CANCEL_BUTTON destructiveButtonTitle:nil otherButtonTitles:CAMERA, PHOTO_LIBRARY, nil];
+        //self.customActionSheet = [[CustomActionSheet alloc] initWithTitle:PHOTO_BRANCH_ACTION delegate:nil cancelButtonTitle:CANCEL_BUTTON destructiveButtonTitle:nil otherButtonTitles:CAMERA, PHOTO_LIBRARY, nil];
+        // set up the actions for the camera button - camera, photo library and cancel
+        UIAlertController *alert = [UIAlertController alertControllerWithTitle:nil message:PHOTO_BRANCH_ACTION preferredStyle:UIAlertControllerStyleActionSheet];
+        UIAlertAction *cameraAction = [UIAlertAction actionWithTitle:CAMERA
+                                                                    style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+                                                                        NSLog(@"INFO: Your selection is camera...");
+                                                                        picker.sourceType = UIImagePickerControllerSourceTypeCamera;
+                                                                        [picker setAllowsEditing:YES]; // let the user edit the photo
+                                                                        // set the camera presentation style
+                                                                        picker.modalPresentationStyle = UIModalPresentationCurrentContext;
+                                                                        
+                                                                        dispatch_async(dispatch_get_main_queue(), ^{ // show the camera on main thread to avoid latency
+                                                                            [self presentViewController:picker animated:YES completion:nil]; // show the camera with animation
+                                                                        });
+                                                                  }];
+        UIAlertAction *photoLibraryAction = [UIAlertAction actionWithTitle:PHOTO_LIBRARY
+                                                                     style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+                                                                         NSLog(@"INFO: Your selection is photo library...");
+                                                                         picker.sourceType = UIImagePickerControllerSourceTypeSavedPhotosAlbum;
+                                                                         [picker setAllowsEditing:YES]; // let the user edit the photo
+                                                                         picker.modalPresentationStyle = UIModalPresentationCurrentContext;
+                                                                         
+                                                                         dispatch_async(dispatch_get_main_queue(), ^{ // show the camera on main thread to avoid latency
+                                                                             [self presentViewController:picker animated:YES completion:nil]; // show the camera with animation
+                                                                         });
+                                                                     }];
+        UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:CANCEL_BUTTON
+                                                               style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) {
+                                                                   NSLog(@"INFO: Canceling camera button...");
+                                                               }];
         
-        [self.customActionSheet showInView:self.view withCompletionHandler:^(NSString *buttonTitle, NSInteger buttonIndex) {
+        // add the actions
+        [alert addAction:cameraAction];
+        [alert addAction:photoLibraryAction];
+        [alert addAction:cancelAction];
+        
+        [self presentViewController:alert animated:YES completion:nil];
+        
+        /*[self.customActionSheet showInView:self.view withCompletionHandler:^(NSString *buttonTitle, NSInteger buttonIndex) {
             //NSLog(@"You tapped button in index %ld", (long)buttonIndex);
             //NSLog(@"Your selection is %@", buttonTitle);
             if ([buttonTitle isEqualToString:CAMERA]) {
@@ -1384,7 +1418,7 @@ dispatch_queue_t queue;
                     [self presentViewController:picker animated:YES completion:nil]; // show the camera with animation
                 });
             }
-        }];
+        }];*/
     } else if (self.userAccountStatus == CKAccountStatusNoAccount) { // status = 3
         NSLog(@"INFO: User is not logged into CK - Camera not available!");
         dispatch_async(dispatch_get_main_queue(), ^{
