@@ -67,6 +67,7 @@ NSString *const USER_ACTIVITY_IMAGES_RECORD_TYPE    = @"UserActivityImages";
 NSString *const RECORD_ID                           = @"RecordID";
 NSString *const LOCATION                            = @"Location";
 NSString *const DEFAULT_NAME                        = @"Default Name";
+NSString *const LIKE_COUNT                          = @"LikeCount";
 
 // RecipeImageData
 NSString *const RECIPE_IMAGE_DATA_RECORD_TYPE       = @"RecipeImageData";

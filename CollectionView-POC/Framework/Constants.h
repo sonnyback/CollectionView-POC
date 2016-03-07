@@ -67,6 +67,7 @@ extern NSString *const USER_ACTIVITY_IMAGES_RECORD_TYPE;
 extern NSString *const RECORD_ID;
 extern NSString *const LOCATION;
 extern NSString *const DEFAULT_NAME;
+extern NSString *const LIKE_COUNT;
 
 // RecipeImageData
 extern NSString *const RECIPE_IMAGE_DATA_RECORD_TYPE;

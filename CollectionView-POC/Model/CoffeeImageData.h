@@ -22,6 +22,7 @@
 @property (nonatomic, getter = isRecipe) BOOL recipe;
 @property (nonatomic, getter = isLiked) BOOL liked;
 @property (nonatomic) BOOL imageBelongsToCurrentUser;
+@property (strong, nonatomic) NSNumber *likeCount; // captures how many users like the image
 
 - (NSString *)description; // override description to display contents
 @end

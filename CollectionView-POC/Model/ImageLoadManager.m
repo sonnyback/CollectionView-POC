@@ -185,7 +185,7 @@
     return self;
 }*/
 
-- (instancetype)initImagesForSelection:(NSString *)selectionType {
+/*- (instancetype)initImagesForSelection:(NSString *)selectionType {
     
     self = [super init]; // must always call superclass' initializer from our designated initializer. always.
     
@@ -232,7 +232,7 @@
         
     NSLog(@"Finishing loading data from the cloud!");
     return self;
-}
+}*/
 
 /**
  * Method for adding a new CID object on the top of the CIDArray. This is so

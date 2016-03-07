@@ -152,6 +152,7 @@ dispatch_queue_t queue;
     self.coffeeImageDataAddedFromCamera.userID = self.ckManager.userRecordID.recordName;
     self.coffeeImageDataAddedFromCamera.imageBelongsToCurrentUser = NO; // user took this photo but should be set to NO initially
     self.coffeeImageDataAddedFromCamera.liked = NO; // should always be NO for the public data. Will only be set to YES in code if there is a reference in user's data
+    self.coffeeImageDataAddedFromCamera.likeCount = @(0); // set to 0 initially
     
     // write the image to local cache directory - will later convert this to SDWebImage cache
     NSData *data = UIImageJPEGRepresentation(image, 1.0); // 1.0 = no compression
@@ -710,6 +711,8 @@ dispatch_queue_t queue;
                         coffeeImageData.recipe = [record[RECIPE] boolValue];
                         coffeeImageData.liked = [record[LIKED] boolValue]; // 0 = No, 1 = Yes
                         coffeeImageData.recordID = record.recordID.recordName;
+                        coffeeImageData.likeCount = record[LIKE_COUNT];
+                        NSLog(@"INFO: Like Count: %d, for recordID: %@", [coffeeImageData.likeCount intValue], coffeeImageData.recordID);
                         // check to see if the recordID of the current CID is userActivityDictionary. If so, it's in the user's private
                         // data so set liked value = YES
                         if ([self.imageLoadManager lookupRecordIDInUserData:coffeeImageData.recordID]) {
@@ -873,6 +876,8 @@ dispatch_queue_t queue;
                     coffeeImageData.recipe = [record[RECIPE] boolValue];
                     coffeeImageData.liked = [record[LIKED] boolValue]; // 0 = No, 1 = Yes
                     coffeeImageData.recordID = record.recordID.recordName;
+                    coffeeImageData.likeCount = record[LIKE_COUNT];
+                    NSLog(@"INFO: Like Count: %d, for recordID: %@", [coffeeImageData.likeCount intValue], coffeeImageData.recordID);
                     // check to see if the recordID of the current CID is userActivityDictionary. If so, it's in the user's private
                     // data so set liked value = YES
                     if ([self.imageLoadManager lookupRecordIDInUserData:coffeeImageData.recordID]) {

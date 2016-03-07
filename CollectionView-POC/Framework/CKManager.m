@@ -204,6 +204,7 @@
     CIDRecord[RECIPE] = [NSNumber numberWithBool:coffeeImageData.isRecipe];
     CIDRecord[LIKED] = [NSNumber numberWithBool:coffeeImageData.isLiked];
     CIDRecord[LOCATION] = cidLocation;
+    CIDRecord[LIKE_COUNT] = coffeeImageData.likeCount;
     CKAsset *photoAsset = [[CKAsset alloc] initWithFileURL:coffeeImageData.imageURL];
     CIDRecord[IMAGE] = photoAsset;
     

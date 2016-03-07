@@ -15,7 +15,7 @@
 @interface ImageLoadManager : NSObject
 
 // designated Initializer
-- (instancetype)initImagesForSelection:(NSString *)selectionType;
+//- (instancetype)initImagesForSelection:(NSString *)selectionType;
 - (CoffeeImageData *)coffeeImageDataForCell:(NSUInteger)index;
 - (RecipeImageData *)recipeImageDataForCell:(NSUInteger)index;
 - (void)addCIDForNewUserImage:(CoffeeImageData *)newImageData;
