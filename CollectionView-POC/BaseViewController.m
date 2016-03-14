@@ -712,7 +712,7 @@ dispatch_queue_t queue;
                         coffeeImageData.liked = [record[LIKED] boolValue]; // 0 = No, 1 = Yes
                         coffeeImageData.recordID = record.recordID.recordName;
                         coffeeImageData.likeCount = record[LIKE_COUNT];
-                        NSLog(@"INFO: Like Count: %d, for recordID: %@", [coffeeImageData.likeCount intValue], coffeeImageData.recordID);
+                        //NSLog(@"INFO: Like Count: %d, for recordID: %@", [coffeeImageData.likeCount intValue], coffeeImageData.recordID);
                         // check to see if the recordID of the current CID is userActivityDictionary. If so, it's in the user's private
                         // data so set liked value = YES
                         if ([self.imageLoadManager lookupRecordIDInUserData:coffeeImageData.recordID]) {
@@ -807,6 +807,8 @@ dispatch_queue_t queue;
                     recipeImageData.recipe = [record[RECIPE] boolValue]; // 0 = No, 1 = Yes
                     //NSLog(@"RID isRecipe %d", recipeImageData.isRecipe);
                     recipeImageData.recordID = record.recordID.recordName;
+                    recipeImageData.likeCount = record[LIKE_COUNT];
+                    //NSLog(@"INFO: Like Count: %d, for recordID: %@", [recipeImageData.likeCount intValue], recipeImageData.recordID);
                     //NSLog(@"RID recordID: %@", recipeImageData.recordID);
                     // check to see if the recordID of the current RID is userActivityDictionary. If so, it's in the user's private
                     // data so set liked value = YES
@@ -1269,9 +1271,17 @@ dispatch_queue_t queue;
         [button setImage:[UIImage imageNamed:HEART_BLUE_SOLID] forState:UIControlStateNormal];
         // branching logic for CID...
         if (coffeeImageData) {
-            // look up the recordID in userActivityDictionary. If it's already there, we do not need to save it user's private data as it already exists
-            // in this scenario, the user must have already liked it and saved the record, then unliked it and reliked it in the same session
+            /** Look up the recordID in userActivityDictionary. If it's already there, we do not need to save it user's private data as it already exists.
+            In this scenario, the user must have already liked it and saved the record, then unliked it and reliked it in the same session */
             if (![self.imageLoadManager lookupRecordIDInUserData:coffeeImageData.recordID]) {
+                
+                // If the record is not found in the user's private data, it's a newly liked image, so INCREASE the like count for the recordID
+                [self.ckManager updateLikeCountForRecordID:coffeeImageData.recordID shouldIncrement:YES withCompletionHandler:^(NSError *error) {
+                    if (!error) {
+                        NSLog(@"Successfully retrieved like count!!!");
+                    }
+                }];
+                
                 UserActivity *newUserActivity = [[UserActivity alloc] init];
                 newUserActivity.cidReference = coffeeImageData;
                 // add current UserActivity to userActivityDictionary so we can keep track of it
@@ -1320,6 +1330,13 @@ dispatch_queue_t queue;
                 NSLog(@"INFO: User is unliking an image. Preparing to delete recordID: %@", currentUARecord.recordID);
                 if ([currentUARecord isKindOfClass:[UserActivity class]]) {
                     NSLog(@"INFO: UserActivity record for deletion!");
+                    
+                    // Image is being unliked, so DECREASE the like count for the recordID
+                    [self.ckManager updateLikeCountForRecordID:coffeeImageData.recordID shouldIncrement:NO withCompletionHandler:^(NSError *error) {
+                        if (!error) {
+                            NSLog(@"Successfully retrieved like count!!!");
+                        }
+                    }];
                     // delete the record from the user's private database
                     [self.ckManager deleteUserActivityRecord:[self.imageLoadManager.userActivityDictionary objectForKey:coffeeImageData.recordID]];
                     // remove this record from the userActivityDictionary. *NOTE: Move this to CKManager once ILM object is there!

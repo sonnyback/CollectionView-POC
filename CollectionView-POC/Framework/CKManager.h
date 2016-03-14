@@ -33,5 +33,6 @@
 - (void)saveRecordForPrivateData:(CKRecord *)record withCompletionHandler:(void (^)(CKRecord *record, NSError *error))completionHandler;
 - (void)deleteUserActivityRecord:(UserActivity *)userActivityRecord;
 - (CKAccountStatus)getUsersCKStatus;
+- (void)updateLikeCountForRecordID:(NSString *)recordID shouldIncrement:(BOOL)indicator withCompletionHandler:(void (^)(NSError *error))completionHandler;
 @end
 

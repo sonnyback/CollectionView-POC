@@ -281,6 +281,12 @@
     }
 }*/
 
+/**
+ * Method for saving a new record for a photo being added by a user.
+ *
+ * @param NSArray *records (despite array, only saves one record at a time)
+ * @param ^completion handler block
+ */
 - (void)saveRecord:(NSArray *)records withCompletionHandler:(void (^)(NSArray *, NSError *))completionHandler recordProgressHandler:(void (^)(double))progressHandler {
     
     NSLog(@"INFO: Entered saveRecord...");
@@ -402,6 +408,57 @@
     NSLog(@"INFO: CKAccountStatus: %ld", (long)userAccountStatus);
     
     return userAccountStatus;
+}
+
+/**
+ * This method is responsible for updating the like count of a image/recipe. It will increment like count if the user
+ * is liking the image, or decrement if they're un-liking it. The record is retrieved via the recordID and only the like
+ * count is modified when it is saved back to the database.
+ *
+ * @param NSString *recordID - recordID of the image
+ * @param BOOL indicator - indicates increment or decrement (YES - increment, NO - decrement)
+ *
+ */
+- (void)updateLikeCountForRecordID:(NSString *)recordID shouldIncrement:(BOOL)indicator
+             withCompletionHandler:(void (^)(NSError *error))completionHandler {
+    
+    NSLog(@"INFO: getLikeCountForRecordID: %@", recordID);
+    
+    __block NSNumber *likeCount;
+    // use semaphore so this will be a synchronous call to get back the user's icloud status to pass back to calling method in VC
+    //dispatch_semaphore_t sema = dispatch_semaphore_create(0);
+    dispatch_queue_t fetchQ = dispatch_queue_create("update like count", NULL);
+    
+    //NSLog(@"Error: Error encountered while retrieving like count for recordID:%@, [%@]", recordID, error.localizedDescription);
+    
+    dispatch_async(fetchQ, ^{
+        [self.publicDatabase fetchRecordWithID:[[CKRecordID alloc] initWithRecordName:recordID] completionHandler:^(CKRecord *record, NSError *error) {
+            if (error) {
+                NSLog(@"Error: Error encountered while retrieving like count for recordID:%@, [%@]", recordID, error.localizedDescription);
+            } else {
+                completionHandler(error);
+                likeCount = [record objectForKey:LIKE_COUNT];
+                NSLog(@"INFO: Like Count for recordID:%@ = %d", recordID, [likeCount intValue]);
+                int numberToIncrement = [likeCount intValue];
+                if (indicator) {
+                    likeCount = [NSNumber numberWithInt:numberToIncrement + 1];
+                    NSLog(@"INFO: Incremented like count: %d", [likeCount intValue]);
+                } else {
+                    likeCount = [NSNumber numberWithInt:numberToIncrement - 1];
+                    NSLog(@"INFO: Decremented like count: %d", [likeCount intValue]);
+                }
+                
+                //CKRecord *CIDRecord = [[CKRecord alloc] initWithRecordType:COFFEE_IMAGE_DATA_RECORD_TYPE];
+                CKRecord *CIDRecord = record;
+                [CIDRecord setObject:likeCount forKey:LIKE_COUNT]; // update the like count of the record
+                
+                CKModifyRecordsOperation *updateLikeCountOperation = [[CKModifyRecordsOperation alloc] initWithRecordsToSave:@[CIDRecord] recordIDsToDelete:nil];
+                
+                // save the operation
+                [self.publicDatabase addOperation:updateLikeCountOperation];
+            }
+        }];
+    });
 }
 
 @end
