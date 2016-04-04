@@ -454,11 +454,16 @@
                 
                 CKModifyRecordsOperation *updateLikeCountOperation = [[CKModifyRecordsOperation alloc] initWithRecordsToSave:@[CIDRecord] recordIDsToDelete:nil];
                 
+                // set the save policy
+                //updateLikeCountOperation.savePolicy = CKRecordSaveChangedKeys;
+                
                 // save the operation
                 [self.publicDatabase addOperation:updateLikeCountOperation];
             }
+            //dispatch_semaphore_signal(sema);
         }];
     });
+    //dispatch_semaphore_wait(sema, DISPATCH_TIME_FOREVER);
 }
 
 @end

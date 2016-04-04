@@ -698,6 +698,7 @@ dispatch_queue_t queue;
                     //[self loadRecipeDataFromCloudKit]; // fetch the recipe images from CloudKit
                     // parse the records in the results array
                     for (CKRecord *record in results) {
+                        //NSLog(@"Record type is: %@", record.recordType);
                         // create CoffeeImageData object to store data in the array for each image
                         CoffeeImageData *coffeeImageData = [[CoffeeImageData alloc] init];
                         CKAsset *imageAsset = record[IMAGE];
@@ -974,7 +975,7 @@ dispatch_queue_t queue;
                     }
                 }
             } else {
-                NSLog(@"INFO: User has no private data!");
+                NSLog(@"INFO: User has no favorited images!");
             }
         }
     }];
@@ -1002,7 +1003,7 @@ dispatch_queue_t queue;
                     }
                 }
             } else {
-                NSLog(@"INFO: User has no private data!");
+                NSLog(@"INFO: User has no favorited recipes!");
             }
         }
     }];
@@ -1267,8 +1268,10 @@ dispatch_queue_t queue;
     
     // branch logic for images being liked
     if (coffeeImageData.isLiked || recipeImageData.isLiked) {
+        
         NSLog(@"INFO: image is liked for an image or recipe!");
         [button setImage:[UIImage imageNamed:HEART_BLUE_SOLID] forState:UIControlStateNormal];
+        
         // branching logic for CID...
         if (coffeeImageData) {
             /** Look up the recordID in userActivityDictionary. If it's already there, we do not need to save it user's private data as it already exists.
@@ -1278,7 +1281,7 @@ dispatch_queue_t queue;
                 // If the record is not found in the user's private data, it's a newly liked image, so INCREASE the like count for the recordID
                 [self.ckManager updateLikeCountForRecordID:coffeeImageData.recordID shouldIncrement:YES withCompletionHandler:^(NSError *error) {
                     if (!error) {
-                        NSLog(@"Successfully retrieved like count!!!");
+                        NSLog(@"INFO: Successfully updated Like Count for recordID: %@", coffeeImageData.recordID);
                     }
                 }];
                 
@@ -1320,8 +1323,10 @@ dispatch_queue_t queue;
             }
         }
     } else { // branch logic for images being un-liked
-        NSLog(@"INFO: image is NOT liked");
+        
+        NSLog(@"INFO: image is being UN-liked");
         [button setImage:[UIImage imageNamed:HEART_BLUE] forState:UIControlStateNormal];
+        
         // branch logic for images (CoffeeImageData)
         if (coffeeImageData) {
             // if the user is unliking the image, check to see if it's currently in userActivity. If so, remove it
@@ -1334,7 +1339,7 @@ dispatch_queue_t queue;
                     // Image is being unliked, so DECREASE the like count for the recordID
                     [self.ckManager updateLikeCountForRecordID:coffeeImageData.recordID shouldIncrement:NO withCompletionHandler:^(NSError *error) {
                         if (!error) {
-                            NSLog(@"Successfully retrieved like count!!!");
+                            NSLog(@"INFO: Successfully updated Like Count for recordID: %@", coffeeImageData.recordID);
                         }
                     }];
                     // delete the record from the user's private database
@@ -1385,17 +1390,17 @@ dispatch_queue_t queue;
         // set up the actions for the camera button - camera, photo library and cancel
         UIAlertController *alert = [UIAlertController alertControllerWithTitle:nil message:PHOTO_BRANCH_ACTION preferredStyle:UIAlertControllerStyleActionSheet];
         UIAlertAction *cameraAction = [UIAlertAction actionWithTitle:CAMERA
-                                                                    style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
-                                                                        NSLog(@"INFO: Your selection is camera...");
-                                                                        picker.sourceType = UIImagePickerControllerSourceTypeCamera;
-                                                                        [picker setAllowsEditing:YES]; // let the user edit the photo
-                                                                        // set the camera presentation style
-                                                                        picker.modalPresentationStyle = UIModalPresentationCurrentContext;
+                                                               style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+                                                                    NSLog(@"INFO: Your selection is camera...");
+                                                                    picker.sourceType = UIImagePickerControllerSourceTypeCamera;
+                                                                    [picker setAllowsEditing:YES]; // let the user edit the photo
+                                                                    // set the camera presentation style
+                                                                    picker.modalPresentationStyle = UIModalPresentationCurrentContext;
                                                                         
-                                                                        dispatch_async(dispatch_get_main_queue(), ^{ // show the camera on main thread to avoid latency
-                                                                            [self presentViewController:picker animated:YES completion:nil]; // show the camera with animation
-                                                                        });
-                                                                  }];
+                                                                    dispatch_async(dispatch_get_main_queue(), ^{ // show the camera on main thread to avoid latency
+                                                                        [self presentViewController:picker animated:YES completion:nil]; // show the camera with animation
+                                                                    });
+                                                                }];
         UIAlertAction *photoLibraryAction = [UIAlertAction actionWithTitle:PHOTO_LIBRARY
                                                                      style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
                                                                          NSLog(@"INFO: Your selection is photo library...");
@@ -1484,8 +1489,8 @@ dispatch_queue_t queue;
         if (self.userBarButtonSelected) {
             [self.userBarButtonItem setImage:[UIImage imageNamed:USER_MALE_25]];
         } else {
-            [self.userBarButtonItem setImage:[UIImage imageNamed:USER_MALE_FILLED_25]];
             NSLog(@"*******Showing liked images only!********");
+            [self.userBarButtonItem setImage:[UIImage imageNamed:USER_MALE_FILLED_25]];
         }
         // toggle the button selection status
         self.userBarButtonSelected = !self.userBarButtonSelected;
