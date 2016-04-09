@@ -24,6 +24,7 @@
 - (void)loadRecipeDataWithCompletionHandler:(void (^)(NSArray *results, CKQueryCursor *cursor, NSError *error))completionHandler;
 - (void)getUserActivityPrivateDataForCIDWithCompletionHandler:(void (^)(NSArray *results, NSError *error))completionHandler;
 - (void)getUserActivityPrivateDataForRIDWithCompletionHandler:(void (^)(NSArray *results, NSError *error))completionHandler;
+- (void)getUserActivityPrivateDataWithCompletionHandler:(void (^)(NSArray *results, NSError *error))completionHandler;
 - (CKRecord *)createCKRecordForImage:(CoffeeImageData *)coffeeImageData;
 //- (CKRecord *)createCKRecordForUserActivity:(CoffeeImageData *)coffeeImageData;
 - (CKRecord *)createCKRecordForUserActivity:(UserActivity *)userActivity;

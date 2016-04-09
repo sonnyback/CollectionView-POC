@@ -49,6 +49,7 @@
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *cameraBarButton;
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *reloadBarButton;
 @property (strong, nonatomic) CKQueryCursor *cursor;
+@property (strong, nonatomic) CKQueryCursor *ridCursor;
 @property (nonatomic) CGSize cellSize;
 @end
 
@@ -951,6 +952,25 @@ dispatch_queue_t queue;
         [self.imageLoadManager.userActivityDictionary removeAllObjects];
     }
     
+    // testing UserActivity Record type query...
+    /*[self.ckManager getUserActivityPrivateDataWithCompletionHandler:^(NSArray *results, NSError *error) {
+        if (error) {
+            NSLog(@"ERROR: testing USER ACTIVITY record fetching!!");
+        } else {
+            if ([results count] > 0) {
+                @synchronized(self) {
+                    for (CKRecord *record in results) {
+                        NSLog(@"TESTING: record type is: %@", record.recordType);
+                        UserActivity *userActivity = [[UserActivity alloc] init];
+                        //CKReference *referenceRecord = [[CKReference alloc] initWithRecord:record[USER_ACTIVITY_RECORD_TYPE] action:CKReferenceActionNone];
+                        userActivity.recordID = record[@"ReferenceID"];
+                        NSLog(@"Testing reference record recordID is: %@", userActivity.recordID);
+                    }
+                }
+            }
+        }
+    }];*/
+    
     // get the user's data for Images (CoffeeImageData)
     [self.ckManager getUserActivityPrivateDataForCIDWithCompletionHandler:^(NSArray *results, NSError *error) {
         if (error) {
@@ -1293,7 +1313,7 @@ dispatch_queue_t queue;
                 // save the liked image to the user's private database in iCloud
                 [self.ckManager saveRecordForPrivateData:[self.ckManager createCKRecordForUserActivity:newUserActivity] withCompletionHandler:^(CKRecord *record, NSError *error) {
                     if (!error && record) {
-                        NSLog(@"INFO: Private UserActivity Record saved successfully for recordID: %@!", record.recordID.recordName);
+                        NSLog(@"INFO: CID record saved successfully for recordID: %@!", record.recordID.recordName);
                         // delay refreshing UA data to allow time for UA record to be saved first
                         double delayInSeconds = 3.0;
                         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, delayInSeconds * NSEC_PER_SEC), queue, ^{
@@ -1315,9 +1335,9 @@ dispatch_queue_t queue;
                 newUserActivity.ridReference = recipeImageData;
                 [self.ckManager saveRecordForPrivateData:[self.ckManager createCKRecordForUserActivity:newUserActivity] withCompletionHandler:^(CKRecord *record, NSError *error) {
                     if (!error && record) {
-                        NSLog(@"YAY!!!! Saved a recipe record!");
+                        NSLog(@"INFO: Saved a recipe record!");
                     } else {
-                        NSLog(@"ERROR!!!! Saving a recipe record!");
+                        NSLog(@"ERROR: Error occurred while saving a recipe record!");
                     }
                 }];
             }

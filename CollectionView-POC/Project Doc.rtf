@@ -51,25 +51,40 @@ SDImageCache\cf0  *imageCache = [\cf2 SDImageCache\cf0  sharedImageCache];\
 \f0\fs24 \kerning1\expnd0\expndtw0 \
 \pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
 \cf0 Problems:\
-1. Still not able to get button/label displayed under each cell. Unsure if supplemental view can be used, still researching. Other option is to increase cell size and fit everything inside. *No longer an issue after switching from horizontal layout to vertical (default) layout in collectionview. \
-2. Added button with heart image to full screen image. Tapping button does not respond. May be a frame bounds issue with the button and the parent view. *Resolved this by moving anitmation logic from didSelectItemAtIndexPath to new method (
+1. Still not able to get button/label displayed under each cell. Unsure if supplemental view can be used, still researching. Other option is to increase cell size and fit everything inside. *
+\b No longer an issue after switching from horizontal layout to vertical (default) layout in collectionview
+\b0 . \
+2. Added button with heart image to full screen image. Tapping button does not respond. May be a frame bounds issue with the button and the parent view. *
+\b Resolved
+\b0  this by moving anitmation logic from didSelectItemAtIndexPath to new method (
 \f1\fs22 \cf4 \CocoaLigature0 closeFullScreenImageView
 \f0\fs24 \cf0 \CocoaLigature1 ) and adding tap gesture. It works fine but not happy that previous solution did not work. Seemed to be an iOS 7 issue. May try it with iOS 8 to see if original code works.\
 \
 Bugs:\
 1. When tapping the Cafes in the segment control and going to the next VC and then hitting back button, the segment control retains Cafes as highlighted segment. \
-Need to change this to make it go back to Images. *Fixed*, but may need to resolve with a delegate after further development of app\
-2. When viewing full screen image, tapping in upper right area will cause segue to cafe locator VC. *Fixed* by setting the segmentedcontrol.hidden=YES\
-3. When liking an image, then tapping to close the image, then going back into the image in fullscreen, the solid like button is not visible. *Fixed* - issue was related to control state for the button \
-4. Heart image displays correctly when liking/unliking by tapping the heart button. But if an image is liked, then you go back to the collectionview and then back to the image that is liked, unliking does not show the correct heart image. *Fixed*\
-5. Logic not right inside likeButtonPressed regarding currentImageData.imageName. This is coming up as null. NA - no longer an issue.\
+Need to change this to make it go back to Images. *
+\b Fixed*, but may need to resolve with a delegate after further development of app
+\b0 \
+2. When viewing full screen image, tapping in upper right area will cause segue to cafe locator VC. *
+\b Fixed* by setting the segmentedcontrol.hidden=YES
+\b0 \
+3. When liking an image, then tapping to close the image, then going back into the image in fullscreen, the solid like button is not visible. *
+\b Fixed* - issue was related to control state for the button 
+\b0 \
+4. Heart image displays correctly when liking/unliking by tapping the heart button. But if an image is liked, then you go back to the collectionview and then back to the image that is liked, unliking does not show the correct heart image. 
+\b *Fixed*
+\b0 \
+5. Logic not right inside likeButtonPressed regarding currentImageData.imageName. This is coming up as null. 
+\b NA - no longer an issue.
+\b0 \
 \
 CloudKit:\
 - Container (CKContainer) - 1 container per app. Data segregation and user encapsulation\
 - Containers must use unique identifier, such as reverse DNS naming convention\
 - Database (CKDatabase) - each app has access to 2 databases, public and private. Public db for shared data, private db for user's data.\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
 
-\b NOTE: If getting the "app id identifier is not available error, go to developer center, click on Provisioning Profiles, and regenerate the invalid profile. Then download it to the desktop and double click it. This will resolve the issue.
+\b \cf0 NOTE: If getting the "app id identifier is not available error, go to developer center, click on Provisioning Profiles, and regenerate the invalid profile. Then download it to the desktop and double click it. This will resolve the issue.
 \b0 \
 \
 \pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0

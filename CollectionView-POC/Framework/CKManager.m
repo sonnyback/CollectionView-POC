@@ -136,7 +136,8 @@
     // create the query
     CKQuery *recipeQuery = [[CKQuery alloc] initWithRecordType:RECIPE_IMAGE_DATA_RECORD_TYPE predicate:recipePredicate];
     CKQueryOperation *recipeQueryOperation = [[CKQueryOperation alloc] initWithQuery:recipeQuery];
-    recipeQueryOperation.resultsLimit = CKQueryOperationMaximumResults; // get all the results
+    //recipeQueryOperation.resultsLimit = CKQueryOperationMaximumResults; // get all the results
+    recipeQueryOperation.resultsLimit = FIFTEEN;
     /* NOTE: required to work with iOS 9/xcode 7 */
     recipeQueryOperation.qualityOfService = NSQualityOfServiceUserInteractive;
     
@@ -174,6 +175,24 @@
     
     NSPredicate *predicate = [NSPredicate predicateWithValue:true]; // give all results
     CKQuery *query = [[CKQuery alloc] initWithRecordType:USER_ACTIVITY_RECIPES_RECORD_TYPE predicate:predicate];
+    
+    // execute the query
+    [self.privateDatabase performQuery:query inZoneWithID:nil completionHandler:^(NSArray *results, NSError *error) {
+        completionHandler(results, error);
+    }];
+}
+
+/**
+ * NOTE: This method will only be used if refactoring code to store user's private data in UserActivity record type
+ * for both CID AND RID images.
+ *
+ *
+ */
+- (void)getUserActivityPrivateDataWithCompletionHandler:(void (^)(NSArray *, NSError *))completionHandler {
+    
+    NSLog(@"INFO: Entered getUserActivityPrivateDataWithCompletionHandler...");
+    NSPredicate *predicate = [NSPredicate predicateWithValue:true]; // give all results
+    CKQuery *query = [[CKQuery alloc] initWithRecordType:USER_ACTIVITY_RECORD_TYPE predicate:predicate];
     
     // execute the query
     [self.privateDatabase performQuery:query inZoneWithID:nil completionHandler:^(NSArray *results, NSError *error) {
@@ -229,6 +248,12 @@
     return userActivityRecord;
 }*/
 
+/**
+ * Method to create a CKRecord for saving a CoffeeImageData record.
+ *
+ * @param UserActivity *userActivity - UserActivity object which contains the recordID of the record as a ckreference.
+ * @return CKRecord *record - the prepared record
+ */
 - (CKRecord *)createCKRecordForUserActivity:(UserActivity *)userActivity {
     
     NSLog(@"INFO: Entered createCKRecordForUserActivity...");
@@ -250,6 +275,12 @@
         return nil;
 }
 
+/**
+ * Method to create a CKRecord for saving a RecipeImageData record.
+ *
+ * @param UserActivity *userActivity - UserActivity object which contains the recordID of the record as a ckreference.
+ * @return CKRecord *record - the prepared record
+ */
 - (CKRecord *)createCKRecordForUserActivityForRecipe:(UserActivity *)userActivity {
     
     NSLog(@"INFO: Entered createCKRecordForUserActivityForRecipe...");
