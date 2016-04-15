@@ -63,7 +63,7 @@
     
     // process each record returned
     ckQueryOperation.recordFetchedBlock = ^(CKRecord *record) {
-        NSLog(@"RecordFetchBlock returned CID record: %@", record.recordID.recordName);
+        NSLog(@"RecordFetchBlock returned %@ record: %@", record.recordType, record.recordID.recordName);
         [tempResultsSet addObject:record];
     };
     // query has completed
@@ -101,7 +101,7 @@
         
         // processes for each record returned
         cursorOperation.recordFetchedBlock = ^(CKRecord *record) {
-            NSLog(@"RecordFetchBlock returned from cursor CID record: %@", record.recordID.recordName);
+            NSLog(@"RecordFetchBlock returned from cursor for %@ recordID: %@", record.recordType, record.recordID.recordName);
             [cursorResultSet addObject:record];
         };
         // query has completed
@@ -143,7 +143,7 @@
     
     // process each record returned
     recipeQueryOperation.recordFetchedBlock = ^(CKRecord *record) {
-        NSLog(@"RecordFetchBlock returned RID record: %@", record.recordID.recordName);
+        NSLog(@"RecordFetchBlock returned %@ record: %@", record.recordType, record.recordID.recordName);
         [recipeResultSet addObject:record];
     };
     

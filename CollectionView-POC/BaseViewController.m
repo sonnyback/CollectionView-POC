@@ -794,6 +794,7 @@ dispatch_queue_t queue;
     [self.ckManager loadRecipeDataWithCompletionHandler:^(NSArray *results, CKQueryCursor *cursor, NSError *error) {
         if (!error) {
             if ([results count] > 0) {
+                self.ridCursor = cursor;
                 NSLog(@"INFO: Successfully fetched RecipeImageData for %lu record!", (unsigned long)[results count]);
                 for (CKRecord *record in results) {
                     RecipeImageData *recipeImageData = [[RecipeImageData alloc] init];
@@ -837,11 +838,13 @@ dispatch_queue_t queue;
         } else {
             NSLog(@"Error trying to fetch the RecipeImageData records...%@", error.localizedDescription);
         }
+        // fetch additional records from point of cursor
+        [self loadMoreRIDRecordsFromCursor];
     }];
 }
 
 /**
- * Method to fetch more records from CK from the point of the cursor.
+ * Method to fetch more CID records from CK from the point of the cursor.
  *
  * @param ^Block(NSArray *, CKQueryCursor *, NSError *)
  * @return void
@@ -855,10 +858,10 @@ dispatch_queue_t queue;
             if ([results count] > 0) {
                 if (cursor) { // check to see if a cursor was returned in the completionhandler
                     self.cursor = cursor; // update the cursor from the result set
-                    // recursively call this ourselves to get the next batch of records
+                    // recursively call this to get the next batch of records
                     [self loadMoreRecordsFromCursor];
                 } else {
-                    NSLog(@"INFO: All records fetched successfully!");
+                    NSLog(@"INFO: All CID records fetched successfully!");
                     self.cursor = nil;
                     // kill the network activity indicator
                     [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
@@ -917,14 +920,6 @@ dispatch_queue_t queue;
                     self.numberOfItemsInSection = [self.imageLoadManager.userSavedImages count];
                 }
                 
-                // need to check to see if user button is pressed so we can update NOIIS accordingly
-                /*if (self.userBarButtonSelected) {
-                    // update NOIIS for new records that are in user's profile
-                  self.numberOfItemsInSection = [self.imageLoadManager.userSavedImages count];
-                } else {
-                  self.numberOfItemsInSection += [results count]; // UPDATE the number of items in section for new records
-                }*/
-                
                 // update the UI on the main queue
                 dispatch_async(dispatch_get_main_queue(), ^{
                     [self.myCollectionView reloadData]; // reload the collectionview after getting more results
@@ -932,6 +927,95 @@ dispatch_queue_t queue;
             }
             // load the keys to be used for cache look up
             [self getCIDCacheKeys];
+        }
+    }];
+}
+
+/**
+ * Method to fetch more RID records from CK from the point of the cursor.
+ *
+ * @param ^Block(NSArray *, CKQueryCursor *, NSError *)
+ * @return void
+ */
+- (void)loadMoreRIDRecordsFromCursor {
+    
+    NSLog(@"INFO: loadMoreRIDRecordsFromCursor...");
+    
+    [self.ckManager loadCloudKitDataFromCursor:self.ridCursor withCompletionHandler:^(NSArray *results, CKQueryCursor *cursor, NSError *error) {
+        if (!error) {
+            if ([results count] > 0) {
+                if (cursor) { // check to see if a cursor was returned in the completionhandler
+                    self.ridCursor = cursor; // update the cursor from the result set
+                    // recursively call this ourselves to get the next batch of records
+                    [self loadMoreRecordsFromCursor];
+                } else {
+                    NSLog(@"INFO: All RID records fetched successfully!");
+                    self.ridCursor = nil;
+                    // kill the network activity indicator
+                    //[[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
+                }
+                
+                NSLog(@"INFO: Success querying the cloud for %lu results!!!", (unsigned long)[results count]);
+                // parse the records in the results array
+                for (CKRecord *record in results) {
+                    // create RecipeImageData object to store data in the array for each image
+                    RecipeImageData *recipeImageData = [[RecipeImageData alloc] init];
+                    CKAsset *imageAsset = record[IMAGE];
+                    recipeImageData.imageURL = imageAsset.fileURL;
+                    //NSLog(@"RID image URL: %@", recipeImageData.imageURL);
+                    recipeImageData.imageName = record[IMAGE_NAME];
+                    //NSLog(@"RID image name: %@", recipeImageData.imageName);
+                    recipeImageData.imageDescription = record[IMAGE_DESCRIPTION];
+                    //NSLog(@"RID image description: %@", recipeImageData.imageDescription);
+                    recipeImageData.userID = record[USER_ID];
+                    //NSLog(@"RID user id: %@", recipeImageData.userID);
+                    recipeImageData.recipe = [record[RECIPE] boolValue]; // 0 = No, 1 = Yes
+                    //NSLog(@"RID isRecipe %d", recipeImageData.isRecipe);
+                    recipeImageData.recordID = record.recordID.recordName;
+                    recipeImageData.likeCount = record[LIKE_COUNT];
+                    NSLog(@"INFO: Like Count: %d, for recordID: %@", [recipeImageData.likeCount intValue], recipeImageData.recordID);
+                    // check to see if the recordID of the current CID is userActivityDictionary. If so, it's in the user's private
+                    // data so set liked value = YES
+                    if ([self.imageLoadManager lookupRecordIDInUserData:recipeImageData.recordID]) {
+                        //NSLog(@"RecordID found in userActivityDictiontary!");
+                        recipeImageData.liked = YES;
+                    }
+                    // add the RID object to the array
+                    [self.imageLoadManager.recipeImageDataArray addObject:recipeImageData];
+                    // get updated user saved images from newly fetched records
+                    [self.imageLoadManager getUserSavedImagesForSelection:[self getSelectedSegmentTitle]];
+                    
+                    // cache the image with the string representation of the absolute URL as the cache key
+                    if (recipeImageData.imageURL) { // make sure there's an image URL to cache
+                        if (self.imageCache) {
+                            [self.imageCache storeImage:[UIImage imageWithContentsOfFile:recipeImageData.imageURL.path] forKey:recipeImageData.imageURL.absoluteString toDisk:YES];
+                            //NSLog(@"Printing cache: %@", [[SDImageCache sharedImageCache] description]);
+                        }
+                    } else {
+                        NSLog(@"WARN: RID imageURL is nil...cannot cache.");
+                    }
+                }
+                
+                /* BUG FOR HITTING USER BUTTON WHEN LOADING MORE RECORDS BEING ADDRESSED WITH THIS CODE...*/
+                // check segmented control && user profile button to display the CV accordingly
+                if ([[self getSelectedSegmentTitle] isEqualToString:IMAGES_SEGMENTED_CTRL] && !self.userBarButtonSelected) {
+                    self.numberOfItemsInSection = [self.imageLoadManager.coffeeImageDataArray count];
+                } else if ([[self getSelectedSegmentTitle] isEqualToString:IMAGES_SEGMENTED_CTRL] && self.userBarButtonSelected) {
+                    self.numberOfItemsInSection = [self.imageLoadManager.userSavedImages count];
+                } else if ([[self getSelectedSegmentTitle] isEqualToString:RECIPES_SEGMENTED_CTRL] && !self.userBarButtonSelected) {
+                    self.numberOfItemsInSection = [self.imageLoadManager.recipeImageDataArray count];
+                } else if ([[self getSelectedSegmentTitle] isEqualToString:RECIPES_SEGMENTED_CTRL] && self.userBarButtonSelected) {
+                    /// NOTE: This may need to be changed to handle recipe saved images!
+                    self.numberOfItemsInSection = [self.imageLoadManager.userSavedImages count];
+                }
+                
+                // update the UI on the main queue
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [self.myCollectionView reloadData]; // reload the collectionview after getting more results
+                });
+            }
+            // load the keys to be used for cache look up
+            [self getRIDCacheKeys];
         }
     }];
 }
