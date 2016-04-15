@@ -48,8 +48,6 @@
 @property (nonatomic) BOOL userBarButtonSelected;
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *cameraBarButton;
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *reloadBarButton;
-@property (strong, nonatomic) CKQueryCursor *cursor;
-@property (strong, nonatomic) CKQueryCursor *ridCursor;
 @property (nonatomic) CGSize cellSize;
 @end
 
@@ -693,13 +691,12 @@ dispatch_queue_t queue;
                 if ([results count] > 0) {
                     // show network activity indicator
                     [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:YES];
-                    self.cursor = cursor;
                     self.numberOfItemsInSection = [results count];
                     NSLog(@"INFO: Success querying the cloud for %lu results!!!", (unsigned long)[results count]);
                     //[self loadRecipeDataFromCloudKit]; // fetch the recipe images from CloudKit
                     // parse the records in the results array
                     for (CKRecord *record in results) {
-                        //NSLog(@"Record type is: %@", record.recordType);
+                        NSLog(@"Record type is: %@", record.recordType);
                         // create CoffeeImageData object to store data in the array for each image
                         CoffeeImageData *coffeeImageData = [[CoffeeImageData alloc] init];
                         CKAsset *imageAsset = record[IMAGE];
@@ -772,7 +769,7 @@ dispatch_queue_t queue;
                 });
             }
             // fetch additional records from point of cursor
-            [self loadMoreRecordsFromCursor];
+            [self loadMoreRecordsFromCursor:cursor];
         }];
         [self loadRecipeDataFromCloudKit]; // fetch the recipe images from CloudKit
     });
@@ -794,9 +791,9 @@ dispatch_queue_t queue;
     [self.ckManager loadRecipeDataWithCompletionHandler:^(NSArray *results, CKQueryCursor *cursor, NSError *error) {
         if (!error) {
             if ([results count] > 0) {
-                self.ridCursor = cursor;
                 NSLog(@"INFO: Successfully fetched RecipeImageData for %lu record!", (unsigned long)[results count]);
                 for (CKRecord *record in results) {
+                    NSLog(@"Record type is: %@", record.recordType);
                     RecipeImageData *recipeImageData = [[RecipeImageData alloc] init];
                     CKAsset *imageAsset = record[IMAGE];
                     recipeImageData.imageURL = imageAsset.fileURL;
@@ -839,7 +836,7 @@ dispatch_queue_t queue;
             NSLog(@"Error trying to fetch the RecipeImageData records...%@", error.localizedDescription);
         }
         // fetch additional records from point of cursor
-        [self loadMoreRIDRecordsFromCursor];
+        [self loadMoreRIDRecordsFromCursor:cursor];
     }];
 }
 
@@ -849,20 +846,18 @@ dispatch_queue_t queue;
  * @param ^Block(NSArray *, CKQueryCursor *, NSError *)
  * @return void
  */
-- (void)loadMoreRecordsFromCursor {
+- (void)loadMoreRecordsFromCursor:(CKQueryCursor *)queryCursor {
     
     NSLog(@"INFO: loadMoreRecordsFromCursor...");
     
-    [self.ckManager loadCloudKitDataFromCursor:self.cursor withCompletionHandler:^(NSArray *results, CKQueryCursor *cursor, NSError *error) {
+    [self.ckManager loadCloudKitDataFromCursor:queryCursor withCompletionHandler:^(NSArray *results, CKQueryCursor *cursor, NSError *error) {
         if (!error) {
             if ([results count] > 0) {
                 if (cursor) { // check to see if a cursor was returned in the completionhandler
-                    self.cursor = cursor; // update the cursor from the result set
                     // recursively call this to get the next batch of records
-                    [self loadMoreRecordsFromCursor];
+                    [self loadMoreRecordsFromCursor:cursor];
                 } else {
                     NSLog(@"INFO: All CID records fetched successfully!");
-                    self.cursor = nil;
                     // kill the network activity indicator
                     [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
                 }
@@ -870,6 +865,9 @@ dispatch_queue_t queue;
                 NSLog(@"INFO: Success querying the cloud for %lu results!!!", (unsigned long)[results count]);
                 // parse the records in the results array
                 for (CKRecord *record in results) {
+                    if ([record.recordType isEqualToString:COFFEE_IMAGE_DATA_RECORD_TYPE]) {
+                        NSLog(@"******WE GOT A CID RECORD, HOMIE!!");
+                    }
                     // create CoffeeImageData object to store data in the array for each image
                     CoffeeImageData *coffeeImageData = [[CoffeeImageData alloc] init];
                     CKAsset *imageAsset = record[IMAGE];
@@ -937,20 +935,18 @@ dispatch_queue_t queue;
  * @param ^Block(NSArray *, CKQueryCursor *, NSError *)
  * @return void
  */
-- (void)loadMoreRIDRecordsFromCursor {
+- (void)loadMoreRIDRecordsFromCursor:(CKQueryCursor *)queryCursor {
     
     NSLog(@"INFO: loadMoreRIDRecordsFromCursor...");
     
-    [self.ckManager loadCloudKitDataFromCursor:self.ridCursor withCompletionHandler:^(NSArray *results, CKQueryCursor *cursor, NSError *error) {
+    [self.ckManager loadCloudKitDataFromCursor:queryCursor withCompletionHandler:^(NSArray *results, CKQueryCursor *cursor, NSError *error) {
         if (!error) {
             if ([results count] > 0) {
                 if (cursor) { // check to see if a cursor was returned in the completionhandler
-                    self.ridCursor = cursor; // update the cursor from the result set
                     // recursively call this ourselves to get the next batch of records
-                    [self loadMoreRecordsFromCursor];
+                    [self loadMoreRecordsFromCursor:cursor];
                 } else {
                     NSLog(@"INFO: All RID records fetched successfully!");
-                    self.ridCursor = nil;
                     // kill the network activity indicator
                     //[[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
                 }
