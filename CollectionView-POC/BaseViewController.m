@@ -48,6 +48,8 @@
 @property (nonatomic) BOOL userBarButtonSelected;
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *cameraBarButton;
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *reloadBarButton;
+@property (strong, nonatomic) CKQueryCursor *cidCursor;
+@property (strong, nonatomic) CKQueryCursor *ridCursor;
 @property (nonatomic) CGSize cellSize;
 @end
 
@@ -260,7 +262,7 @@ dispatch_queue_t queue;
                 if (coffeeImageData) {
                     // check to see if this image was submitted by the current user
                     if ([self.ckManager.userRecordID.recordName isEqualToString:coffeeImageData.userID]) {
-                        NSLog(@"This image belongs to user: %@", self.ckManager.userRecordID.recordName);
+                        NSLog(@"INFO: This image belongs to user: %@", self.ckManager.userRecordID.recordName);
                         coffeeImageData.imageBelongsToCurrentUser = YES;
                     }
                     
@@ -268,7 +270,7 @@ dispatch_queue_t queue;
                         // get the URL of the current indexes images from cache
                         NSString *cacheKey = self.cidCacheKeys[indexPath.row];
                         if (cacheKey) {
-                            NSLog(@"cacheKey found!");
+                            NSLog(@"INFO: cacheKey found!");
                             [self.imageCache queryDiskCacheForKey:cacheKey done:^(UIImage *image, SDImageCacheType cacheType) {
                                 if (image) { // image is found in the cache
                                     NSLog(@"INFO: Image found in SDWebImage cache for recordID <%@>!", coffeeImageData.recordID);
@@ -277,20 +279,20 @@ dispatch_queue_t queue;
                                     cell.coffeeImageView.image = thumbnail;
                                     //cell.coffeeImageView.image = image;
                                 } else {
-                                    NSLog(@"Image not found in cache for recordID <%@>, getting image from CID!", coffeeImageData.recordID);
+                                    NSLog(@"INFO: Image not found in cache for recordID <%@>, getting image from CID!", coffeeImageData.recordID);
                                     if (coffeeImageData.imageURL.path) {
                                         cell.coffeeImageView.image = [UIImage imageWithContentsOfFile:coffeeImageData.imageURL.path];
                                     }
                                 }
                             }];
                         } else {
-                            NSLog(@"cacheKey NOT found!");
+                            NSLog(@"INFO: cacheKey NOT found!");
                             if (coffeeImageData.imageURL.path) {
                                 cell.coffeeImageView.image = [UIImage imageWithContentsOfFile:coffeeImageData.imageURL.path];
                             }
                         }
                     } else { // if not, get the image data from the CID object
-                        NSLog(@"allCacheKeys array is empty, getting image from CID!");
+                        NSLog(@"WARN: allCacheKeys array is empty, getting image from CID!");
                         if (coffeeImageData.imageURL.path) {
                             cell.coffeeImageView.image = [UIImage imageWithContentsOfFile:coffeeImageData.imageURL.path];
                         }
@@ -303,7 +305,7 @@ dispatch_queue_t queue;
                 if (recipeImageData) {
                     // check to see if this image was submitted by the current user
                     if ([self.ckManager.userRecordID.recordName isEqualToString:recipeImageData.userID]) {
-                        NSLog(@"This image belongs to user: %@", self.ckManager.userRecordID.recordName);
+                        NSLog(@"INFO: This image belongs to user: %@", self.ckManager.userRecordID.recordName);
                         recipeImageData.imageBelongsToCurrentUser = YES;
                     }
                     // check to see if the cacheKeys arrays contains any keys (URLs)
@@ -311,7 +313,7 @@ dispatch_queue_t queue;
                         // get the URL of the current indexes images from cache
                         NSString *cacheKey = self.ridCacheKeys[indexPath.row];
                         if (cacheKey) {
-                            NSLog(@"cacheKey found!");
+                            NSLog(@"INFO: cacheKey found!");
                             [self.imageCache queryDiskCacheForKey:cacheKey done:^(UIImage *image, SDImageCacheType cacheType) {
                                 if (image) { // image is found in the cache
                                     NSLog(@"INFO: Image found in SDWebImage cache for recordID <%@>!", recipeImageData.recordID);
@@ -319,14 +321,14 @@ dispatch_queue_t queue;
                                     //cell.coffeeImageView.image = thumbnail;
                                     cell.coffeeImageView.image = image;
                                 } else {
-                                    NSLog(@"Image not found in cache for recordID <%@>, getting image from RID!", recipeImageData.recordID);
+                                    NSLog(@"INFO: Image not found in cache for recordID <%@>, getting image from RID!", recipeImageData.recordID);
                                     if (recipeImageData.imageURL.path) {
                                         cell.coffeeImageView.image = [UIImage imageWithContentsOfFile:recipeImageData.imageURL.path];
                                     }
                                 }
                             }];
                         } else {
-                            NSLog(@"cacheKey NOT found!");
+                            NSLog(@"INFO: cacheKey NOT found!");
                             if (recipeImageData.imageURL.path) {
                                 cell.coffeeImageView.image = [UIImage imageWithContentsOfFile:recipeImageData.imageURL.path];
                             }
@@ -691,12 +693,13 @@ dispatch_queue_t queue;
                 if ([results count] > 0) {
                     // show network activity indicator
                     [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:YES];
+                    self.cidCursor = cursor;
                     self.numberOfItemsInSection = [results count];
                     NSLog(@"INFO: Success querying the cloud for %lu results!!!", (unsigned long)[results count]);
                     //[self loadRecipeDataFromCloudKit]; // fetch the recipe images from CloudKit
                     // parse the records in the results array
                     for (CKRecord *record in results) {
-                        NSLog(@"Record type is: %@", record.recordType);
+                        //NSLog(@"Record type is: %@ for recordID: %@", record.recordType, record.recordID.recordName);
                         // create CoffeeImageData object to store data in the array for each image
                         CoffeeImageData *coffeeImageData = [[CoffeeImageData alloc] init];
                         CKAsset *imageAsset = record[IMAGE];
@@ -769,7 +772,9 @@ dispatch_queue_t queue;
                 });
             }
             // fetch additional records from point of cursor
-            [self loadMoreRecordsFromCursor:cursor];
+            if (cursor) {
+                [self loadMoreRecordsFromCursor:cursor];
+            }
         }];
         [self loadRecipeDataFromCloudKit]; // fetch the recipe images from CloudKit
     });
@@ -791,9 +796,10 @@ dispatch_queue_t queue;
     [self.ckManager loadRecipeDataWithCompletionHandler:^(NSArray *results, CKQueryCursor *cursor, NSError *error) {
         if (!error) {
             if ([results count] > 0) {
+                self.ridCursor = cursor;
                 NSLog(@"INFO: Successfully fetched RecipeImageData for %lu record!", (unsigned long)[results count]);
                 for (CKRecord *record in results) {
-                    NSLog(@"Record type is: %@", record.recordType);
+                    //NSLog(@"Record type is: %@ for recordID: %@", record.recordType, record.recordID.recordName);
                     RecipeImageData *recipeImageData = [[RecipeImageData alloc] init];
                     CKAsset *imageAsset = record[IMAGE];
                     recipeImageData.imageURL = imageAsset.fileURL;
@@ -836,7 +842,9 @@ dispatch_queue_t queue;
             NSLog(@"Error trying to fetch the RecipeImageData records...%@", error.localizedDescription);
         }
         // fetch additional records from point of cursor
-        [self loadMoreRIDRecordsFromCursor:cursor];
+        if (cursor) {
+            [self loadMoreRecordsFromCursor:cursor];
+        }
     }];
 }
 
@@ -857,51 +865,99 @@ dispatch_queue_t queue;
                     // recursively call this to get the next batch of records
                     [self loadMoreRecordsFromCursor:cursor];
                 } else {
-                    NSLog(@"INFO: All CID records fetched successfully!");
-                    // kill the network activity indicator
-                    [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
+                    NSLog(@"INFO: All records fetched successfully!");
+                    // if no more cursors, kill the network activity indicator
+                    if (!self.cidCursor | !self.ridCursor) {
+                        [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
+                    }
                 }
                 
                 NSLog(@"INFO: Success querying the cloud for %lu results!!!", (unsigned long)[results count]);
-                // parse the records in the results array
+                // parse the *CID* records in the results array
                 for (CKRecord *record in results) {
                     if ([record.recordType isEqualToString:COFFEE_IMAGE_DATA_RECORD_TYPE]) {
-                        NSLog(@"******WE GOT A CID RECORD, HOMIE!!");
-                    }
-                    // create CoffeeImageData object to store data in the array for each image
-                    CoffeeImageData *coffeeImageData = [[CoffeeImageData alloc] init];
-                    CKAsset *imageAsset = record[IMAGE];
-                    coffeeImageData.imageURL = imageAsset.fileURL;
-                    //NSLog(@"asset URL: %@", coffeeImageData.imageURL);
-                    coffeeImageData.imageName = record[IMAGE_NAME];
-                    //NSLog(@"Image name: %@", coffeeImageData.imageName);
-                    coffeeImageData.imageDescription = record[IMAGE_DESCRIPTION];
-                    coffeeImageData.userID = record[USER_ID];
-                    coffeeImageData.imageBelongsToCurrentUser = [record[IMAGE_BELONGS_TO_USER] boolValue];
-                    coffeeImageData.recipe = [record[RECIPE] boolValue];
-                    coffeeImageData.liked = [record[LIKED] boolValue]; // 0 = No, 1 = Yes
-                    coffeeImageData.recordID = record.recordID.recordName;
-                    coffeeImageData.likeCount = record[LIKE_COUNT];
-                    NSLog(@"INFO: Like Count: %d, for recordID: %@", [coffeeImageData.likeCount intValue], coffeeImageData.recordID);
-                    // check to see if the recordID of the current CID is userActivityDictionary. If so, it's in the user's private
-                    // data so set liked value = YES
-                    if ([self.imageLoadManager lookupRecordIDInUserData:coffeeImageData.recordID]) {
-                        //NSLog(@"RecordID found in userActivityDictiontary!");
-                        coffeeImageData.liked = YES;
-                    }
-                    // add the CID object to the array
-                    [self.imageLoadManager.coffeeImageDataArray addObject:coffeeImageData];
-                    // get updated user saved images from newly fetched records
-                    [self.imageLoadManager getUserSavedImagesForSelection:[self getSelectedSegmentTitle]];
-                        
-                    // cache the image with the string representation of the absolute URL as the cache key
-                    if (coffeeImageData.imageURL) { // make sure there's an image URL to cache
-                        if (self.imageCache) {
-                            [self.imageCache storeImage:[UIImage imageWithContentsOfFile:coffeeImageData.imageURL.path] forKey:coffeeImageData.imageURL.absoluteString toDisk:YES];
-                            //NSLog(@"Printing cache: %@", [[SDImageCache sharedImageCache] description]);
+                        /* NOTE: Below line needs to be moved to above if cursor statement - need to determine which cursor and set the property accordingly*/
+                        self.cidCursor = cursor;
+                        //NSLog(@"Record type is: %@ for recordID: %@", record.recordType, record.recordID.recordName);
+                        // create CoffeeImageData object to store data in the array for each image
+                        CoffeeImageData *coffeeImageData = [[CoffeeImageData alloc] init];
+                        CKAsset *imageAsset = record[IMAGE];
+                        coffeeImageData.imageURL = imageAsset.fileURL;
+                        //NSLog(@"asset URL: %@", coffeeImageData.imageURL);
+                        coffeeImageData.imageName = record[IMAGE_NAME];
+                        //NSLog(@"Image name: %@", coffeeImageData.imageName);
+                        coffeeImageData.imageDescription = record[IMAGE_DESCRIPTION];
+                        coffeeImageData.userID = record[USER_ID];
+                        coffeeImageData.imageBelongsToCurrentUser = [record[IMAGE_BELONGS_TO_USER] boolValue];
+                        coffeeImageData.recipe = [record[RECIPE] boolValue];
+                        coffeeImageData.liked = [record[LIKED] boolValue]; // 0 = No, 1 = Yes
+                        coffeeImageData.recordID = record.recordID.recordName;
+                        coffeeImageData.likeCount = record[LIKE_COUNT];
+                        NSLog(@"INFO: Like Count: %d, for recordID: %@", [coffeeImageData.likeCount intValue], coffeeImageData.recordID);
+                        // check to see if the recordID of the current CID is userActivityDictionary. If so, it's in the user's private
+                        // data so set liked value = YES
+                        if ([self.imageLoadManager lookupRecordIDInUserData:coffeeImageData.recordID]) {
+                            //NSLog(@"RecordID found in userActivityDictiontary!");
+                            coffeeImageData.liked = YES;
                         }
-                    } else {
-                        NSLog(@"WARN: CID imageURL is nil...cannot cache.");
+                        // add the CID object to the array
+                        [self.imageLoadManager.coffeeImageDataArray addObject:coffeeImageData];
+                        // get updated user saved images from newly fetched records
+                        [self.imageLoadManager getUserSavedImagesForSelection:[self getSelectedSegmentTitle]];
+                        
+                        // cache the image with the string representation of the absolute URL as the cache key
+                        if (coffeeImageData.imageURL) { // make sure there's an image URL to cache
+                            if (self.imageCache) {
+                                [self.imageCache storeImage:[UIImage imageWithContentsOfFile:coffeeImageData.imageURL.path] forKey:coffeeImageData.imageURL.absoluteString toDisk:YES];
+                                //NSLog(@"Printing cache: %@", [[SDImageCache sharedImageCache] description]);
+                            }
+                        } else {
+                            NSLog(@"WARN: CID imageURL is nil...cannot cache.");
+                        }
+                        // load the CID keys to be used for cache look up
+                        [self getCIDCacheKeys];
+                    } else if ([record.recordType isEqualToString:RECIPE_IMAGE_DATA_RECORD_TYPE]) {
+                        /* NOTE: Below line needs to be moved to above if cursor statement - need to determine which cursor and set the property accordingly*/
+                        self.ridCursor = cursor;
+                        //NSLog(@"Record type is: %@ for recordID: %@", record.recordType, record.recordID.recordName);
+                        // create RecipeImageData object to store data in the array for each image
+                        RecipeImageData *recipeImageData = [[RecipeImageData alloc] init];
+                        CKAsset *imageAsset = record[IMAGE];
+                        recipeImageData.imageURL = imageAsset.fileURL;
+                        //NSLog(@"RID image URL: %@", recipeImageData.imageURL);
+                        recipeImageData.imageName = record[IMAGE_NAME];
+                        //NSLog(@"RID image name: %@", recipeImageData.imageName);
+                        recipeImageData.imageDescription = record[IMAGE_DESCRIPTION];
+                        //NSLog(@"RID image description: %@", recipeImageData.imageDescription);
+                        recipeImageData.userID = record[USER_ID];
+                        //NSLog(@"RID user id: %@", recipeImageData.userID);
+                        recipeImageData.recipe = [record[RECIPE] boolValue]; // 0 = No, 1 = Yes
+                        //NSLog(@"RID isRecipe %d", recipeImageData.isRecipe);
+                        recipeImageData.recordID = record.recordID.recordName;
+                        recipeImageData.likeCount = record[LIKE_COUNT];
+                        NSLog(@"INFO: Like Count: %d, for recordID: %@", [recipeImageData.likeCount intValue], recipeImageData.recordID);
+                        // check to see if the recordID of the current CID is userActivityDictionary. If so, it's in the user's private
+                        // data so set liked value = YES
+                        if ([self.imageLoadManager lookupRecordIDInUserData:recipeImageData.recordID]) {
+                            //NSLog(@"RecordID found in userActivityDictiontary!");
+                            recipeImageData.liked = YES;
+                        }
+                        // add the RID object to the array
+                        [self.imageLoadManager.recipeImageDataArray addObject:recipeImageData];
+                        // get updated user saved images from newly fetched records
+                        [self.imageLoadManager getUserSavedImagesForSelection:[self getSelectedSegmentTitle]];
+                        
+                        // cache the image with the string representation of the absolute URL as the cache key
+                        if (recipeImageData.imageURL) { // make sure there's an image URL to cache
+                            if (self.imageCache) {
+                                [self.imageCache storeImage:[UIImage imageWithContentsOfFile:recipeImageData.imageURL.path] forKey:recipeImageData.imageURL.absoluteString toDisk:YES];
+                                //NSLog(@"Printing cache: %@", [[SDImageCache sharedImageCache] description]);
+                            }
+                        } else {
+                            NSLog(@"WARN: RID imageURL is nil...cannot cache.");
+                        }
+                        // load the RID keys to be used for cache look up
+                        [self getRIDCacheKeys];
                     }
                 }
                 
@@ -924,7 +980,8 @@ dispatch_queue_t queue;
                 });
             }
             // load the keys to be used for cache look up
-            [self getCIDCacheKeys];
+            //[self getCIDCacheKeys];
+            //[self getRIDCacheKeys];
         }
     }];
 }
@@ -1368,7 +1425,6 @@ dispatch_queue_t queue;
     
     // branch logic for images being liked
     if (coffeeImageData.isLiked || recipeImageData.isLiked) {
-        
         NSLog(@"INFO: image is liked for an image or recipe!");
         [button setImage:[UIImage imageNamed:HEART_BLUE_SOLID] forState:UIControlStateNormal];
         

@@ -313,7 +313,7 @@
 }*/
 
 /**
- * Method for saving a new record for a photo being added by a user.
+ * Method for saving a new record for a photo or recipe being added by a user.
  *
  * @param NSArray *records (despite array, only saves one record at a time)
  * @param ^completion handler block
@@ -351,14 +351,9 @@
     if (record) {
         [self.privateDatabase saveRecord:record completionHandler:^(CKRecord *record, NSError *error) {
             completionHandler(record, error);
-            /*if (error) {
-                NSLog(@"Error saving record to user's private database...%@", error.localizedDescription);
-            } else {
-                NSLog(@"Private UserActivity Record saved successfully!");
-            }*/
         }];
     } else {
-        NSLog(@"WARN: The CKRecord passed was not valid or could not be saved to the user's private database!");
+        NSLog(@"ERROR: The CKRecord passed was not valid or could not be saved to the user's private database!");
     }
 }
 
