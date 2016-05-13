@@ -34,30 +34,19 @@
                                             <rect key="frame" x="0.0" y="0.0" width="300" height="300"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
-                                                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="lPA-RX-FFd">
+                                                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="lPA-RX-FFd">
                                                     <rect key="frame" x="0.0" y="0.0" width="300" height="300"/>
                                                 </imageView>
-                                                <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="QJP-uQ-nFl">
-                                                    <rect key="frame" x="0.0" y="279" width="300" height="21"/>
-                                                    <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                                    <nil key="highlightedColor"/>
-                                                </label>
                                             </subviews>
                                             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                         </view>
                                         <constraints>
                                             <constraint firstAttribute="bottom" secondItem="lPA-RX-FFd" secondAttribute="bottom" id="2jj-4J-I5y"/>
-                                            <constraint firstItem="QJP-uQ-nFl" firstAttribute="leading" secondItem="KLx-ZG-zLW" secondAttribute="leading" id="6eU-c0-NJY"/>
-                                            <constraint firstItem="lPA-RX-FFd" firstAttribute="leading" secondItem="QJP-uQ-nFl" secondAttribute="leading" id="IHP-1b-xgf"/>
-                                            <constraint firstItem="lPA-RX-FFd" firstAttribute="trailing" secondItem="QJP-uQ-nFl" secondAttribute="trailing" id="Pjw-ye-dae"/>
-                                            <constraint firstItem="lPA-RX-FFd" firstAttribute="bottom" secondItem="QJP-uQ-nFl" secondAttribute="bottom" id="WwO-1e-MnE"/>
                                             <constraint firstAttribute="trailing" secondItem="lPA-RX-FFd" secondAttribute="trailing" id="ooM-Zf-1UA"/>
                                             <constraint firstItem="lPA-RX-FFd" firstAttribute="top" secondItem="KLx-ZG-zLW" secondAttribute="top" id="qih-KM-Loe"/>
                                         </constraints>
                                         <size key="customSize" width="300" height="300"/>
                                         <connections>
-                                            <outlet property="coffeeImageLabel" destination="QJP-uQ-nFl" id="h5T-L7-kj9"/>
                                             <outlet property="coffeeImageView" destination="lPA-RX-FFd" id="F9O-7M-aq7"/>
                                         </connections>
                                     </collectionViewCell>

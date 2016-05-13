@@ -349,10 +349,6 @@ dispatch_queue_t queue;
         }
         
         cell.coffeeImageView.clipsToBounds = YES;
-        //cell.coffeeImageLabel.text = imageNameForLabel;
-        
-        cell.coffeeImageLabel.alpha = 0.3; // set the label to be semi transparent
-        cell.coffeeImageLabel.hidden = YES; // just for toggling on/off until this label is completely removed
     }
     
     return cell;
