@@ -12,6 +12,5 @@
 @interface CoffeeViewCell : UICollectionViewCell
 
 @property (strong, nonatomic) IBOutlet UIImageView *coffeeImageView;
-@property (weak, nonatomic) IBOutlet UILabel *coffeeImageLabel;
 @property (nonatomic) BOOL imageIsLiked;
 @end

@@ -33,7 +33,7 @@
 
 - (void)setupImageView {
     
-    NSLog(@"setupImageView");
+    NSLog(@"DEBUG: CoffeeViewCell.setupImageView");
     self.coffeeImageView = [[UIImageView alloc] init];
     [self addSubview:self.coffeeImageView];
 }

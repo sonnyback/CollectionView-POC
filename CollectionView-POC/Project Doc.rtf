@@ -1,8 +1,9 @@
-{\rtf1\ansi\ansicpg1252\cocoartf1404\cocoasubrtf460
+{\rtf1\ansi\ansicpg1252\cocoartf1404\cocoasubrtf470
 {\fonttbl\f0\fswiss\fcharset0 Helvetica;\f1\fnil\fcharset0 Menlo-Regular;\f2\fswiss\fcharset0 ArialMT;
-\f3\fnil\fcharset0 Consolas;}
+\f3\fnil\fcharset0 Consolas;\f4\fmodern\fcharset0 Courier;}
 {\colortbl;\red255\green255\blue255;\red37\green127\blue159;\red234\green234\blue234;\red0\green116\blue0;
-\red0\green0\blue120;\red109\green109\blue109;\red107\green0\blue1;\red43\green39\blue19;}
+\red0\green0\blue120;\red109\green109\blue109;\red107\green0\blue1;\red43\green39\blue19;\red38\green38\blue38;
+\red246\green245\blue242;}
 \margl1440\margr1440\vieww9000\viewh8400\viewkind0
 \pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
 
@@ -19,7 +20,6 @@
 - Will need to check for CK user info when user taps camera button.\
 - Need to determine when to prompt user to select photos from photo library instead of camera. Refer to ShutterBug (lecture 11)\
 - Use SDWebImage just for disk and memory caching. Async downloading not needing since images and data will be returned from CK query.\
-- \
 \
 To Do:\
 - Source control entire project - done\
@@ -177,6 +177,17 @@ private\cf0  func _fetchRecordChangesFromCloud() \{\
 \pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
 
 \f0\fs24 \cf0 \cb1 \kerning1\expnd0\expndtw0 \
-\
- \
+*****AsyncDisplayKit Implementation*******\
+\pard\pardeftab720\sl280\partightenfactor0
+
+\f4 \cf9 \cb10 \expnd0\expndtw0\kerning0
+#import <AsyncDisplayKit/AsyncDisplayKit.h>
+\f0 \cf0 \cb1 \kerning1\expnd0\expndtw0 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+\cf0 - Add nodes to container nodes, NOT to existing UI view hierarchy....ASCollectionNode->ASCellNode\
+- may need to use ASLayoutSpec as opposed to UICollectionViewFlowLayout to provide node's size and position\
+\pard\pardeftab720\sl280\partightenfactor0
+\cf0 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+\cf0  \
 }
