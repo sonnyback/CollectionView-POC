@@ -4,6 +4,7 @@
 target 'CollectionView-POC' do
 pod 'SDWebImage', '~>3.7'
 pod 'MRProgress'
+pod 'AsyncDisplayKit'
 
 end
 

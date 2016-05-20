@@ -4,7 +4,22 @@
 <dict>
 	<key>SchemeUserState</key>
 	<dict>
+		<key>AsyncDisplayKit.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
 		<key>MRProgress.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
+		<key>PINCache.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
+		<key>PINRemoteImage.xcscheme</key>
 		<dict>
 			<key>isShown</key>
 			<false/>
@@ -22,17 +37,32 @@
 	</dict>
 	<key>SuppressBuildableAutocreation</key>
 	<dict>
+		<key>123BBAC46B0AA117DDAB1163946EB520</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>4AC4F984FC390837AB6228A53AA333BE</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
 		<key>5352D432641F0656C90741034E32F31E</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>81EF58F9995477752B4A237432C0333F</key>
+		<key>53D488B49199F32DC188F3BA612784D7</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>CD14AB124F1B726729AA0F3D70FF2621</key>
+		<key>7E8403AC15B8B9BBE8A547D9319C9233</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>DD15CFF7BE5E95264E4947A1DAE77F2F</key>
 		<dict>
 			<key>primary</key>
 			<true/>

@@ -1,0 +1,6 @@
+#include "MRProgress.xcconfig"
+GCC_PREPROCESSOR_DEFINITIONS = $(inherited) COCOAPODS=1
+HEADER_SEARCH_PATHS = "${PODS_ROOT}/Headers/Private" "${PODS_ROOT}/Headers/Private/MRProgress" "${PODS_ROOT}/Headers/Public" "${PODS_ROOT}/Headers/Public/AsyncDisplayKit" "${PODS_ROOT}/Headers/Public/MRProgress" "${PODS_ROOT}/Headers/Public/PINCache" "${PODS_ROOT}/Headers/Public/PINRemoteImage" "${PODS_ROOT}/Headers/Public/SDWebImage"
+OTHER_LDFLAGS = ${MRPROGRESS_OTHER_LDFLAGS}
+PODS_ROOT = ${SRCROOT}
+SKIP_INSTALL = YES
