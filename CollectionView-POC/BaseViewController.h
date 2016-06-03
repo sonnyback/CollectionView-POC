@@ -11,7 +11,7 @@
 @interface BaseViewController : UIViewController <UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, UITextFieldDelegate, UIGestureRecognizerDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UIApplicationDelegate> {
     
     //UITapGestureRecognizer *tap;
-    CGRect prevFrame;
+    //CGRect prevFrame;
 }
 
 @property (nonatomic) BOOL isFullScreen;

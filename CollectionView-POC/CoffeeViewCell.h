@@ -7,7 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "CoffeeImageData.h"
+//#import "CoffeeImageData.h"
 
 @interface CoffeeViewCell : UICollectionViewCell
 
