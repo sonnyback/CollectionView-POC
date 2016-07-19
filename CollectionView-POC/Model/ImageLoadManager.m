@@ -53,6 +53,15 @@
     return _userSavedImages;
 }
 
+// lazy instantiate recordIDsArray
+- (NSMutableArray *)recordIDsArray {
+    
+    if (!_recordIDsArray) {
+        _recordIDsArray = [[NSMutableArray alloc] init];
+    }
+    
+    return _recordIDsArray;
+}
 
 - (instancetype)init {
     NSLog(@"Loading ImageLoadManager...");
@@ -299,7 +308,7 @@
 - (CoffeeImageData *)coffeeImageDataForCell:(NSUInteger)index {
     NSLog(@"INFO: coffeeImageDataForCell for cell %lu", (unsigned long)index);
     
-    // if the index value is < then array size, get the card, else return nil
+    // if the index value is < then array size, get the object, else return nil
     return (index < [self.coffeeImageDataArray count] ? self.coffeeImageDataArray[index] : nil);
 }
 
@@ -312,7 +321,7 @@
 - (RecipeImageData *)recipeImageDataForCell:(NSUInteger)index {
     NSLog(@"INFO: RecipeImageDataForCell for cell %lu", (unsigned long)index);
     
-    // if the index value is < then array size, get the card, else return nil
+    // if the index value is < then array size, get the object, else return nil
     return (index < [self.recipeImageDataArray count] ? self.recipeImageDataArray[index] : nil);
 }
 
@@ -322,7 +331,7 @@
  *
  * @param NSString *selection (selected segment)
  */
-- (void)getUserSavedImagesForSelection:(NSString *)selection {
+/*- (void)getUserSavedImagesForSelection:(NSString *)selection {
     
     NSLog(@"INFO: getUserSavedImagesForSelection: %@", selection);
     
@@ -344,6 +353,34 @@
         NSPredicate *filterPredicate = [NSPredicate predicateWithFormat:PREDICATE_IS_LIKED_YES];
         [self.userSavedImages filterUsingPredicate:filterPredicate]; // filter based on predicate
     }
+}*/
+
+- (void)getUserSavedImagesForSelection:(NSString *)selection {
+    
+    NSLog(@"INFO: getUserSavedImagesForSelection: %@", selection);
+    
+    // clear out the array before populating it
+    if ([self.recordIDsArray count] > 0) {
+        [self.recordIDsArray removeAllObjects];
+    }
+    
+    NSArray *keys = [self.userActivityDictionary allKeys];
+    //NSLog(@"DEBUG: number of keys: %lul", (unsigned long)[keys count]);
+    for (NSString *key in keys) {
+        //NSLog(@"INFO: Current key: %@", key);
+        UserActivity *ua = self.userActivityDictionary[key];
+        //NSLog(@"UA object: %@", ua.description);
+        // check to see if it's a CID or RID reference as well as what segmented control is selected
+        if (ua.cidReference != NULL && [selection isEqualToString:IMAGES_SEGMENTED_CTRL]) {
+            NSLog(@"CKReference CID recordID: %@", ua.cidReference.recordID);
+            [self.recordIDsArray addObject:key];
+        } else if (ua.ridReference != NULL && [selection isEqualToString:RECIPES_SEGMENTED_CTRL]) {
+            NSLog(@"CKReference RID recordID: %@", ua.ridReference.recordID);
+            [self.recordIDsArray addObject:key];
+        }
+    }
+    
+    NSLog(@"DEBUG: recordIDsArray size: %lu", (unsigned long)[self.recordIDsArray count]);
 }
 
 /**

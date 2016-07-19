@@ -35,5 +35,6 @@
 - (void)deleteUserActivityRecord:(UserActivity *)userActivityRecord;
 - (CKAccountStatus)getUsersCKStatus;
 - (void)updateLikeCountForRecordID:(NSString *)recordID shouldIncrement:(BOOL)indicator withCompletionHandler:(void (^)(NSError *error))completionHandler;
+- (void)fetchUserFavoritedRecords:(NSArray *)recordIDs withCompletionHandler:(void (^)(NSDictionary *results, NSError *error))completionHandler;
 @end
 

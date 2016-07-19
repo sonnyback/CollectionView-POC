@@ -1,10 +1,10 @@
 PODS:
-  - AsyncDisplayKit (1.9.74):
-    - AsyncDisplayKit/PINRemoteImage (= 1.9.74)
-  - AsyncDisplayKit/ASDealloc2MainObject (1.9.74)
-  - AsyncDisplayKit/Core (1.9.74):
+  - AsyncDisplayKit (1.9.80):
+    - AsyncDisplayKit/PINRemoteImage (= 1.9.80)
+  - AsyncDisplayKit/ASDealloc2MainObject (1.9.80)
+  - AsyncDisplayKit/Core (1.9.80):
     - AsyncDisplayKit/ASDealloc2MainObject
-  - AsyncDisplayKit/PINRemoteImage (1.9.74):
+  - AsyncDisplayKit/PINRemoteImage (1.9.80):
     - AsyncDisplayKit/Core
     - PINRemoteImage/iOS (>= 3.0.0-beta.2)
   - MRProgress (0.8.3):
@@ -40,9 +40,9 @@ PODS:
     - PINCache (>= 2.1)
   - PINRemoteImage/iOS (3.0.0-beta.2):
     - PINRemoteImage/Core
-  - SDWebImage (3.7.6):
-    - SDWebImage/Core (= 3.7.6)
-  - SDWebImage/Core (3.7.6)
+  - SDWebImage (3.8.1):
+    - SDWebImage/Core (= 3.8.1)
+  - SDWebImage/Core (3.8.1)
 
 DEPENDENCIES:
   - AsyncDisplayKit
@@ -50,10 +50,10 @@ DEPENDENCIES:
   - SDWebImage (~> 3.7)
 
 SPEC CHECKSUMS:
-  AsyncDisplayKit: cbd10f28030c0b904cef1bd8e7d96d775c5b0484
+  AsyncDisplayKit: ab57b10cd058797015c77be10407f3dc13027c85
   MRProgress: 16de7cc9f347e8846797a770db102a323fe7ef09
   PINCache: 078426d356ab95ef875e9e62e5c35a2ea3333c28
   PINRemoteImage: 197554c5ba57a6ae90f5db441651180039fc9062
-  SDWebImage: c325cf02c30337336b95beff20a13df489ec0ec9
+  SDWebImage: 35f9627a3e44b4f292a8a8ce6a531fa488239b91
 
 COCOAPODS: 0.38.2

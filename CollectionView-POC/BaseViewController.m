@@ -561,11 +561,11 @@ dispatch_queue_t queue;
     UICollectionViewFlowLayout *flowLayout=[[UICollectionViewFlowLayout alloc] init];
     //CustomFlowLayout *flowLayout = [[CustomFlowLayout alloc] init];
     //flowLayout.itemSize = CGSizeMake(ITEM_SIZE, ITEM_SIZE); // globally sets the item (cell) size
-    flowLayout.minimumInteritemSpacing = 2.0;
+    flowLayout.minimumInteritemSpacing = 5.0;
     flowLayout.minimumLineSpacing = 10.0;
     flowLayout.sectionInset = UIEdgeInsetsMake(5, 5, 5, 5);
     
-    /* DYNAMIC setting of the cell size and items per row... */
+    // DYNAMIC setting of the cell size and items per row...
     CGFloat leftAndRightPaddings = 32.0;
     //CGFloat leftAndRightPaddings = 12.0;
     CGFloat numberOfItemsPerRow = 3.0;
@@ -575,6 +575,10 @@ dispatch_queue_t queue;
     self.cellSize = flowLayout.itemSize; // in case we need to pass the cell size to other methods
     //flowLayout.itemSize = CGSizeMake(ITEM_SIZE, ITEM_SIZE + 30.0);
     
+    /*flowLayout.minimumInteritemSpacing = 2.0;
+    flowLayout.sectionInset = UIEdgeInsetsMake(5, 5, 5, 5);
+    CGFloat width = CGRectGetWidth(self.view.frame) / 3;
+    flowLayout.itemSize = CGSizeMake(width, width);*/
     
     self.myCollectionView.userInteractionEnabled = YES;
     self.myCollectionView.delaysContentTouches = NO;
@@ -740,9 +744,6 @@ dispatch_queue_t queue;
                             NSLog(@"WARN: CID imageURL is nil...cannot cache.");
                             dispatch_async(dispatch_get_main_queue(), ^{
                                 // below block is commented out...this was pre-iOS 8 way and now depricated
-                                /*UIAlertView *reloadAlert = [[UIAlertView alloc] initWithTitle:YIKES_TITLE message:ERROR_LOADING_CK_DATA_MSG delegate:nil cancelButtonTitle:CANCEL_BUTTON otherButtonTitles:TRY_AGAIN_BUTTON, nil];
-                                reloadAlert.delegate = self;
-                                [reloadAlert show];*/
                                 [self actionButtonClicked:self]; // call method for handling action button(s)
                             });
                         }
@@ -1146,11 +1147,13 @@ dispatch_queue_t queue;
                         CKReference *cidReference = [[CKReference alloc] initWithRecord:record[COFFEE_IMAGE_DATA_RECORD_TYPE] action:CKReferenceActionNone];
                         //NSLog(@"RecordID of cidReference: %@", cidReference.recordID.recordName);
                         CoffeeImageData *coffeeImageData = (CoffeeImageData *)cidReference;
+                        //NSLog(@"CID recordID: %@", coffeeImageData.recordID);
                         userActivity.cidReference = coffeeImageData;
                         //userActivity.recordID = cidReference.recordID.recordName;
                         userActivity.recordID = record.recordID.recordName;
                         NSLog(@"INFO: Reference recordID %@, UA recordID: %@", cidReference.recordID.recordName, userActivity.recordID);
                         [self.imageLoadManager.userActivityDictionary setObject:userActivity forKey:cidReference.recordID.recordName];
+                        //NSLog(@"DEBUG: current UserActivityDictionary size: %lu", (unsigned long)[self.imageLoadManager.userActivityDictionary count]);
                     }
                 }
             } else {
@@ -1304,7 +1307,7 @@ dispatch_queue_t queue;
  */
 - (IBAction)actionButtonClicked:(id)sender {
     
-    NSLog(@"DEBUG: actionButtonClicked...");
+    NSLog(@"INFO: actionButtonClicked...");
     UIAlertController *alert = [UIAlertController alertControllerWithTitle:YIKES_TITLE message:ERROR_LOADING_CK_DATA_MSG preferredStyle:UIAlertControllerStyleActionSheet];
     
     UIAlertAction *tryAgainAction = [UIAlertAction actionWithTitle:TRY_AGAIN_BUTTON
@@ -1320,6 +1323,29 @@ dispatch_queue_t queue;
     
     [alert addAction:tryAgainAction];
     [alert addAction:cancelAction];
+    
+    [self presentViewController:alert animated:YES completion:nil];
+}
+
+/**
+ *
+ *
+ *
+ *
+ */
+- (IBAction)actionButtonClickedForNoFavoritedImages:(id)sender {
+    
+    NSLog(@"INFO: actionButtonClickedForNoFavoritedImages...");
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:NO_FAVORITED_IMAGES_TITLE message:NO_FAVORITED_IMAGES_MSG preferredStyle:UIAlertControllerStyleActionSheet];
+    
+    UIAlertAction *okAction = [UIAlertAction actionWithTitle:OK
+                                                       style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+                                                           NSLog(@"Logging Action...");
+                                                           // refresh the CV after the user hits ok...
+                                                           [self updateUI];
+                                                       }];
+    
+    [alert addAction:okAction];
     
     [self presentViewController:alert animated:YES completion:nil];
 }
@@ -1602,28 +1628,6 @@ dispatch_queue_t queue;
         
         [self presentViewController:alert animated:YES completion:nil];
         
-        /*[self.customActionSheet showInView:self.view withCompletionHandler:^(NSString *buttonTitle, NSInteger buttonIndex) {
-            //NSLog(@"You tapped button in index %ld", (long)buttonIndex);
-            //NSLog(@"Your selection is %@", buttonTitle);
-            if ([buttonTitle isEqualToString:CAMERA]) {
-                picker.sourceType = UIImagePickerControllerSourceTypeCamera;
-                [picker setAllowsEditing:YES]; // let the user edit the photo
-                // set the camera presentation style
-                picker.modalPresentationStyle = UIModalPresentationCurrentContext;
-                
-                dispatch_async(dispatch_get_main_queue(), ^{ // show the camera on main thread to avoid latency
-                    [self presentViewController:picker animated:YES completion:nil]; // show the camera with animation
-                });
-            } else if ([buttonTitle isEqualToString:PHOTO_LIBRARY]) {
-                picker.sourceType = UIImagePickerControllerSourceTypeSavedPhotosAlbum;
-                [picker setAllowsEditing:YES]; // let the user edit the photo
-                picker.modalPresentationStyle = UIModalPresentationCurrentContext;
-                
-                dispatch_async(dispatch_get_main_queue(), ^{ // show the camera on main thread to avoid latency
-                    [self presentViewController:picker animated:YES completion:nil]; // show the camera with animation
-                });
-            }
-        }];*/
     } else if (self.userAccountStatus == CKAccountStatusNoAccount) { // status = 3
         NSLog(@"INFO: User is not logged into CK - Camera not available!");
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -1659,36 +1663,134 @@ dispatch_queue_t queue;
     
     NSLog(@"INFO: UserBarButtonPressed...");
     
-    // get the saved images for the user
-    [self.imageLoadManager getUserSavedImagesForSelection:[self getSelectedSegmentTitle]];
-    
-    // make sure the user has saved any images that can be displayed when this button is tapped.
-    if ([self.imageLoadManager.userSavedImages count] > 0) {
-        if (self.userBarButtonSelected) {
-            [self.userBarButtonItem setImage:[UIImage imageNamed:USER_MALE_25]];
-        } else {
-            NSLog(@"*******Showing liked images only!********");
-            [self.userBarButtonItem setImage:[UIImage imageNamed:USER_MALE_FILLED_25]];
-        }
-        // toggle the button selection status
-        self.userBarButtonSelected = !self.userBarButtonSelected;
+    /* Make sure the user has favorited images - if this dictionary is empty, the user has no favorited images so no need to proceed */
+    if ([self.imageLoadManager.userActivityDictionary count] > 0) {
         
-        // user tapped the profile button so adjust NOIIS accordingly
-        if (self.userBarButtonSelected) {
-            self.numberOfItemsInSection = [self.imageLoadManager.userSavedImages count];
-        } else {
-            // check to see which segmented control is selected so we can set and display the CV accordingly
-            if ([[self getSelectedSegmentTitle] isEqualToString:IMAGES_SEGMENTED_CTRL]) {
-                self.numberOfItemsInSection = [self.imageLoadManager.coffeeImageDataArray count];
-            } else if ([[self getSelectedSegmentTitle] isEqualToString:RECIPES_SEGMENTED_CTRL]) {
-                self.numberOfItemsInSection = [self.imageLoadManager.recipeImageDataArray count];
+        if (self.userAccountStatus == 1) { // make sure user is logged into icloud
+            // userBarButton is already selected so leaving favorited images mode
+            if (self.userBarButtonSelected) {
+                NSLog(@"DEBUG: userBarButtonSelected IS selected.");
+                
+                // leaving favorited images mode, so set the user icon to the unfilled image
+                [self.userBarButtonItem setImage:[UIImage imageNamed:USER_MALE_25]];
+                
+                // leaving favorited images mode, so set the NOIIS accordingly
+                // check to see which segmented control is selected so we can set and display the CV accordingly
+                if ([[self getSelectedSegmentTitle] isEqualToString:IMAGES_SEGMENTED_CTRL]) {
+                    self.numberOfItemsInSection = [self.imageLoadManager.coffeeImageDataArray count];
+                } else if ([[self getSelectedSegmentTitle] isEqualToString:RECIPES_SEGMENTED_CTRL]) {
+                    self.numberOfItemsInSection = [self.imageLoadManager.recipeImageDataArray count];
+                }
+                [self updateUI];
+                // get rid of this array as it's not currently needed
+                self.imageLoadManager.userSavedImages = nil;
+            } else { // userBarButton is NOT selected, so need to retrieve the user's favorited images
+                NSLog(@"DEBUG: userBarButtonSelected is NOT selected");
+                
+                NSLog(@"*******Showing liked images only!********");
+                // set the user icon image accordingly
+                [self.userBarButtonItem setImage:[UIImage imageNamed:USER_MALE_FILLED_25]];
+                
+                [self.spinner startAnimating]; // start the spinner
+                
+                [self.imageLoadManager.userSavedImages removeAllObjects]; // remove all objects from the USI array
+                
+                // wipe out the collecitonview cells before reloading...
+                self.numberOfItemsInSection = 0;
+                [self updateUI];
+                    
+                // get the recordIDs of the user's favorited Images (CoffeeImageData)
+                [self.imageLoadManager getUserSavedImagesForSelection:[self getSelectedSegmentTitle]];
+                
+                dispatch_async(queue, ^{
+                    [self.ckManager fetchUserFavoritedRecords:self.imageLoadManager.recordIDsArray withCompletionHandler:^(NSDictionary *results, NSError *error) {
+                        if (!error) {
+                            // get the keys for the results returned in the dictionary
+                            NSArray *resultsKeys = [results allKeys];
+                            // create the CID object for each record returned
+                            for (NSString *key in resultsKeys) {
+                                CKRecord *record = results[key];
+                                NSLog(@"Fetched record for recordID: %@", record.recordID.recordName);
+                                // rendering favorited *images*
+                                if ([[self getSelectedSegmentTitle] isEqualToString:IMAGES_SEGMENTED_CTRL]) {
+                                    NSLog(@"INFO: Rendering favorited images for Images....");
+                                    CoffeeImageData *coffeeImageData = [[CoffeeImageData alloc] init];
+                                    CKAsset *imageAsset = record[IMAGE];
+                                    coffeeImageData.imageURL = imageAsset.fileURL;
+                                    //NSLog(@"asset URL: %@", coffeeImageData.imageURL);
+                                    coffeeImageData.imageName = record[IMAGE_NAME];
+                                    //NSLog(@"Image name: %@", coffeeImageData.imageName);
+                                    coffeeImageData.imageDescription = record[IMAGE_DESCRIPTION];
+                                    coffeeImageData.userID = record[USER_ID];
+                                    coffeeImageData.imageBelongsToCurrentUser = [record[IMAGE_BELONGS_TO_USER] boolValue];
+                                    coffeeImageData.recipe = [record[RECIPE] boolValue];
+                                    coffeeImageData.liked = [record[LIKED] boolValue]; // 0 = No, 1 = Yes
+                                    coffeeImageData.recordID = record.recordID.recordName;
+                                    coffeeImageData.likeCount = record[LIKE_COUNT];
+                                    coffeeImageData.liked = YES;
+                                    [self.imageLoadManager.userSavedImages addObject:coffeeImageData];
+                                    //NSLog(@"DEBUG: Added CID to userSavedImages...current count is %lu", (unsigned long)[self.imageLoadManager.userSavedImages count]);
+                                    
+                                } else if ([[self getSelectedSegmentTitle] isEqualToString:RECIPES_SEGMENTED_CTRL]) { // rendering for *recipes*
+                                    NSLog(@"INFO: Rendering favorited images for Recipes....");
+                                    RecipeImageData *recipeImageData = [[RecipeImageData alloc] init];
+                                    CKAsset *imageAsset = record[IMAGE];
+                                    recipeImageData.imageURL = imageAsset.fileURL;
+                                    recipeImageData.imageName = record[IMAGE_NAME];
+                                    recipeImageData.imageDescription = record[IMAGE_DESCRIPTION];
+                                    recipeImageData.userID = record[USER_ID];
+                                    recipeImageData.recipe = [record[RECIPE] boolValue]; // 0 = No, 1 = Yes
+                                    recipeImageData.recordID = record.recordID.recordName;
+                                    recipeImageData.likeCount = record[LIKE_COUNT];
+                                    recipeImageData.liked = YES;
+                                    [self.imageLoadManager.userSavedImages addObject:recipeImageData];
+                                }
+                            }
+                            // go back to the main queue for UI rendering...
+                            dispatch_async(dispatch_get_main_queue(), ^{
+                                // make sure the user has saved any images that can be displayed when this button is tapped.
+                                if ([self.imageLoadManager.userSavedImages count] > 0) {
+                                    // showing favorited images, so set the NOIIS to the userSavedImages array
+                                    self.numberOfItemsInSection = [self.imageLoadManager.userSavedImages count];
+                                    // stop the spinner and update the UI...
+                                    [self.spinner stopAnimating];
+                                    [self updateUI];
+                                } else {
+                                    // call action style alert so that CV won't refresh until user hits ok...
+                                    [self actionButtonClickedForNoFavoritedImages:self];
+                                    
+                                    // no favorited images to display so toggle the button selection status and set the correct image for user profile button
+                                    self.userBarButtonSelected = !self.userBarButtonSelected;
+                                    [self.userBarButtonItem setImage:[UIImage imageNamed:USER_MALE_25]];
+                                    // leaving favorited images mode, so set the NOIIS accordingly
+                                    // check to see which segmented control is selected so we can set and display the CV accordingly
+                                    if ([[self getSelectedSegmentTitle] isEqualToString:IMAGES_SEGMENTED_CTRL]) {
+                                        self.numberOfItemsInSection = [self.imageLoadManager.coffeeImageDataArray count];
+                                    } else if ([[self getSelectedSegmentTitle] isEqualToString:RECIPES_SEGMENTED_CTRL]) {
+                                        self.numberOfItemsInSection = [self.imageLoadManager.recipeImageDataArray count];
+                                    }
+                                    
+                                    //[self updateUI];
+                                    // get rid of this array as it's not currently needed
+                                    self.imageLoadManager.userSavedImages = nil;
+                                }
+                            });
+                        } else {
+                            NSLog(@"ERROR: Error encountered fetching user favorited records: %@", error.localizedDescription);
+                        }
+                    }];
+                });
             }
-            // get rid of this array as it's not currently needed
-            self.imageLoadManager.userSavedImages = nil;
+            // toggle the button selection status
+            self.userBarButtonSelected = !self.userBarButtonSelected;
+            
+        } else {
+            // alert user that they have no favorited images
+            [self alertWithTitle:ICLOUD_LOGIN_REQ_TITLE andMessage:ICLOUD_LOGIN_REQ_MSG];
         }
         
-        [self updateUI];
     } else {
+        NSLog(@"2");
         // alert user that they have no favorited images
         [self alertWithTitle:NO_FAVORITED_IMAGES_TITLE andMessage:NO_FAVORITED_IMAGES_MSG];
     }

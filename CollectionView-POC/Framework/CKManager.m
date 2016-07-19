@@ -496,4 +496,40 @@
     //dispatch_semaphore_wait(sema, DISPATCH_TIME_FOREVER);
 }
 
+/**
+ * Method that takes an array of recordIDs (as strings), converts them to CKRecordIDs and retrieves
+ * the record from the database.
+ *
+ * @param NSArray *recordIDs - array of recordIDs as strings
+ * @param ^completion handler block - NSDictionary *records, NSError *error
+ */
+- (void)fetchUserFavoritedRecords:(NSArray *)recordIDs withCompletionHandler:(void (^)(NSDictionary *, NSError *))completionHandler {
+    
+    NSLog(@"INFO: fetchUserFavoritedRecords for recordIDs...");
+    //dispatch_queue_t fetchQ = dispatch_queue_create("fetch records for recordIDs", NULL);
+    NSMutableArray *ckRecordIDs = [[NSMutableArray alloc] init]; // array for the CKRecordIDs
+    
+    // create a CKRecordID from each string recordid
+    for (NSString *stringRecordID in recordIDs) {
+        NSLog(@"INFO: creating CKRecord for recordID: %@", stringRecordID);
+        CKRecordID *ckRecordID = [[CKRecordID alloc] initWithRecordName:stringRecordID];
+        [ckRecordIDs addObject:ckRecordID];
+    }
+    
+    CKFetchRecordsOperation *fetchRecordsOperation = [[CKFetchRecordsOperation alloc] initWithRecordIDs:ckRecordIDs];
+    
+        
+    fetchRecordsOperation.fetchRecordsCompletionBlock = ^(NSDictionary *records, NSError *error) {
+        
+        if (error) {
+            NSLog(@"ERROR: Error fetching record: %@", error.localizedDescription);
+        } else {
+            NSLog(@"INFO: Successfully fetched %lu results!", (unsigned long)[records count]);
+            completionHandler(records, error);
+        }
+    };
+    
+    [self.publicDatabase addOperation:fetchRecordsOperation];
+}
+
 @end

@@ -14,6 +14,6 @@
 - (NSString *)description {
     
     //NSString *space = @", ";
-    return [NSString stringWithFormat:@"CID reference recordID: UserActivity recordID: %@%@", self.cidReference.recordID, self.recordID];
+    return [NSString stringWithFormat:@"CID reference recordID: %@ RID reference recordID: %@ UserActivity recordID: %@", self.cidReference.recordID, self.ridReference.recordID, self.recordID];
 }
 @end
