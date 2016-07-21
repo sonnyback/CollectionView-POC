@@ -1687,7 +1687,7 @@ dispatch_queue_t queue;
             } else { // userBarButton is NOT selected, so need to retrieve the user's favorited images
                 NSLog(@"DEBUG: userBarButtonSelected is NOT selected");
                 
-                NSLog(@"*******Showing liked images only!********");
+                NSLog(@"*******Showing favorited images only!********");
                 // set the user icon image accordingly
                 [self.userBarButtonItem setImage:[UIImage imageNamed:USER_MALE_FILLED_25]];
                 
@@ -2028,7 +2028,7 @@ dispatch_queue_t queue;
             //[self alertWithTitle:@"Coffee Photo Added!" andMessage:@"Your coffee was successfully added!"];
             //[self updateUI];
         } else {
-            NSLog(@"Unwinding did not work properly :(");
+            NSLog(@"DEBUG: Unwinding did not work properly :(");
         }
     }
 }
@@ -2036,9 +2036,9 @@ dispatch_queue_t queue;
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
     
     NSLog(@"PrepareForSegue!");
-    if ([segue.identifier isEqualToString:[self getSelectedSegmentTitle]]) { // identifer & segment tile = "Cafes"
+    /*if ([segue.identifier isEqualToString:[self getSelectedSegmentTitle]]) { // identifer & segment tile = "Cafes"
         NSLog(@"Segue to Cafe locator!");
-    } else if ([segue.identifier isEqualToString:ADD_NEW_PHOTO_SEGUE] &&
+    } else*/ if ([segue.identifier isEqualToString:ADD_NEW_PHOTO_SEGUE] &&
                [segue.destinationViewController isKindOfClass:[NewPhotoResultsViewController class]]) {
         NSLog(@"Segueing to view photo results!");
         NewPhotoResultsViewController *newPhotoResultsVC = (NewPhotoResultsViewController *)segue.destinationViewController;
