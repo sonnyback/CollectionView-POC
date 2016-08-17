@@ -79,7 +79,27 @@
                                             <action selector="cameraBarButtonPressed:" destination="vXZ-lx-hvc" id="NFp-n4-H5E"/>
                                         </connections>
                                     </barButtonItem>
-                                    <barButtonItem style="plain" systemItem="flexibleSpace" id="2vV-d6-iaT"/>
+                                    <barButtonItem style="plain" systemItem="flexibleSpace" id="5So-VB-Mcf"/>
+                                    <barButtonItem enabled="NO" title="Item" style="plain" id="unR-oc-gE8">
+                                        <view key="customView" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleToFill" id="3KR-8v-460">
+                                            <rect key="frame" x="55" y="5.5" width="210" height="33"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                            <subviews>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsLetterSpacingToFitWidth="YES" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="7d1-pQ-Ekn">
+                                                    <rect key="frame" x="87.5" y="8" width="35.5" height="17"/>
+                                                    <fontDescription key="fontDescription" style="UICTFontTextStyleSubhead"/>
+                                                    <color key="textColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                            </subviews>
+                                            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                                            <constraints>
+                                                <constraint firstItem="7d1-pQ-Ekn" firstAttribute="centerY" secondItem="3KR-8v-460" secondAttribute="centerY" id="84U-9p-RHN"/>
+                                                <constraint firstItem="7d1-pQ-Ekn" firstAttribute="centerX" secondItem="3KR-8v-460" secondAttribute="centerX" id="pdA-YC-lNq"/>
+                                            </constraints>
+                                        </view>
+                                    </barButtonItem>
+                                    <barButtonItem style="plain" systemItem="flexibleSpace" id="1RK-By-GMF"/>
                                     <barButtonItem title="Item" id="NLG-NQ-7pN">
                                         <connections>
                                             <action selector="userBarButtonPressed:" destination="vXZ-lx-hvc" id="bTh-73-uyh"/>
@@ -132,6 +152,8 @@
                         <outlet property="searchBar" destination="uSB-QY-ddN" id="d2E-rc-HbT"/>
                         <outlet property="spinner" destination="54p-Xr-gam" id="mIw-uh-NUV"/>
                         <outlet property="toolBar" destination="HFB-yh-hZe" id="uvl-wC-LZz"/>
+                        <outlet property="toolbarButton" destination="unR-oc-gE8" id="vux-kZ-K4A"/>
+                        <outlet property="toolbarButtonLabel" destination="7d1-pQ-Ekn" id="7Ny-Ea-hRs"/>
                         <outlet property="userBarButtonItem" destination="NLG-NQ-7pN" id="06v-xs-SuU"/>
                         <segue destination="LI1-wF-NTg" kind="modal" identifier="Add New Photo" id="ikY-c8-ZRZ"/>
                         <segue destination="dgi-sf-yWT" kind="modal" identifier="Show Recipe Details" id="ze5-Q8-Uqd"/>

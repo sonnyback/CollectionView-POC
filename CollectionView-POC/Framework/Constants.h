@@ -98,6 +98,9 @@ extern NSString *const UPLOADING_COFFEE_MSG;
 extern NSString *const COFFEE_UPLOAD_SUCCESS_MSG;
 extern NSString *const NO_FAVORITED_IMAGES_TITLE;
 extern NSString *const NO_FAVORITED_IMAGES_MSG;
+extern NSString *const LOADING_HEARTED_IMAGES_MSG;
+extern NSString *const LOADING_IMAGES_MSG;
+extern NSString *const LOADING_MORE_IMAGES_MSG;
 
 // Actions
 extern NSString *const PHOTO_BRANCH_ACTION;

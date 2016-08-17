@@ -10,7 +10,6 @@
 #import "CoffeeViewCell.h"
 #import "CustomFlowLayout.h"
 #import "NewPhotoResultsViewController.h"
-#import "CafeLocatorTableViewController.h"
 #import "ImageLoadManager.h"
 #import "CoffeeImageData.h"
 #import "Helper.h"
@@ -51,6 +50,8 @@
 @property (strong, nonatomic) CKQueryCursor *cidCursor;
 @property (strong, nonatomic) CKQueryCursor *ridCursor;
 @property (nonatomic) CGSize cellSize;
+@property (weak, nonatomic) IBOutlet UIBarButtonItem *toolbarButton;
+@property (weak, nonatomic) IBOutlet UILabel *toolbarButtonLabel;
 @end
 
 @implementation BaseViewController
@@ -217,8 +218,6 @@ dispatch_queue_t queue;
     
     if (cell) {
         [self.spinner stopAnimating]; // images should be loaded, so stop spinner
-        //cell.backgroundColor = [UIColor whiteColor];
-        //cell.layer.cornerRadius = 3;
         cell.layer.borderWidth = 1.0;
         cell.layer.borderColor = [UIColor grayColor].CGColor;
         
@@ -242,7 +241,7 @@ dispatch_queue_t queue;
                 if (cacheKey) {
                     [self.imageCache queryDiskCacheForKey:cacheKey done:^(UIImage *image, SDImageCacheType cacheType) {
                         if (image) {
-                            NSLog(@"INFO: Image found in SDWebImage cache for recordID <%@>!", coffeeImageData.recordID);
+                            NSLog(@"INFO: Image found in SDWebImage cache for recordID %@!", coffeeImageData.recordID);
                             //cell.coffeeImageView.image = image;
                             UIImage *thumbnail = [Helper imageWithImage:image scaledToSize:self.cellSize];
                             cell.coffeeImageView.image = thumbnail;
@@ -273,13 +272,13 @@ dispatch_queue_t queue;
                             NSLog(@"INFO: cacheKey found!");
                             [self.imageCache queryDiskCacheForKey:cacheKey done:^(UIImage *image, SDImageCacheType cacheType) {
                                 if (image) { // image is found in the cache
-                                    NSLog(@"INFO: Image found in SDWebImage cache for recordID <%@>!", coffeeImageData.recordID);
+                                    NSLog(@"INFO: Image found in SDWebImage cache for recordID %@!", coffeeImageData.recordID);
                                     // set the cell's image...
                                     UIImage *thumbnail = [Helper imageWithImage:image scaledToSize:self.cellSize];
                                     cell.coffeeImageView.image = thumbnail;
                                     //cell.coffeeImageView.image = image;
                                 } else {
-                                    NSLog(@"INFO: Image not found in cache for recordID <%@>, getting image from CID!", coffeeImageData.recordID);
+                                    NSLog(@"INFO: Image not found in cache for recordID %@, getting image from CID!", coffeeImageData.recordID);
                                     if (coffeeImageData.imageURL.path) {
                                         cell.coffeeImageView.image = [UIImage imageWithContentsOfFile:coffeeImageData.imageURL.path];
                                     }
@@ -300,6 +299,8 @@ dispatch_queue_t queue;
                     
                     // if scrolled to the last cell, fetch more records
                     if (indexPath.row == [self.imageLoadManager.coffeeImageDataArray count] -1) {
+                        //NSLog(@"DEBUG: Indexpath.row is: %ld and CID Array count is: %ld", (long)indexPath.row, [self.imageLoadManager.coffeeImageDataArray count]);
+                        NSLog(@"We hit the last cell in the CV, time to fetch more records!");
                         [self loadMoreRecordsFromCursor:self.cidCursor];
                     }
                 }
@@ -321,12 +322,12 @@ dispatch_queue_t queue;
                             NSLog(@"INFO: cacheKey found!");
                             [self.imageCache queryDiskCacheForKey:cacheKey done:^(UIImage *image, SDImageCacheType cacheType) {
                                 if (image) { // image is found in the cache
-                                    NSLog(@"INFO: Image found in SDWebImage cache for recordID <%@>!", recipeImageData.recordID);
+                                    NSLog(@"INFO: Image found in SDWebImage cache for recordID %@!", recipeImageData.recordID);
                                     //UIImage *thumbnail = [Helper imageWithImage:image scaledToWidth:ITEM_SIZE];
                                     //cell.coffeeImageView.image = thumbnail;
                                     cell.coffeeImageView.image = image;
                                 } else {
-                                    NSLog(@"INFO: Image not found in cache for recordID <%@>, getting image from RID!", recipeImageData.recordID);
+                                    NSLog(@"INFO: Image not found in cache for recordID %@, getting image from RID!", recipeImageData.recordID);
                                     if (recipeImageData.imageURL.path) {
                                         cell.coffeeImageView.image = [UIImage imageWithContentsOfFile:recipeImageData.imageURL.path];
                                     }
@@ -354,9 +355,33 @@ dispatch_queue_t queue;
     return cell;
 }
 
+/*- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
+    
+    NSLog(@"ScrollViewDidEndDecelerating...");
+    
+    CGFloat bottomEdge = scrollView.contentOffset.y + scrollView.frame.size.height;
+    
+    if (bottomEdge >= scrollView.contentSize.height)
+    {
+        // we are at the bottom
+        NSLog(@"$$$$ Scrolled to the end of the CollectionView!");
+        [self loadMoreRecordsFromCursor:self.cidCursor];
+    }
+    
+}*/
+
 /*- (void)scrollViewDidScroll:(UIScrollView *)scrollView {
     
-    NSLog(@"Collectionview is scrolling.");
+    //NSLog(@"Collectionview is scrolling.");
+    // getting the scroll offset
+    CGFloat bottomEdge = scrollView.contentOffset.y + scrollView.frame.size.height;
+    
+    if (bottomEdge >= scrollView.contentSize.height)
+    {
+        // we are at the bottom
+        NSLog(@"$$$$ Scrolled to the end of the CollectionView!");
+        [self loadMoreRecordsFromCursor:self.cidCursor];
+    }
 }*/
 
 /**
@@ -481,7 +506,7 @@ dispatch_queue_t queue;
     }
     
     
-    // if ! isFullScreen, then not yet viewing fullscreen image, so animate to fullScreen view
+    // if !isFullScreen, then not yet viewing fullscreen image, so animate to fullScreen view
     if (!self.isFullScreen) {
         self.fullScreenImage.transform = CGAffineTransformMakeScale(0.1, 0.1);
         __weak BaseViewController *weakSelf = self; // to make sure we don't have retain cycles. is this really needed here?
@@ -696,6 +721,7 @@ dispatch_queue_t queue;
 - (void)beginLoadingCloudKitData {
     
     NSLog(@"INFO: beginLoadingCloudKitData...started!");
+    self.toolbarButtonLabel.text = LOADING_IMAGES_MSG;
     
     dispatch_async(queue, ^{
         [self.ckManager loadCloudKitDataWithCompletionHandler:^(NSArray *results, CKQueryCursor *cursor, NSError *error) {
@@ -754,6 +780,7 @@ dispatch_queue_t queue;
                         self.userBarButtonItem.enabled = YES;
                         self.cameraBarButton.enabled = YES;
                         self.reloadBarButton.enabled = YES;
+                        self.toolbarButtonLabel.text = BLANK;
                         
                         /* If this is being called from reload button, check to see if the user profile button was tapped. If
                          * so, then toggle the status and set the image back to the unfilled (untapped) version. We don't want
@@ -859,11 +886,13 @@ dispatch_queue_t queue;
     
     // show the network activity indicator while fetching the records.
     [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:YES];
+    self.toolbarButtonLabel.text = LOADING_MORE_IMAGES_MSG;
     
     // check if all records been fetched
     if (self.cidCursor == nil || self.ridCursor == nil) {
         NSLog(@"INFO: All records fetched successfully!");
         [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
+        self.toolbarButtonLabel.text = BLANK;
     }
     
     [self.ckManager loadCloudKitDataFromCursor:queryCursor withCompletionHandler:^(NSArray *results, CKQueryCursor *cursor, NSError *error) {
@@ -897,7 +926,7 @@ dispatch_queue_t queue;
                             coffeeImageData.liked = [record[LIKED] boolValue]; // 0 = No, 1 = Yes
                             coffeeImageData.recordID = record.recordID.recordName;
                             coffeeImageData.likeCount = record[LIKE_COUNT];
-                            NSLog(@"INFO: Like Count: %d, for recordID: %@", [coffeeImageData.likeCount intValue], coffeeImageData.recordID);
+                            //NSLog(@"INFO: Like Count: %d, for recordID: %@", [coffeeImageData.likeCount intValue], coffeeImageData.recordID);
                             // check to see if the recordID of the current CID is userActivityDictionary. If so, it's in the user's private
                             // data so set liked value = YES
                             if ([self.imageLoadManager lookupRecordIDInUserData:coffeeImageData.recordID]) {
@@ -946,7 +975,7 @@ dispatch_queue_t queue;
                             //NSLog(@"RID isRecipe %d", recipeImageData.isRecipe);
                             recipeImageData.recordID = record.recordID.recordName;
                             recipeImageData.likeCount = record[LIKE_COUNT];
-                            NSLog(@"INFO: Like Count: %d, for recordID: %@", [recipeImageData.likeCount intValue], recipeImageData.recordID);
+                            //NSLog(@"INFO: Like Count: %d, for recordID: %@", [recipeImageData.likeCount intValue], recipeImageData.recordID);
                             // check to see if the recordID of the current CID is userActivityDictionary. If so, it's in the user's private
                             // data so set liked value = YES
                             if ([self.imageLoadManager lookupRecordIDInUserData:recipeImageData.recordID]) {
@@ -1002,96 +1031,10 @@ dispatch_queue_t queue;
                 
                 // update the UI on the main queue
                 dispatch_async(dispatch_get_main_queue(), ^{
+                    self.toolbarButtonLabel.text = BLANK;
                     [self.myCollectionView reloadData]; // reload the collectionview after getting more results
                 });
             }
-        }
-    }];
-}
-
-/**
- * Method to fetch more RID records from CK from the point of the cursor.
- *
- * @param ^Block(NSArray *, CKQueryCursor *, NSError *)
- * @return void
- */
-- (void)loadMoreRIDRecordsFromCursor:(CKQueryCursor *)queryCursor {
-    
-    NSLog(@"INFO: loadMoreRIDRecordsFromCursor...");
-    
-    [self.ckManager loadCloudKitDataFromCursor:queryCursor withCompletionHandler:^(NSArray *results, CKQueryCursor *cursor, NSError *error) {
-        if (!error) {
-            if ([results count] > 0) {
-                if (cursor) { // check to see if a cursor was returned in the completionhandler
-                    // recursively call this ourselves to get the next batch of records
-                    [self loadMoreRecordsFromCursor:cursor];
-                } else {
-                    NSLog(@"INFO: All RID records fetched successfully!");
-                    // kill the network activity indicator
-                    //[[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
-                }
-                
-                NSLog(@"INFO: Success querying the cloud for %lu results!!!", (unsigned long)[results count]);
-                // parse the records in the results array
-                for (CKRecord *record in results) {
-                    // create RecipeImageData object to store data in the array for each image
-                    RecipeImageData *recipeImageData = [[RecipeImageData alloc] init];
-                    CKAsset *imageAsset = record[IMAGE];
-                    recipeImageData.imageURL = imageAsset.fileURL;
-                    //NSLog(@"RID image URL: %@", recipeImageData.imageURL);
-                    recipeImageData.imageName = record[IMAGE_NAME];
-                    //NSLog(@"RID image name: %@", recipeImageData.imageName);
-                    recipeImageData.imageDescription = record[IMAGE_DESCRIPTION];
-                    //NSLog(@"RID image description: %@", recipeImageData.imageDescription);
-                    recipeImageData.userID = record[USER_ID];
-                    //NSLog(@"RID user id: %@", recipeImageData.userID);
-                    recipeImageData.recipe = [record[RECIPE] boolValue]; // 0 = No, 1 = Yes
-                    //NSLog(@"RID isRecipe %d", recipeImageData.isRecipe);
-                    recipeImageData.recordID = record.recordID.recordName;
-                    recipeImageData.likeCount = record[LIKE_COUNT];
-                    NSLog(@"INFO: Like Count: %d, for recordID: %@", [recipeImageData.likeCount intValue], recipeImageData.recordID);
-                    // check to see if the recordID of the current CID is userActivityDictionary. If so, it's in the user's private
-                    // data so set liked value = YES
-                    if ([self.imageLoadManager lookupRecordIDInUserData:recipeImageData.recordID]) {
-                        //NSLog(@"RecordID found in userActivityDictiontary!");
-                        recipeImageData.liked = YES;
-                    }
-                    // add the RID object to the array
-                    [self.imageLoadManager.recipeImageDataArray addObject:recipeImageData];
-                    // get updated user saved images from newly fetched records
-                    [self.imageLoadManager getUserSavedImagesForSelection:[self getSelectedSegmentTitle]];
-                    
-                    // cache the image with the string representation of the absolute URL as the cache key
-                    if (recipeImageData.imageURL) { // make sure there's an image URL to cache
-                        if (self.imageCache) {
-                            [self.imageCache storeImage:[UIImage imageWithContentsOfFile:recipeImageData.imageURL.path] forKey:recipeImageData.imageURL.absoluteString toDisk:YES];
-                            //NSLog(@"Printing cache: %@", [[SDImageCache sharedImageCache] description]);
-                        }
-                    } else {
-                        NSLog(@"WARN: RID imageURL is nil...cannot cache.");
-                    }
-                }
-                
-                /* BUG FOR HITTING USER BUTTON WHEN LOADING MORE RECORDS BEING ADDRESSED WITH THIS CODE...*/
-                // check segmented control && user profile button to display the CV accordingly
-                if ([[self getSelectedSegmentTitle] isEqualToString:IMAGES_SEGMENTED_CTRL] && !self.userBarButtonSelected) {
-                    self.numberOfItemsInSection = [self.imageLoadManager.coffeeImageDataArray count];
-                } else if ([[self getSelectedSegmentTitle] isEqualToString:IMAGES_SEGMENTED_CTRL] && self.userBarButtonSelected) {
-                    self.numberOfItemsInSection = [self.imageLoadManager.userSavedImages count];
-                } else if ([[self getSelectedSegmentTitle] isEqualToString:RECIPES_SEGMENTED_CTRL] && !self.userBarButtonSelected) {
-                    self.numberOfItemsInSection = [self.imageLoadManager.recipeImageDataArray count];
-                } else if ([[self getSelectedSegmentTitle] isEqualToString:RECIPES_SEGMENTED_CTRL] && self.userBarButtonSelected) {
-                    /// NOTE: This may need to be changed to handle recipe saved images!
-                    self.numberOfItemsInSection = [self.imageLoadManager.userSavedImages count];
-                }
-                
-                // update the UI on the main queue
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [self.myCollectionView reloadData]; // reload the collectionview after getting more results
-                });
-            }
-            // load the keys to be used for cache look up
-            [self getRIDCacheKeys];
         }
     }];
 }
@@ -1341,6 +1284,8 @@ dispatch_queue_t queue;
     UIAlertAction *okAction = [UIAlertAction actionWithTitle:OK
                                                        style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
                                                            NSLog(@"Logging Action...");
+                                                           // remove the loading favorited images label on the toolbar
+                                                           self.toolbarButtonLabel.text = BLANK;
                                                            // refresh the CV after the user hits ok...
                                                            [self updateUI];
                                                        }];
@@ -1447,6 +1392,7 @@ dispatch_queue_t queue;
     
     UIButton *button = (UIButton *)sender;
     NSIndexPath *indexPath = [NSIndexPath indexPathForRow:button.tag inSection:0];
+    NSLog(@"DEBUG: indexPath is: %ld", (long)indexPath.row);
     CoffeeViewCell *selectedCell = (CoffeeViewCell *)[self.myCollectionView cellForItemAtIndexPath:indexPath];
     CoffeeImageData *coffeeImageData;
     RecipeImageData *recipeImageData;
@@ -1459,6 +1405,7 @@ dispatch_queue_t queue;
     else
         recipeImageData = [self.imageLoadManager recipeImageDataForCell:indexPath.row];
     
+    NSLog(@"DEBUG: record id for CID is: %@", coffeeImageData.recordID);
     //CoffeeImageData *currentImageData = [self.imageLoadManager coffeeImageDataForCell:indexPath.row];
     //CoffeeImageData *currentImageData = self.imageLoadManager.coffeeImageDataArray[indexPath.row];
     
@@ -1693,6 +1640,8 @@ dispatch_queue_t queue;
                 
                 [self.spinner startAnimating]; // start the spinner
                 
+                self.toolbarButtonLabel.text = [NSString stringWithFormat:@"Loading your 💙'd %@", [self getSelectedSegmentTitle]];
+                
                 [self.imageLoadManager.userSavedImages removeAllObjects]; // remove all objects from the USI array
                 
                 // wipe out the collecitonview cells before reloading...
@@ -1754,6 +1703,7 @@ dispatch_queue_t queue;
                                     self.numberOfItemsInSection = [self.imageLoadManager.userSavedImages count];
                                     // stop the spinner and update the UI...
                                     [self.spinner stopAnimating];
+                                    self.toolbarButtonLabel.text = BLANK;
                                     [self updateUI];
                                 } else {
                                     // call action style alert so that CV won't refresh until user hits ok...
@@ -1892,6 +1842,10 @@ dispatch_queue_t queue;
     //[self.userBarButtonItem setBackgroundImage:[UIImage imageNamed:@"User Male-25"] forState:UIControlStateNormal barMetrics:UIBarMetricsDefault];
     [self.userBarButtonItem setImage:[UIImage imageNamed:USER_MALE_25]];
     self.userBarButtonSelected = NO; // set this to No initially to ensure user profile button is not selected
+    
+    self.toolbarButtonLabel.textAlignment = NSTextAlignmentCenter;
+    self.toolbarButtonLabel.textColor = [UIColor grayColor];
+    //self.toolbarButtonLabel.text = LOADING_IMAGES_MSG;
     
     // disable buttons while data is being retrieved
     self.userBarButtonItem.enabled = NO; // disable initially while data is being retrieved from the cloud
