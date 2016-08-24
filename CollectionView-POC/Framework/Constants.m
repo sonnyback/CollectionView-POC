@@ -98,7 +98,7 @@ NSString *const UPLOADING_COFFEE_MSG                = @"Uploading your coffee...
 NSString *const COFFEE_UPLOAD_SUCCESS_MSG           = @"Your coffee photo was successfully sent up to the clouds for everyone to see!";
 NSString *const NO_FAVORITED_IMAGES_TITLE           = @"No favorited images in your profile...";
 NSString *const NO_FAVORITED_IMAGES_MSG             = @"You have not favorited any images or recipes to your profile. Once you have favorited any images, they will be displayed when tapping this icon.";
-NSString *const LOADING_HEARTED_IMAGES_MSG          = @"Loading your 💙'd "; // trailing space is intentional
+NSString *const LOADING_HEARTED_IMAGES_MSG          = @"Loading your 💙 "; // trailing space is intentional
 NSString *const LOADING_IMAGES_MSG                  = @"Loading Images...";
 NSString *const LOADING_MORE_IMAGES_MSG             = @"Loading More Images...";
 

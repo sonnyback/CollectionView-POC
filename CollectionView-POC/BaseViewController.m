@@ -475,18 +475,20 @@ dispatch_queue_t queue;
     [recipeButton addTarget:self action:@selector(recipeButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
     
     // get the CID or RID object for this cell based on the segmented ctrl selected, i.e. Images=CID, Recipes=RID
-    if (self.displayImages) {
+    if (self.displayImages) { // images
         // determine if we're user saved images or not
         if (self.userBarButtonSelected) { // user saved images
             coffeeImageData = self.imageLoadManager.userSavedImages[indexPath.row];
-        } else // or not...
+        } else { // or not...
             coffeeImageData = [self.imageLoadManager coffeeImageDataForCell:indexPath.row];
-    } else {
+        }
+    } else { // recipes
         // determine if we're user saved recipes or not
         if (self.userBarButtonSelected) { // user saved recipes
             recipeImageData = self.imageLoadManager.userSavedImages[indexPath.row];
-        } else // or not...
+        } else { // or not...
             recipeImageData = [self.imageLoadManager recipeImageDataForCell:indexPath.row];
+        }
     }
     
     // get the correct CID/RID object for this cell
@@ -494,13 +496,14 @@ dispatch_queue_t queue;
     
     // check to see if the selected cell is for CID or RID, then determine like status
     selectedCell.imageIsLiked = (coffeeImageData) ? coffeeImageData.isLiked : recipeImageData.isLiked;
-    likeButton.selected = (coffeeImageData) ? coffeeImageData.isLiked : recipeImageData.isLiked;
+    //likeButton.selected = (coffeeImageData) ? coffeeImageData.isLiked : recipeImageData.isLiked;
     
     // Check to see if image is currently liked or not and display the correct heart image
     if (selectedCell.imageIsLiked) {
         //[likeButton setImage:[UIImage imageNamed:@"heart_blue_solid"] forState:UIControlStateNormal|UIControlStateSelected];
         // above line caused bug
         [likeButton setImage:[UIImage imageNamed:HEART_BLUE_SOLID] forState:UIControlStateNormal];
+        NSLog(@"Alert: IMAGE IS LIKED!");
     } else {
         [likeButton setImage:[UIImage imageNamed:HEART_BLUE] forState:UIControlStateNormal];
     }
@@ -754,7 +757,7 @@ dispatch_queue_t queue;
                         // check to see if the recordID of the current CID is userActivityDictionary. If so, it's in the user's private
                         // data so set liked value = YES
                         if ([self.imageLoadManager lookupRecordIDInUserData:coffeeImageData.recordID]) {
-                            //NSLog(@"RecordID found in userActivityDictiontary!");
+                            NSLog(@"RecordID %@ found in userActivityDictiontary!", coffeeImageData.recordID);
                             coffeeImageData.liked = YES;
                         }
                         // add the CID object to the array
@@ -1397,34 +1400,55 @@ dispatch_queue_t queue;
     CoffeeImageData *coffeeImageData;
     RecipeImageData *recipeImageData;
     
+    NSLog(@"DEBUG: selectedCell imageIsLiked BEFORE toggle: %d", selectedCell.imageIsLiked);
+    
     selectedCell.imageIsLiked = !selectedCell.imageIsLiked; // toggle this based on button being pressed
     
+    NSLog(@"DEBUG: selectedCell imageIsLiked AFTER toggle: %d", selectedCell.imageIsLiked);
+    
     // get the CID or RID object for this cell based on the segmented ctrl selected, i.e. Images=CID, Recipes=RID
-    if (self.displayImages)
+    /*if (self.displayImages)
         coffeeImageData = [self.imageLoadManager coffeeImageDataForCell:indexPath.row];
     else
         recipeImageData = [self.imageLoadManager recipeImageDataForCell:indexPath.row];
+    */
+    // get the CID or RID object for this cell based on the segmented ctrl selected, i.e. Images=CID, Recipes=RID
+    if (self.displayImages) { // images
+        // determine if we're in user saved images or not
+        if (self.userBarButtonSelected) { // user saved images
+            coffeeImageData = self.imageLoadManager.userSavedImages[indexPath.row];
+        } else {// or not...
+            coffeeImageData = [self.imageLoadManager coffeeImageDataForCell:indexPath.row];
+        }
+        coffeeImageData.liked = selectedCell.imageIsLiked;
+    } else { // recipes
+        // determine if we're user saved recipes or not
+        if (self.userBarButtonSelected) { // user saved recipes
+            recipeImageData = self.imageLoadManager.userSavedImages[indexPath.row];
+        } else {// or not...
+            recipeImageData = [self.imageLoadManager recipeImageDataForCell:indexPath.row];
+        }
+        recipeImageData.liked = selectedCell.imageIsLiked;
+    }
     
-    NSLog(@"DEBUG: record id for CID is: %@", coffeeImageData.recordID);
+    //NSLog(@"DEBUG: record id for CID is: %@", coffeeImageData.recordID);
     //CoffeeImageData *currentImageData = [self.imageLoadManager coffeeImageDataForCell:indexPath.row];
     //CoffeeImageData *currentImageData = self.imageLoadManager.coffeeImageDataArray[indexPath.row];
     
-    //NSLog(@"likeButtonPressed for image name: %@", currentImageData.imageName);
     NSLog(@"likeButtonPressed for: section:%ld row:%ld", (long)indexPath.section, (long)indexPath.row);
     
     // update the liked value in the model based on the user hitting the like button on the image
-    //currentImageData.liked = selectedCell.imageIsLiked;
-    
-    if (coffeeImageData) coffeeImageData.liked = selectedCell.imageIsLiked;
-    else recipeImageData.liked = selectedCell.imageIsLiked;
+    //if (coffeeImageData) coffeeImageData.liked = selectedCell.imageIsLiked;
+    //else recipeImageData.liked = selectedCell.imageIsLiked;
     
     // branch logic for images being liked
     if (coffeeImageData.isLiked || recipeImageData.isLiked) {
-        NSLog(@"INFO: image is liked for an image or recipe!");
+        //NSLog(@"INFO: image is liked for an image or recipe!");
         [button setImage:[UIImage imageNamed:HEART_BLUE_SOLID] forState:UIControlStateNormal];
         
         // branching logic for CID...
         if (coffeeImageData) {
+            
             /** Look up the recordID in userActivityDictionary. If it's already there, we do not need to save it user's private data as it already exists.
             In this scenario, the user must have already liked it and saved the record, then unliked it and reliked it in the same session */
             if (![self.imageLoadManager lookupRecordIDInUserData:coffeeImageData.recordID]) {
@@ -1480,6 +1504,7 @@ dispatch_queue_t queue;
         
         // branch logic for images (CoffeeImageData)
         if (coffeeImageData) {
+            
             // if the user is unliking the image, check to see if it's currently in userActivity. If so, remove it
             if ([self.imageLoadManager lookupRecordIDInUserData:coffeeImageData.recordID]) {
                 UserActivity *currentUARecord = [self.imageLoadManager.userActivityDictionary objectForKey:coffeeImageData.recordID];
@@ -1498,10 +1523,11 @@ dispatch_queue_t queue;
                     // remove this record from the userActivityDictionary. *NOTE: Move this to CKManager once ILM object is there!
                     [self.imageLoadManager removeUserActivityDataFromDictionary:coffeeImageData.recordID];
                 } else {
-                    NSLog(@"INFO: Object passed is NOT a UserActivity record!");
+                    NSLog(@"ERROR: Object passed is NOT a UserActivity record!");
                 }
             }
         } else if (recipeImageData) { // branch logic for recipes (RecipeImageData)
+            
             // if the user is unliking the image, check to see if it's currently in userActivity. If so, remove it
             if ([self.imageLoadManager lookupRecordIDInUserData:recipeImageData.recordID]) {
                 UserActivity *currentUARecord = [self.imageLoadManager.userActivityDictionary objectForKey:recipeImageData.recordID];
@@ -1513,7 +1539,7 @@ dispatch_queue_t queue;
                     // remove this record from the userActivityDictionary. *NOTE: Move this to CKManager once ILM object is there!
                     [self.imageLoadManager removeUserActivityDataFromDictionary:recipeImageData.recordID];
                 } else {
-                    NSLog(@"INFO: Object passed is NOT a UserActivity record!");
+                    NSLog(@"ERROR: Object passed is NOT a UserActivity record!");
                 }
             }
         }
@@ -1640,7 +1666,7 @@ dispatch_queue_t queue;
                 
                 [self.spinner startAnimating]; // start the spinner
                 
-                self.toolbarButtonLabel.text = [NSString stringWithFormat:@"Loading your 💙'd %@", [self getSelectedSegmentTitle]];
+                self.toolbarButtonLabel.text = [NSString stringWithFormat:@"Loading your 💙 %@", [self getSelectedSegmentTitle]];
                 
                 [self.imageLoadManager.userSavedImages removeAllObjects]; // remove all objects from the USI array
                 
@@ -2009,6 +2035,7 @@ dispatch_queue_t queue;
     // Dispose of any resources that can be recreated.
     NSLog(@"INFO: Did Receive Memory Warning...clearing cache!");
     [self.imageCache clearMemory];
+    [self.imageCache clearDisk];
 }
 
 @end
