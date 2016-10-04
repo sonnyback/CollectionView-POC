@@ -76,6 +76,7 @@
 // because this this called out of storyboard...
 - (void)awakeFromNib {
     
+    [super awakeFromNib]; // added as result of warning in xcode 8
     NSLog(@"INFO: awakeFromNib...");
     [self setup];
 }

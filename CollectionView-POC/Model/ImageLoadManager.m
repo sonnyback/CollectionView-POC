@@ -300,6 +300,50 @@
 }
 
 /**
+ * Returns the index in the array for the corresponding CID object at
+ * for the given recordID.
+ *
+ * @param NSString *recordID
+ * @return NSUInteger index
+ */
+- (NSUInteger)getIndexForCIDRecordID:(NSString *)recordID {
+    
+    NSUInteger index = 0;
+    
+    for (CoffeeImageData *cid in self.coffeeImageDataArray) {
+        if ([recordID isEqualToString:cid.recordID]) {
+            NSLog(@"DEBUG: CID found for recordID: %@", recordID);
+            index = [self.coffeeImageDataArray indexOfObject:cid];
+            break; // found what we're looking for so break out
+        }
+    }
+    
+    return index;
+}
+
+/**
+ * Returns the index in the array for the corresponding RID object at
+ * for the given recordID.
+ *
+ * @param NSString *recordID
+ * @return NSUInteger index
+ */
+- (NSUInteger)getIndexForRIDRecordID:(NSString *)recordID {
+    
+    NSUInteger index = 0;
+    
+    for (RecipeImageData *rid in self.recipeImageDataArray) {
+        if ([recordID isEqualToString:rid.recordID]) {
+            NSLog(@"DEBUG: RID found for recordID: %@", recordID);
+            index = [self.recipeImageDataArray indexOfObject:rid];
+            break; // found what we're looking for so break out
+        }
+    }
+    
+    return index;
+}
+
+/**
  * Method for getting a specific CoffeeImageData object in the array via the index passed
  *
  * @param NSUInteger index

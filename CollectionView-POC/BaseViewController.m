@@ -1658,7 +1658,7 @@ dispatch_queue_t queue;
                 // get rid of this array as it's not currently needed
                 self.imageLoadManager.userSavedImages = nil;
             } else { // userBarButton is NOT selected, so need to retrieve the user's favorited images
-                NSLog(@"DEBUG: userBarButtonSelected is NOT selected");
+                //NSLog(@"DEBUG: userBarButtonSelected is NOT selected");
                 
                 NSLog(@"*******Showing favorited images only!********");
                 // set the user icon image accordingly
@@ -1682,43 +1682,29 @@ dispatch_queue_t queue;
                         if (!error) {
                             // get the keys for the results returned in the dictionary
                             NSArray *resultsKeys = [results allKeys];
+                            
                             // create the CID object for each record returned
                             for (NSString *key in resultsKeys) {
-                                CKRecord *record = results[key];
+                                
+                                CKRecord *record = results[key]; // create the CKRecord from the recordID (string)
                                 NSLog(@"Fetched record for recordID: %@", record.recordID.recordName);
+                                
                                 // rendering favorited *images*
                                 if ([[self getSelectedSegmentTitle] isEqualToString:IMAGES_SEGMENTED_CTRL]) {
                                     NSLog(@"INFO: Rendering favorited images for Images....");
-                                    CoffeeImageData *coffeeImageData = [[CoffeeImageData alloc] init];
-                                    CKAsset *imageAsset = record[IMAGE];
-                                    coffeeImageData.imageURL = imageAsset.fileURL;
-                                    //NSLog(@"asset URL: %@", coffeeImageData.imageURL);
-                                    coffeeImageData.imageName = record[IMAGE_NAME];
-                                    //NSLog(@"Image name: %@", coffeeImageData.imageName);
-                                    coffeeImageData.imageDescription = record[IMAGE_DESCRIPTION];
-                                    coffeeImageData.userID = record[USER_ID];
-                                    coffeeImageData.imageBelongsToCurrentUser = [record[IMAGE_BELONGS_TO_USER] boolValue];
-                                    coffeeImageData.recipe = [record[RECIPE] boolValue];
-                                    coffeeImageData.liked = [record[LIKED] boolValue]; // 0 = No, 1 = Yes
-                                    coffeeImageData.recordID = record.recordID.recordName;
-                                    coffeeImageData.likeCount = record[LIKE_COUNT];
-                                    coffeeImageData.liked = YES;
-                                    [self.imageLoadManager.userSavedImages addObject:coffeeImageData];
+                                    NSUInteger index = [self.imageLoadManager getIndexForCIDRecordID:record.recordID.recordName];
+                                    NSLog(@"INFO: index for CID: %lu", (unsigned long)index);
+                                    // get the correct CID object from the array and add it to the userSavedImagesArray
+                                    [self.imageLoadManager.userSavedImages addObject:[self.imageLoadManager coffeeImageDataForCell:index]];
+                
                                     //NSLog(@"DEBUG: Added CID to userSavedImages...current count is %lu", (unsigned long)[self.imageLoadManager.userSavedImages count]);
                                     
                                 } else if ([[self getSelectedSegmentTitle] isEqualToString:RECIPES_SEGMENTED_CTRL]) { // rendering for *recipes*
                                     NSLog(@"INFO: Rendering favorited images for Recipes....");
-                                    RecipeImageData *recipeImageData = [[RecipeImageData alloc] init];
-                                    CKAsset *imageAsset = record[IMAGE];
-                                    recipeImageData.imageURL = imageAsset.fileURL;
-                                    recipeImageData.imageName = record[IMAGE_NAME];
-                                    recipeImageData.imageDescription = record[IMAGE_DESCRIPTION];
-                                    recipeImageData.userID = record[USER_ID];
-                                    recipeImageData.recipe = [record[RECIPE] boolValue]; // 0 = No, 1 = Yes
-                                    recipeImageData.recordID = record.recordID.recordName;
-                                    recipeImageData.likeCount = record[LIKE_COUNT];
-                                    recipeImageData.liked = YES;
-                                    [self.imageLoadManager.userSavedImages addObject:recipeImageData];
+                                    NSUInteger index = [self.imageLoadManager getIndexForRIDRecordID:record.recordID.recordName];
+                                    NSLog(@"INFO: index for RID: %lu", (unsigned long)index);
+                                    // get the correct RID object from the array and add it to the userSavedImagesArray
+                                    [self.imageLoadManager.userSavedImages addObject:[self.imageLoadManager recipeImageDataForCell:index]];
                                 }
                             }
                             // go back to the main queue for UI rendering...
