@@ -1465,6 +1465,7 @@ dispatch_queue_t queue;
                 // add current UserActivity to userActivityDictionary so we can keep track of it
                 //[self.imageLoadManager.userActivityDictionary setObject:newUserActivity forKey:currentImageData.recordID];
                 NSLog(@"INFO: Added liked image to userActivity!");
+                
                 // save the liked image to the user's private database in iCloud
                 [self.ckManager saveRecordForPrivateData:[self.ckManager createCKRecordForUserActivity:newUserActivity] withCompletionHandler:^(CKRecord *record, NSError *error) {
                     if (!error && record) {
@@ -1485,14 +1486,37 @@ dispatch_queue_t queue;
             }
         } else if (recipeImageData) { // branching logic for RID...
             NSLog(@"Oh snap! Liking a Recipe!");
+            
+            /** Look up the recordID in userActivityDictionary. If it's already there, we do not need to save it user's private data as it already exists.
+             In this scenario, the user must have already liked it and saved the record, then unliked it and reliked it in the same session */
             if (![self.imageLoadManager lookupRecordIDInUserData:recipeImageData.recordID]) {
+                
+                // If the record is not found in the user's private data, it's a newly liked image, so INCREASE the like count for the recordID
+                [self.ckManager updateLikeCountForRecordID:recipeImageData.recordID shouldIncrement:YES withCompletionHandler:^(NSError *error) {
+                    if (!error) {
+                        NSLog(@"INFO: Successfully updated Like Count for recordID: %@", recipeImageData.recordID);
+                    }
+                }];
+                
                 UserActivity *newUserActivity = [[UserActivity alloc] init];
                 newUserActivity.ridReference = recipeImageData;
+                NSLog(@"INFO: Added liked recipe to userActivity!");
+                
+                // save the liked image to the user's private database in iCloud
                 [self.ckManager saveRecordForPrivateData:[self.ckManager createCKRecordForUserActivity:newUserActivity] withCompletionHandler:^(CKRecord *record, NSError *error) {
                     if (!error && record) {
-                        NSLog(@"INFO: Saved a recipe record!");
+                        NSLog(@"INFO: RID record saved successfully for recordID: %@!", record.recordID.recordName);
+                        // delay refreshing UA data to allow time for UA record to be saved first
+                        double delayInSeconds = 3.0;
+                        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, delayInSeconds * NSEC_PER_SEC), queue, ^{
+                            NSLog(@"INFO: Refreshing UA data...");
+                            [self getUserActivityPrivateData];
+                        });
                     } else {
-                        NSLog(@"ERROR: Error occurred while saving a recipe record!");
+                        NSLog(@"ERROR: Error saving record to user's private database...%@", error.localizedDescription);
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            [self alertWithTitle:YIKES_TITLE andMessage:ERROR_SAVING_LIKED_IMAGE_MSG];
+                        });
                     }
                 }];
             }
@@ -1509,8 +1533,8 @@ dispatch_queue_t queue;
             if ([self.imageLoadManager lookupRecordIDInUserData:coffeeImageData.recordID]) {
                 UserActivity *currentUARecord = [self.imageLoadManager.userActivityDictionary objectForKey:coffeeImageData.recordID];
                 NSLog(@"INFO: User is unliking an image. Preparing to delete recordID: %@", currentUARecord.recordID);
+                
                 if ([currentUARecord isKindOfClass:[UserActivity class]]) {
-                    NSLog(@"INFO: UserActivity record for deletion!");
                     
                     // Image is being unliked, so DECREASE the like count for the recordID
                     [self.ckManager updateLikeCountForRecordID:coffeeImageData.recordID shouldIncrement:NO withCompletionHandler:^(NSError *error) {
@@ -1518,10 +1542,21 @@ dispatch_queue_t queue;
                             NSLog(@"INFO: Successfully updated Like Count for recordID: %@", coffeeImageData.recordID);
                         }
                     }];
+                    
                     // delete the record from the user's private database
                     [self.ckManager deleteUserActivityRecord:[self.imageLoadManager.userActivityDictionary objectForKey:coffeeImageData.recordID]];
                     // remove this record from the userActivityDictionary. *NOTE: Move this to CKManager once ILM object is there!
                     [self.imageLoadManager removeUserActivityDataFromDictionary:coffeeImageData.recordID];
+                    
+                    // get the index of the CID being unliked
+                    NSUInteger index = [self.imageLoadManager getCIDIndexFromUserSavedImages:coffeeImageData.recordID];
+                    [self.imageLoadManager.coffeeImageDataArray replaceObjectAtIndex:[self.imageLoadManager getIndexForCIDRecordID:coffeeImageData.recordID]
+                                                                          withObject:coffeeImageData];
+                    [self.imageLoadManager.userSavedImages removeObjectAtIndex:index]; // remove it from the array
+                    self.numberOfItemsInSection = [self.imageLoadManager.userSavedImages count]; // update number of items in the CV
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        [self updateUI]; // refresh the UI
+                    });
                 } else {
                     NSLog(@"ERROR: Object passed is NOT a UserActivity record!");
                 }
@@ -1532,12 +1567,30 @@ dispatch_queue_t queue;
             if ([self.imageLoadManager lookupRecordIDInUserData:recipeImageData.recordID]) {
                 UserActivity *currentUARecord = [self.imageLoadManager.userActivityDictionary objectForKey:recipeImageData.recordID];
                 NSLog(@"INFO: User is unliking an recipe. Preparing to delete recordID: %@", currentUARecord.recordID);
+                
                 if ([currentUARecord isKindOfClass:[UserActivity class]]) {
-                    NSLog(@"INFO: UserActivity record for deletion!");
+                    
+                    // Image is being unliked, so DECREASE the like count for the recordID
+                    [self.ckManager updateLikeCountForRecordID:recipeImageData.recordID shouldIncrement:NO withCompletionHandler:^(NSError *error) {
+                        if (!error) {
+                            NSLog(@"INFO: Successfully updated Like Count for recordID: %@", recipeImageData.recordID);
+                        }
+                    }];
+                    
                     // delete the record from the user's private database
                     [self.ckManager deleteUserActivityRecord:[self.imageLoadManager.userActivityDictionary objectForKey:recipeImageData.recordID]];
                     // remove this record from the userActivityDictionary. *NOTE: Move this to CKManager once ILM object is there!
                     [self.imageLoadManager removeUserActivityDataFromDictionary:recipeImageData.recordID];
+                    
+                    // get the index of the RID being unliked
+                    NSUInteger index = [self.imageLoadManager getRIDIndexFromUserSavedImages:recipeImageData.recordID];
+                    [self.imageLoadManager.recipeImageDataArray replaceObjectAtIndex:[self.imageLoadManager getIndexForCIDRecordID:recipeImageData.recordID]
+                                                                          withObject:recipeImageData];
+                    [self.imageLoadManager.userSavedImages removeObjectAtIndex:index]; // remove it from the array
+                    self.numberOfItemsInSection = [self.imageLoadManager.userSavedImages count]; // update number of items in the CV
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        [self updateUI]; // refresh the UI
+                    });
                 } else {
                     NSLog(@"ERROR: Object passed is NOT a UserActivity record!");
                 }
@@ -1695,7 +1748,8 @@ dispatch_queue_t queue;
                                     NSUInteger index = [self.imageLoadManager getIndexForCIDRecordID:record.recordID.recordName];
                                     NSLog(@"INFO: index for CID: %lu", (unsigned long)index);
                                     // get the correct CID object from the array and add it to the userSavedImagesArray
-                                    [self.imageLoadManager.userSavedImages addObject:[self.imageLoadManager coffeeImageDataForCell:index]];
+                                    //[self.imageLoadManager.userSavedImages addObject:[self.imageLoadManager coffeeImageDataForCell:index]];
+                                    [self.imageLoadManager.userSavedImages addObject:[self.imageLoadManager createCIDFromCKRecord:record]];
                 
                                     //NSLog(@"DEBUG: Added CID to userSavedImages...current count is %lu", (unsigned long)[self.imageLoadManager.userSavedImages count]);
                                     
@@ -1704,7 +1758,8 @@ dispatch_queue_t queue;
                                     NSUInteger index = [self.imageLoadManager getIndexForRIDRecordID:record.recordID.recordName];
                                     NSLog(@"INFO: index for RID: %lu", (unsigned long)index);
                                     // get the correct RID object from the array and add it to the userSavedImagesArray
-                                    [self.imageLoadManager.userSavedImages addObject:[self.imageLoadManager recipeImageDataForCell:index]];
+                                    //[self.imageLoadManager.userSavedImages addObject:[self.imageLoadManager recipeImageDataForCell:index]];
+                                    [self.imageLoadManager.userSavedImages addObject:[self.imageLoadManager createRIDFromCKRecord:record]];
                                 }
                             }
                             // go back to the main queue for UI rendering...

@@ -343,6 +343,34 @@
     return index;
 }
 
+- (NSUInteger)getCIDIndexFromUserSavedImages:(NSString *)recordID {
+    
+    NSUInteger index = 0;
+    
+    for (CoffeeImageData *cid in self.userSavedImages) {
+        if ([recordID isEqualToString:cid.recordID]) {
+            index = [self.userSavedImages indexOfObject:cid];
+            break; // found what we're looking for so break out
+        }
+    }
+    
+    return index;
+}
+
+- (NSUInteger)getRIDIndexFromUserSavedImages:(NSString *)recordID {
+    
+    NSUInteger index = 0;
+    
+    for (RecipeImageData *rid in self.userSavedImages) {
+        if ([recordID isEqualToString:rid.recordID]) {
+            index = [self.userSavedImages indexOfObject:rid];
+            break; // found what we're looking for so break out
+        }
+    }
+    
+    return index;
+}
+
 /**
  * Method for getting a specific CoffeeImageData object in the array via the index passed
  *
@@ -369,6 +397,53 @@
     return (index < [self.recipeImageDataArray count] ? self.recipeImageDataArray[index] : nil);
 }
 
+- (CoffeeImageData *)createCIDFromCKRecord:(CKRecord *)record {
+    
+    CoffeeImageData *coffeeImageData = [[CoffeeImageData alloc] init];
+    
+    CKAsset *imageAsset = record[IMAGE];
+    coffeeImageData.imageURL = imageAsset.fileURL;
+    //NSLog(@"asset URL: %@", coffeeImageData.imageURL);
+    coffeeImageData.imageName = record[IMAGE_NAME];
+    //NSLog(@"Image name: %@", coffeeImageData.imageName);
+    coffeeImageData.imageDescription = record[IMAGE_DESCRIPTION];
+    coffeeImageData.userID = record[USER_ID];
+    coffeeImageData.imageBelongsToCurrentUser = [record[IMAGE_BELONGS_TO_USER] boolValue];
+    coffeeImageData.recipe = [record[RECIPE] boolValue];
+    coffeeImageData.liked = [record[LIKED] boolValue]; // 0 = No, 1 = Yes
+    coffeeImageData.recordID = record.recordID.recordName;
+    coffeeImageData.likeCount = record[LIKE_COUNT];
+    
+    if ([self lookupRecordIDInUserData:coffeeImageData.recordID]) {
+        //NSLog(@"RecordID %@ found in userActivityDictiontary!", coffeeImageData.recordID);
+        coffeeImageData.liked = YES;
+    }
+    
+    return coffeeImageData;
+}
+
+- (RecipeImageData *)createRIDFromCKRecord:(CKRecord *)record {
+    
+    RecipeImageData *recipeImageData = [[RecipeImageData alloc] init];
+    
+    CKAsset *imageAsset = record[IMAGE];
+    recipeImageData.imageURL = imageAsset.fileURL;
+    recipeImageData.imageName = record[IMAGE_NAME];
+    recipeImageData.imageDescription = record[IMAGE_DESCRIPTION];
+    recipeImageData.userID = record[USER_ID];
+    recipeImageData.recipe = [record[RECIPE] boolValue]; // 0 = No, 1 = Yes
+    recipeImageData.recordID = record.recordID.recordName;
+    recipeImageData.likeCount = record[LIKE_COUNT];
+    // check to see if the recordID of the current RID is userActivityDictionary. If so, it's in the user's private
+    // data so set liked value = YES
+    if ([self lookupRecordIDInUserData:recipeImageData.recordID]) {
+        //NSLog(@"RecordID found in userActivityDictiontary!");
+        recipeImageData.liked = YES;
+    }
+    
+    return recipeImageData;
+}
+
 /**
  * Method that takes all of the images from CID and RID arrays based on selected segment
  * and filters them out for only the liked images. Does this via a predicate
@@ -376,7 +451,7 @@
  * @param NSString *selection (selected segment)
  */
 /*- (void)getUserSavedImagesForSelection:(NSString *)selection {
-    
+ 
     NSLog(@"INFO: getUserSavedImagesForSelection: %@", selection);
     
     // clear out the array before populating it

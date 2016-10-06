@@ -25,6 +25,10 @@
 - (void)getUserSavedImagesForSelection:(NSString *)selection;
 - (NSUInteger)getIndexForCIDRecordID:(NSString *)recordID;
 - (NSUInteger)getIndexForRIDRecordID:(NSString *)recordID;
+- (CoffeeImageData *)createCIDFromCKRecord:(CKRecord *)record;
+- (RecipeImageData *)createRIDFromCKRecord:(CKRecord *)record;
+- (NSUInteger)getCIDIndexFromUserSavedImages:(NSString *)recordID;
+- (NSUInteger)getRIDIndexFromUserSavedImages:(NSString *)recordID;
 // imagesArray and imageNames array will go away. Replaced by coffeeImageDataArray
 //@property (strong, nonatomic) NSArray *imagesArray; // of UIImage (array of images)
 @property (strong, nonatomic) NSMutableArray *recordIDsArray; // array of recordIDs
