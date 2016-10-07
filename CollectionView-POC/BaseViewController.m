@@ -1485,7 +1485,6 @@ dispatch_queue_t queue;
                 }];
             }
         } else if (recipeImageData) { // branching logic for RID...
-            NSLog(@"Oh snap! Liking a Recipe!");
             
             /** Look up the recordID in userActivityDictionary. If it's already there, we do not need to save it user's private data as it already exists.
              In this scenario, the user must have already liked it and saved the record, then unliked it and reliked it in the same session */
@@ -1584,7 +1583,7 @@ dispatch_queue_t queue;
                     
                     // get the index of the RID being unliked
                     NSUInteger index = [self.imageLoadManager getRIDIndexFromUserSavedImages:recipeImageData.recordID];
-                    [self.imageLoadManager.recipeImageDataArray replaceObjectAtIndex:[self.imageLoadManager getIndexForCIDRecordID:recipeImageData.recordID]
+                    [self.imageLoadManager.recipeImageDataArray replaceObjectAtIndex:[self.imageLoadManager getIndexForRIDRecordID:recipeImageData.recordID]
                                                                           withObject:recipeImageData];
                     [self.imageLoadManager.userSavedImages removeObjectAtIndex:index]; // remove it from the array
                     self.numberOfItemsInSection = [self.imageLoadManager.userSavedImages count]; // update number of items in the CV
