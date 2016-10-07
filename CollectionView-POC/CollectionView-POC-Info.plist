@@ -24,6 +24,10 @@
 	<string>1.0</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>Uses camera</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Uses photos</string>
 	<key>NSLocationAlwaysUsageDescription</key>
 	<string>I need your location</string>
 	<key>NSLocationWhenInUseUsageDescription</key>

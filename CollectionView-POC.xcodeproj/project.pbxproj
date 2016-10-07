@@ -413,6 +413,9 @@
 					E064B8E718E4C2A1006193E8 = {
 						DevelopmentTeam = R4Y9X26CK6;
 						SystemCapabilities = {
+							com.apple.BackgroundModes = {
+								enabled = 0;
+							};
 							com.apple.iCloud = {
 								enabled = 1;
 							};
