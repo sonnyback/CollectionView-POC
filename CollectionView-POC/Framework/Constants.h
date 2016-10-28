@@ -41,6 +41,8 @@ extern NSString *const HAZELNUT;
 extern NSString *const MOCHA;
 extern NSString *const CHOCOLATE;
 extern NSString *const PEPPERMINT;
+extern NSString *const HOT;
+extern NSString *const COLD;
 
 // Images
 extern NSString *const PLACE_HOLDER;
@@ -49,6 +51,8 @@ extern NSString *const HEART_BLUE_SOLID;
 extern NSString *const PLUS_25;
 extern NSString *const USER_MALE_25;
 extern NSString *const USER_MALE_FILLED_25;
+extern NSString *const HOT_DRINK;
+extern NSString *const COLD_DRINK;
 
 // Search
 extern NSString *const SEARCH_FOR_COFFEE;
@@ -101,6 +105,8 @@ extern NSString *const NO_FAVORITED_IMAGES_MSG;
 extern NSString *const LOADING_HEARTED_IMAGES_MSG;
 extern NSString *const LOADING_IMAGES_MSG;
 extern NSString *const LOADING_MORE_IMAGES_MSG;
+extern NSString *const HOT_COLD_TITLE;
+extern NSString *const HOT_COLD_MSG;
 
 // Actions
 extern NSString *const PHOTO_BRANCH_ACTION;

@@ -60,10 +60,10 @@
     if (self.numberOfTextFields > 11) {
         [self alertWithTitle:@"Too Many Instructions" andMessage:@"Please limit recipe instructions to 12 steps."];
     } else {
-        float x = self.recipeInstructionTextfield.frame.origin.x;
-        float y = self.recipeInstructionTextfield.frame.origin.y + (self.recipeInstructionTextfield.frame.size.height+5);
-        float width = self.recipeInstructionTextfield.frame.size.width;
-        float height = self.recipeInstructionTextfield.frame.size.height;
+        CGFloat x = self.recipeInstructionTextfield.frame.origin.x;
+        CGFloat y = self.recipeInstructionTextfield.frame.origin.y + (self.recipeInstructionTextfield.frame.size.height+5);
+        CGFloat width = self.recipeInstructionTextfield.frame.size.width;
+        CGFloat height = self.recipeInstructionTextfield.frame.size.height;
         CGRect textFieldFrame = CGRectMake(x, y, width, height);
         //NSLog(@"recipeInstructionTextfield is x:%f, y:%f, width:%f, height:%f ", self.recipeInstructionTextfield.frame.origin.x, self.recipeInstructionTextfield.frame.origin.y, self.recipeInstructionTextfield.frame.size.width, self.recipeInstructionTextfield.frame.size.height);
         //NSLog(@"addIngredientButton is x:%f, y:%f, width:%f, height:%f ", self.addIngredientButton.frame.origin.x, self.addIngredientButton.frame.origin.y, self.addIngredientButton.frame.size.width, self.addIngredientButton.frame.size.height);
@@ -78,8 +78,8 @@
         self.recipeInstructionTextfield = textField;
         [self.addIngredientButton removeFromSuperview];
         
-        float addButtonX = self.addIngredientButton.frame.origin.x;
-        float addButtonY = textField.frame.origin.y + textField.frame.size.height + 5;
+        CGFloat addButtonX = self.addIngredientButton.frame.origin.x;
+        CGFloat addButtonY = textField.frame.origin.y + textField.frame.size.height + 5;
         UIButton *newButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
         newButton.frame = CGRectMake(addButtonX, addButtonY, self.addIngredientButton.frame.size.width, self.addIngredientButton.frame.size.height);
         [newButton setBackgroundImage:[UIImage imageNamed:PLUS_25] forState:UIControlStateNormal];
@@ -91,6 +91,36 @@
         [self checkForTextFields];
         self.numberOfTextFields++; // increment numberOfTextFields to keep count
     }
+}
+
+
+- (IBAction)actionButtonForHotOrColdCup:(id)sender {
+    
+    NSLog(@"INFO: actionButtonForHotOrColdCup...");
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:HOT_COLD_TITLE message:HOT_COLD_MSG preferredStyle:UIAlertControllerStyleActionSheet];
+    
+    UIAlertAction *hotAction = [UIAlertAction actionWithTitle:HOT
+                                                       style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+                                                           self.cupView.cupType = HOT_DRINK;
+                                                           self.cupView.backgroundView.image = [UIImage imageNamed:self.cupView.cupType];
+                                                       }];
+    
+    UIAlertAction *coldAction = [UIAlertAction actionWithTitle:COLD
+                                                        style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+                                                            self.cupView.cupType = COLD_DRINK;
+                                                            self.cupView.backgroundView.image = [UIImage imageNamed:self.cupView.cupType];
+                                                        }];
+    
+    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:CANCEL_BUTTON
+                                                           style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) {
+                                                               NSLog(@"INFO: Cancel button, so do nothing...");
+                                                           }];
+    
+    [alert addAction:hotAction];
+    [alert addAction:coldAction];
+    [alert addAction:cancelAction];
+    
+    [self presentViewController:alert animated:YES completion:nil];
 }
 
 - (void)checkForTextFields {
@@ -146,6 +176,8 @@
     //self.scrollView.contentSize = self.view.bounds.size; // may not be exactly correct, but intent is to allow vertical scrolling
     [self setupTextFields];
     
+    
+    [self actionButtonForHotOrColdCup:self];
     // hide the status bar
     /*[[UIApplication sharedApplication] setStatusBarHidden:YES
                                               withAnimation:UIStatusBarAnimationFade];*/

@@ -170,7 +170,8 @@ dispatch_queue_t queue;
     
     [self dismissViewControllerAnimated:YES completion:nil];
     
-    [self performSegueWithIdentifier:ADD_NEW_PHOTO_SEGUE sender:self];
+    //[self performSegueWithIdentifier:ADD_NEW_PHOTO_SEGUE sender:self];
+    [self actionButtonForImageOrRecipe:self];
 }
 
 - (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker {
@@ -740,26 +741,8 @@ dispatch_queue_t queue;
                     for (CKRecord *record in results) {
                         //NSLog(@"Record type is: %@ for recordID: %@", record.recordType, record.recordID.recordName);
                         // create CoffeeImageData object to store data in the array for each image
-                        CoffeeImageData *coffeeImageData = [[CoffeeImageData alloc] init];
-                        CKAsset *imageAsset = record[IMAGE];
-                        coffeeImageData.imageURL = imageAsset.fileURL;
-                        //NSLog(@"asset URL: %@", coffeeImageData.imageURL);
-                        coffeeImageData.imageName = record[IMAGE_NAME];
-                        //NSLog(@"Image name: %@", coffeeImageData.imageName);
-                        coffeeImageData.imageDescription = record[IMAGE_DESCRIPTION];
-                        coffeeImageData.userID = record[USER_ID];
-                        coffeeImageData.imageBelongsToCurrentUser = [record[IMAGE_BELONGS_TO_USER] boolValue];
-                        coffeeImageData.recipe = [record[RECIPE] boolValue];
-                        coffeeImageData.liked = [record[LIKED] boolValue]; // 0 = No, 1 = Yes
-                        coffeeImageData.recordID = record.recordID.recordName;
-                        coffeeImageData.likeCount = record[LIKE_COUNT];
-                        //NSLog(@"INFO: Like Count: %d, for recordID: %@", [coffeeImageData.likeCount intValue], coffeeImageData.recordID);
-                        // check to see if the recordID of the current CID is userActivityDictionary. If so, it's in the user's private
-                        // data so set liked value = YES
-                        if ([self.imageLoadManager lookupRecordIDInUserData:coffeeImageData.recordID]) {
-                            NSLog(@"RecordID %@ found in userActivityDictiontary!", coffeeImageData.recordID);
-                            coffeeImageData.liked = YES;
-                        }
+                        CoffeeImageData *coffeeImageData = [self.imageLoadManager createCIDFromCKRecord:record];
+                        
                         // add the CID object to the array
                         [self.imageLoadManager.coffeeImageDataArray addObject:coffeeImageData];
                         
@@ -773,7 +756,7 @@ dispatch_queue_t queue;
                             NSLog(@"WARN: CID imageURL is nil...cannot cache.");
                             dispatch_async(dispatch_get_main_queue(), ^{
                                 // below block is commented out...this was pre-iOS 8 way and now depricated
-                                [self actionButtonClicked:self]; // call method for handling action button(s)
+                                [self actionButtonClickedForCKLoadingError:self]; // call method for handling action button(s)
                             });
                         }
                     }
@@ -801,11 +784,7 @@ dispatch_queue_t queue;
             } else {
                 NSLog(@"Error: there was an error fetching cloud data... %@", error.localizedDescription);
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    // below block is commented out...this was pre-iOS 8 way and now depricated
-                    /*UIAlertView *reloadAlert = [[UIAlertView alloc] initWithTitle:YIKES_TITLE message:ERROR_LOADING_CK_DATA_MSG delegate:nil cancelButtonTitle:CANCEL_BUTTON otherButtonTitles:TRY_AGAIN_BUTTON, nil];
-                    reloadAlert.delegate = self;
-                    [reloadAlert show];*/
-                    [self actionButtonClicked:self]; // call method for handling action button(s)
+                    [self actionButtonClickedForCKLoadingError:self]; // call method for handling action button(s)
                 });
             }
         }];
@@ -833,28 +812,9 @@ dispatch_queue_t queue;
                 NSLog(@"INFO: Successfully fetched RecipeImageData for %lu record!", (unsigned long)[results count]);
                 for (CKRecord *record in results) {
                     //NSLog(@"Record type is: %@ for recordID: %@", record.recordType, record.recordID.recordName);
-                    RecipeImageData *recipeImageData = [[RecipeImageData alloc] init];
-                    CKAsset *imageAsset = record[IMAGE];
-                    recipeImageData.imageURL = imageAsset.fileURL;
-                    //NSLog(@"RID image URL: %@", recipeImageData.imageURL);
-                    recipeImageData.imageName = record[IMAGE_NAME];
-                    //NSLog(@"RID image name: %@", recipeImageData.imageName);
-                    recipeImageData.imageDescription = record[IMAGE_DESCRIPTION];
-                    //NSLog(@"RID image description: %@", recipeImageData.imageDescription);
-                    recipeImageData.userID = record[USER_ID];
-                    //NSLog(@"RID user id: %@", recipeImageData.userID);
-                    recipeImageData.recipe = [record[RECIPE] boolValue]; // 0 = No, 1 = Yes
-                    //NSLog(@"RID isRecipe %d", recipeImageData.isRecipe);
-                    recipeImageData.recordID = record.recordID.recordName;
-                    recipeImageData.likeCount = record[LIKE_COUNT];
-                    //NSLog(@"INFO: Like Count: %d, for recordID: %@", [recipeImageData.likeCount intValue], recipeImageData.recordID);
-                    //NSLog(@"RID recordID: %@", recipeImageData.recordID);
-                    // check to see if the recordID of the current RID is userActivityDictionary. If so, it's in the user's private
-                    // data so set liked value = YES
-                    if ([self.imageLoadManager lookupRecordIDInUserData:recipeImageData.recordID]) {
-                        //NSLog(@"RecordID found in userActivityDictiontary!");
-                        recipeImageData.liked = YES;
-                    }
+                    // create RecipeImageData object to store data in the array for each recipe
+                    RecipeImageData *recipeImageData = [self.imageLoadManager createRIDFromCKRecord:record];
+                    
                     // add the RID object to the array
                     [self.imageLoadManager.recipeImageDataArray addObject:recipeImageData];
                     
@@ -916,26 +876,8 @@ dispatch_queue_t queue;
                         if ([record.recordType isEqualToString:COFFEE_IMAGE_DATA_RECORD_TYPE]) {
                             //NSLog(@"Record type is: %@ for recordID: %@", record.recordType, record.recordID.recordName);
                             // create CoffeeImageData object to store data in the array for each image
-                            CoffeeImageData *coffeeImageData = [[CoffeeImageData alloc] init];
-                            CKAsset *imageAsset = record[IMAGE];
-                            coffeeImageData.imageURL = imageAsset.fileURL;
-                            //NSLog(@"asset URL: %@", coffeeImageData.imageURL);
-                            coffeeImageData.imageName = record[IMAGE_NAME];
-                            //NSLog(@"Image name: %@", coffeeImageData.imageName);
-                            coffeeImageData.imageDescription = record[IMAGE_DESCRIPTION];
-                            coffeeImageData.userID = record[USER_ID];
-                            coffeeImageData.imageBelongsToCurrentUser = [record[IMAGE_BELONGS_TO_USER] boolValue];
-                            coffeeImageData.recipe = [record[RECIPE] boolValue];
-                            coffeeImageData.liked = [record[LIKED] boolValue]; // 0 = No, 1 = Yes
-                            coffeeImageData.recordID = record.recordID.recordName;
-                            coffeeImageData.likeCount = record[LIKE_COUNT];
-                            //NSLog(@"INFO: Like Count: %d, for recordID: %@", [coffeeImageData.likeCount intValue], coffeeImageData.recordID);
-                            // check to see if the recordID of the current CID is userActivityDictionary. If so, it's in the user's private
-                            // data so set liked value = YES
-                            if ([self.imageLoadManager lookupRecordIDInUserData:coffeeImageData.recordID]) {
-                                //NSLog(@"RecordID found in userActivityDictiontary!");
-                                coffeeImageData.liked = YES;
-                            }
+                            CoffeeImageData *coffeeImageData = [self.imageLoadManager createCIDFromCKRecord:record];
+                            
                             // add the CID object to the array
                             [self.imageLoadManager.coffeeImageDataArray addObject:coffeeImageData];
                             // get updated user saved images from newly fetched records
@@ -963,28 +905,9 @@ dispatch_queue_t queue;
                     for (record in results) {
                         if ([record.recordType isEqualToString:RECIPE_IMAGE_DATA_RECORD_TYPE]) {
                             //NSLog(@"Record type is: %@ for recordID: %@", record.recordType, record.recordID.recordName);
-                            // create RecipeImageData object to store data in the array for each image
-                            RecipeImageData *recipeImageData = [[RecipeImageData alloc] init];
-                            CKAsset *imageAsset = record[IMAGE];
-                            recipeImageData.imageURL = imageAsset.fileURL;
-                            //NSLog(@"RID image URL: %@", recipeImageData.imageURL);
-                            recipeImageData.imageName = record[IMAGE_NAME];
-                            //NSLog(@"RID image name: %@", recipeImageData.imageName);
-                            recipeImageData.imageDescription = record[IMAGE_DESCRIPTION];
-                            //NSLog(@"RID image description: %@", recipeImageData.imageDescription);
-                            recipeImageData.userID = record[USER_ID];
-                            //NSLog(@"RID user id: %@", recipeImageData.userID);
-                            recipeImageData.recipe = [record[RECIPE] boolValue]; // 0 = No, 1 = Yes
-                            //NSLog(@"RID isRecipe %d", recipeImageData.isRecipe);
-                            recipeImageData.recordID = record.recordID.recordName;
-                            recipeImageData.likeCount = record[LIKE_COUNT];
-                            //NSLog(@"INFO: Like Count: %d, for recordID: %@", [recipeImageData.likeCount intValue], recipeImageData.recordID);
-                            // check to see if the recordID of the current CID is userActivityDictionary. If so, it's in the user's private
-                            // data so set liked value = YES
-                            if ([self.imageLoadManager lookupRecordIDInUserData:recipeImageData.recordID]) {
-                                //NSLog(@"RecordID found in userActivityDictiontary!");
-                                recipeImageData.liked = YES;
-                            }
+                            // create RecipeImageData object to store data in the array for each recipe
+                            RecipeImageData *recipeImageData = [self.imageLoadManager createRIDFromCKRecord:record];
+                            
                             // add the RID object to the array
                             [self.imageLoadManager.recipeImageDataArray addObject:recipeImageData];
                             // get updated user saved images from newly fetched records
@@ -1004,17 +927,6 @@ dispatch_queue_t queue;
                         }
                     }
                 }
-                /*if (cursor) { // check to see if a cursor was returned in the completionhandler
-                    // recursively call this to get the next batch of records
-                    //[self loadMoreRecordsFromCursor:cursor];
-                    [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:YES];
-                } else {
-                    NSLog(@"INFO: All records fetched successfully!");
-                    // if no more cursors, kill the network activity indicator
-                    if (!self.cidCursor | !self.ridCursor) {
-                        [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
-                    }
-                }*/
                 
                 //NSLog(@"INFO: Success querying the cloud for %lu results!!!", (unsigned long)[results count]);
                 
@@ -1251,10 +1163,11 @@ dispatch_queue_t queue;
  * @param id - sender button
  * @return void
  */
-- (IBAction)actionButtonClicked:(id)sender {
+- (IBAction)actionButtonClickedForCKLoadingError:(id)sender {
     
-    NSLog(@"INFO: actionButtonClicked...");
-    UIAlertController *alert = [UIAlertController alertControllerWithTitle:YIKES_TITLE message:ERROR_LOADING_CK_DATA_MSG preferredStyle:UIAlertControllerStyleActionSheet];
+    NSLog(@"INFO: actionButtonClickedForCKLoadingError...");
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:YIKES_TITLE message:ERROR_LOADING_CK_DATA_MSG
+                                                            preferredStyle:UIAlertControllerStyleActionSheet];
     
     UIAlertAction *tryAgainAction = [UIAlertAction actionWithTitle:TRY_AGAIN_BUTTON
                                                              style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
@@ -1268,6 +1181,41 @@ dispatch_queue_t queue;
                                                              }];
     
     [alert addAction:tryAgainAction];
+    [alert addAction:cancelAction];
+    
+    [self presentViewController:alert animated:YES completion:nil];
+}
+
+/**
+ * Method to handle action when submitting an image. Action asks user if they are
+ * submitting an image or Recipe.
+ *
+ * @param id - sender button
+ * @return void
+ */
+- (IBAction)actionButtonForImageOrRecipe:(id)sender {
+    
+    NSLog(@"INFO: actionButtonForImageOrRecipe...");
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Photo or Recipe?" message:@"Are you submitting a coffee image to share or are you creating a recipe to share? Choose Photo if you just want a share a beautiful coffee image. Choose Recipe if you would like to provide the recipe details of the image you are submitting." preferredStyle:UIAlertControllerStyleActionSheet];
+    
+    UIAlertAction *photoAction = [UIAlertAction actionWithTitle:@"Photo"
+                                                          style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+                                                              NSLog(@"Submitting Photo!");
+                                                              [self performSegueWithIdentifier:ADD_NEW_PHOTO_SEGUE sender:self];
+                                                          }];
+    
+    UIAlertAction *recipeAction = [UIAlertAction actionWithTitle:@"Recipe"
+                                                          style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+                                                              NSLog(@"Submitting Recipe!");
+                                                              [self performSegueWithIdentifier:SHOW_RECIPE_SEGUE sender:self];
+                                                          }];
+    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:CANCEL_BUTTON
+                                                           style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) {
+                                                               NSLog(@"INFO: Cancel button, so do nothing...");
+                                                           }];
+    
+    [alert addAction:photoAction];
+    [alert addAction:recipeAction];
     [alert addAction:cancelAction];
     
     [self presentViewController:alert animated:YES completion:nil];

@@ -11,5 +11,5 @@
 @interface CupView : UIView
 
 @property (strong, nonatomic) NSString *cupType; // hot or cold?
-
+@property (strong, nonatomic) UIImageView *backgroundView;
 @end

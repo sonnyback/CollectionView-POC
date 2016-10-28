@@ -56,13 +56,13 @@
     //UIImageView *backgroundView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"Hot_Coffee_Cup.jpg"]];
     //backgroundView.contentMode = UIViewContentModeScaleAspectFit;
     //[self addSubview:backgroundView];
-    UIImageView *backgroundView = [[UIImageView alloc] initWithFrame:CGRectMake(self.bounds.origin.x, self.bounds.origin.y, self.bounds.size.width, self.bounds.size.width)];
-    backgroundView.contentMode = UIViewContentModeScaleAspectFill;
+    self.backgroundView = [[UIImageView alloc] initWithFrame:CGRectMake(self.bounds.origin.x, self.bounds.origin.y, self.bounds.size.width, self.bounds.size.width)];
+    self.backgroundView.contentMode = UIViewContentModeScaleAspectFill;
     
-    UIImage *img = [UIImage imageNamed:@"Hot_Coffee_Cup.jpg"];
-    [backgroundView setImage:img];
+    UIImage *img = [UIImage imageNamed:HOT_DRINK];
+    [self.backgroundView setImage:img];
     self.clipsToBounds = YES;
-    [self addSubview:backgroundView];
+    [self addSubview:self.backgroundView];
     
     //UILabel *titleLabel = [[UILabel alloc] initWithFrame:CGRectMake(self.bounds.origin.x, self.bounds.origin.y, self.bounds.size.width, self.bounds.size.height)];
     UILabel *titleLabel = [[UILabel alloc] init];
@@ -70,7 +70,7 @@
     // position the label in the center of the view above the cup image
     titleLabel.frame = CGRectMake(self.bounds.origin.x/2 + titleLabel.text.length, self.bounds.size.height/2 - (self.bounds.size.height * .95), self.bounds.size.width, self.bounds.size.height);
     NSLog(@"titleLabel size is: %lu", (unsigned long)titleLabel.text.length);
-    [backgroundView addSubview:titleLabel];
+    [self.backgroundView addSubview:titleLabel];
 }
 
 // because this this called out of storyboard...
