@@ -1694,19 +1694,41 @@ dispatch_queue_t queue;
                                     NSLog(@"INFO: Rendering favorited images for Images....");
                                     NSUInteger index = [self.imageLoadManager getIndexForCIDRecordID:record.recordID.recordName];
                                     NSLog(@"INFO: index for CID: %lu", (unsigned long)index);
-                                    // get the correct CID object from the array and add it to the userSavedImagesArray
-                                    //[self.imageLoadManager.userSavedImages addObject:[self.imageLoadManager coffeeImageDataForCell:index]];
-                                    [self.imageLoadManager.userSavedImages addObject:[self.imageLoadManager createCIDFromCKRecord:record]];
+                                    
+                                    // create a CID object from the CK record and store it in the user saved images
+                                    CoffeeImageData *coffeeImageData = [self.imageLoadManager createCIDFromCKRecord:record];
+                                    [self.imageLoadManager.userSavedImages addObject:coffeeImageData];
                 
                                     //NSLog(@"DEBUG: Added CID to userSavedImages...current count is %lu", (unsigned long)[self.imageLoadManager.userSavedImages count]);
+                                    // cache the image with the string representation of the absolute URL as the cache key
+                                    if (coffeeImageData.imageURL) { // make sure there's an image URL to cache
+                                        if (self.imageCache) {
+                                            [self.imageCache storeImage:[UIImage imageWithContentsOfFile:coffeeImageData.imageURL.path] forKey:coffeeImageData.imageURL.absoluteString toDisk:YES];
+                                            //NSLog(@"Printing cache: %@", [[SDImageCache sharedImageCache] description]);
+                                        }
+                                    } else {
+                                        NSLog(@"WARN: CID imageURL is nil...cannot cache.");
+                                    }
                                     
                                 } else if ([[self getSelectedSegmentTitle] isEqualToString:RECIPES_SEGMENTED_CTRL]) { // rendering for *recipes*
                                     NSLog(@"INFO: Rendering favorited images for Recipes....");
                                     NSUInteger index = [self.imageLoadManager getIndexForRIDRecordID:record.recordID.recordName];
                                     NSLog(@"INFO: index for RID: %lu", (unsigned long)index);
-                                    // get the correct RID object from the array and add it to the userSavedImagesArray
-                                    //[self.imageLoadManager.userSavedImages addObject:[self.imageLoadManager recipeImageDataForCell:index]];
-                                    [self.imageLoadManager.userSavedImages addObject:[self.imageLoadManager createRIDFromCKRecord:record]];
+                                    
+                                    // create a RID object from the CK record and store it in the user saved images
+                                    RecipeImageData *recipeImageData = [self.imageLoadManager createRIDFromCKRecord:record];
+                                    [self.imageLoadManager.userSavedImages addObject:recipeImageData];
+                                    
+                                    //NSLog(@"DEBUG: Added CID to userSavedImages...current count is %lu", (unsigned long)[self.imageLoadManager.userSavedImages count]);
+                                    // cache the image with the string representation of the absolute URL as the cache key
+                                    if (recipeImageData.imageURL) { // make sure there's an image URL to cache
+                                        if (self.imageCache) {
+                                            [self.imageCache storeImage:[UIImage imageWithContentsOfFile:recipeImageData.imageURL.path] forKey:recipeImageData.imageURL.absoluteString toDisk:YES];
+                                            //NSLog(@"Printing cache: %@", [[SDImageCache sharedImageCache] description]);
+                                        }
+                                    } else {
+                                        NSLog(@"WARN: RID imageURL is nil...cannot cache.");
+                                    }
                                 }
                             }
                             // go back to the main queue for UI rendering...

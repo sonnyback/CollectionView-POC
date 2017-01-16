@@ -713,6 +713,7 @@
 		};
 		E064B91E18E4C2A1006193E8 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 665186018E079FE9E1B28D80 /* Pods-CollectionView-POC.debug.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/CollectionView-POC.app/CollectionView-POC";
 				FRAMEWORK_SEARCH_PATHS = (
@@ -736,6 +737,7 @@
 		};
 		E064B91F18E4C2A1006193E8 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 67C90E36B97F8843437E45ED /* Pods-CollectionView-POC.release.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/CollectionView-POC.app/CollectionView-POC";
 				FRAMEWORK_SEARCH_PATHS = (
