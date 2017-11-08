@@ -15,7 +15,8 @@
 #import "Helper.h"
 #import <QuartzCore/QuartzCore.h>
 #import <CloudKit/CloudKit.h>
-#import "SDImageCache.h"
+//#import "SDImageCache.h"
+#import <SDWebImage/UIImageView+WebCache.h>
 #import "CKManager.h"
 #import "UserActivity.h"
 #import "MRProgress.h"
@@ -96,6 +97,7 @@ dispatch_queue_t queue;
     
     if (!_imageCache) {
         _imageCache = [[SDImageCache alloc] initWithNamespace:NAME_SPACE_IMAGE_CACHE];
+        // BELOW LINE NO LONGER WORKS WITH 4.0.0
         [_imageCache setMaxCacheAge:ONE_HOUR_IN_SECONDS * 3]; // cache age limit set to 3 hours (in seconds)
     }
     
@@ -748,9 +750,9 @@ dispatch_queue_t queue;
                         
                         // cache the image with the string representation of the absolute URL as the cache key
                         if (coffeeImageData.imageURL) { // make sure there's an image URL to cache
+                            
                             if (self.imageCache) {
                                 [self.imageCache storeImage:[UIImage imageWithContentsOfFile:coffeeImageData.imageURL.path] forKey:coffeeImageData.imageURL.absoluteString toDisk:YES];
-                                //NSLog(@"Printing cache: %@", [[SDImageCache sharedImageCache] description]);
                             }
                         } else {
                             NSLog(@"WARN: CID imageURL is nil...cannot cache.");
@@ -822,7 +824,6 @@ dispatch_queue_t queue;
                     if (recipeImageData.imageURL) { // make sure there's an image URL to cache
                         if (self.imageCache) {
                             [self.imageCache storeImage:[UIImage imageWithContentsOfFile:recipeImageData.imageURL.path] forKey:recipeImageData.imageURL.absoluteString toDisk:YES];
-                            //NSLog(@"Printing cache: %@", [[SDImageCache sharedImageCache] description]);
                         }
                     } else {
                         NSLog(@"WARN: RID imageURL is nil...cannot cache.");
@@ -887,7 +888,6 @@ dispatch_queue_t queue;
                             if (coffeeImageData.imageURL) { // make sure there's an image URL to cache
                                 if (self.imageCache) {
                                     [self.imageCache storeImage:[UIImage imageWithContentsOfFile:coffeeImageData.imageURL.path] forKey:coffeeImageData.imageURL.absoluteString toDisk:YES];
-                                    //NSLog(@"Printing cache: %@", [[SDImageCache sharedImageCache] description]);
                                 }
                             } else {
                                 NSLog(@"WARN: CID imageURL is nil...cannot cache.");
@@ -917,7 +917,6 @@ dispatch_queue_t queue;
                             if (recipeImageData.imageURL) { // make sure there's an image URL to cache
                                 if (self.imageCache) {
                                     [self.imageCache storeImage:[UIImage imageWithContentsOfFile:recipeImageData.imageURL.path] forKey:recipeImageData.imageURL.absoluteString toDisk:YES];
-                                    //NSLog(@"Printing cache: %@", [[SDImageCache sharedImageCache] description]);
                                 }
                             } else {
                                 NSLog(@"WARN: RID imageURL is nil...cannot cache.");
@@ -1557,6 +1556,7 @@ dispatch_queue_t queue;
     
     // need to check user's iCloud status before allowing the camera in case they logged out of iCloud
     self.userAccountStatus = [self.ckManager getUsersCKStatus]; // will return values 0-3. 1 is what we're looking for
+    
     NSLog(@"INFO: cameraBarButtonPressed userAccountStatus: %ld", (long)self.userAccountStatus);
     
     if (self.userAccountStatus == CKAccountStatusAvailable) { // status = 1
@@ -1704,7 +1704,6 @@ dispatch_queue_t queue;
                                     if (coffeeImageData.imageURL) { // make sure there's an image URL to cache
                                         if (self.imageCache) {
                                             [self.imageCache storeImage:[UIImage imageWithContentsOfFile:coffeeImageData.imageURL.path] forKey:coffeeImageData.imageURL.absoluteString toDisk:YES];
-                                            //NSLog(@"Printing cache: %@", [[SDImageCache sharedImageCache] description]);
                                         }
                                     } else {
                                         NSLog(@"WARN: CID imageURL is nil...cannot cache.");
@@ -1724,7 +1723,6 @@ dispatch_queue_t queue;
                                     if (recipeImageData.imageURL) { // make sure there's an image URL to cache
                                         if (self.imageCache) {
                                             [self.imageCache storeImage:[UIImage imageWithContentsOfFile:recipeImageData.imageURL.path] forKey:recipeImageData.imageURL.absoluteString toDisk:YES];
-                                            //NSLog(@"Printing cache: %@", [[SDImageCache sharedImageCache] description]);
                                         }
                                     } else {
                                         NSLog(@"WARN: RID imageURL is nil...cannot cache.");
@@ -1835,7 +1833,7 @@ dispatch_queue_t queue;
     
     // clear the cache
     [self.imageCache clearMemory];
-    [self.imageCache clearDisk];
+    [self.imageCache clearDisk]; // no longer works with 4.0.0
     
     self.userAccountStatus = [self.ckManager getUsersCKStatus]; // get the user's iCloud login status
     // load the user's private (saved) data if they're signed into iCloud
@@ -1893,8 +1891,10 @@ dispatch_queue_t queue;
     [self.imageCache clearDisk];
     
     self.userAccountStatus = [self.ckManager getUsersCKStatus]; // get the user's iCloud login status
+    
     // check to see if user has any user activity data saved in their private database if they're logged into iCloud
     if (self.userAccountStatus == 1) {
+        NSLog(@"INFO: User is logged into iCloud!");
         [self getUserActivityPrivateData];
     }
     
@@ -2012,6 +2012,7 @@ dispatch_queue_t queue;
              
             // store the image in SDWebImage cache
             [self.imageCache storeImage:self.coffeeImageDataAddedFromCamera.image forKey:self.coffeeImageDataAddedFromCamera.imageURL.absoluteString];
+            
             // insert the new key (image URL) into the cacheKeys array
             [self.cidCacheKeys insertObject:self.coffeeImageDataAddedFromCamera.imageURL.absoluteString atIndex:0];
             
@@ -2045,7 +2046,7 @@ dispatch_queue_t queue;
     // Dispose of any resources that can be recreated.
     NSLog(@"INFO: Did Receive Memory Warning...clearing cache!");
     [self.imageCache clearMemory];
-    [self.imageCache clearDisk];
+    [self.imageCache clearDisk]; // no longer works with 4.0.0
 }
 
 @end

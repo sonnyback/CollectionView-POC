@@ -440,6 +440,22 @@
     return userAccountStatus;
 }
 
+/*- (void)getUserCKStatusWithCompletionHandler:(void (^)(CKAccountStatus accountStatus, NSError *error))completionHandler {
+    
+    NSLog(@"INFO: Entered getUserCKStatusWithCompletionHandler...");
+    dispatch_queue_t fetchQ = dispatch_queue_create("get icloud status", NULL);
+    
+    dispatch_async(fetchQ, ^{
+        [self.container accountStatusWithCompletionHandler:^(CKAccountStatus accountStatus, NSError *error) {
+            if (error) {
+                NSLog(@"Error: Error encountered while getting user iCloud status: %@", error.localizedDescription);
+            } else {
+                completionHandler(accountStatus, error);
+            }
+        }];
+    });
+}*/
+
 /**
  * This method is responsible for updating the like count of a image/recipe. It will increment like count if the user
  * is liking the image, or decrement if they're un-liking it. The record is retrieved via the recordID and only the like

@@ -1,1 +1,1 @@
-../../../AsyncDisplayKit/AsyncDisplayKit/Private/NSArray+Diffing.h
+../../../AsyncDisplayKit/AsyncDisplayKit/Details/NSArray+Diffing.h

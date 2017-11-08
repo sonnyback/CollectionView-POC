@@ -20,21 +20,36 @@
 
 // public methods
 - (void)loadCloudKitDataWithCompletionHandler:(void (^)(NSArray *results, CKQueryCursor *cursor, NSError *error))completionHandler;
+
 - (void)loadCloudKitDataFromCursor:(CKQueryCursor *)cursor withCompletionHandler:(void (^)(NSArray *results, CKQueryCursor *cursor, NSError *error))completionHandler;
+
 - (void)loadRecipeDataWithCompletionHandler:(void (^)(NSArray *results, CKQueryCursor *cursor, NSError *error))completionHandler;
+
 - (void)getUserActivityPrivateDataForCIDWithCompletionHandler:(void (^)(NSArray *results, NSError *error))completionHandler;
+
 - (void)getUserActivityPrivateDataForRIDWithCompletionHandler:(void (^)(NSArray *results, NSError *error))completionHandler;
+
 - (void)getUserActivityPrivateDataWithCompletionHandler:(void (^)(NSArray *results, NSError *error))completionHandler;
+
 - (CKRecord *)createCKRecordForImage:(CoffeeImageData *)coffeeImageData;
 //- (CKRecord *)createCKRecordForUserActivity:(CoffeeImageData *)coffeeImageData;
+
 - (CKRecord *)createCKRecordForUserActivity:(UserActivity *)userActivity;
 - (CKRecord *)createCKRecordForUserActivityForRecipe:(UserActivity *)userActivity;
 //- (void)saveRecord:(CKRecord *)record withCompletionHandler:(void (^)(CKRecord *record, NSError *error))completionHandler;
+
 - (void)saveRecord:(NSArray *)records withCompletionHandler:(void (^)(NSArray *records, NSError *error))completionHandler recordProgressHandler:(void (^)(double))progressHandler;
+
 - (void)saveRecordForPrivateData:(CKRecord *)record withCompletionHandler:(void (^)(CKRecord *record, NSError *error))completionHandler;
+
 - (void)deleteUserActivityRecord:(UserActivity *)userActivityRecord;
+
 - (CKAccountStatus)getUsersCKStatus;
+
+//- (void)getUserCKStatusWithCompletionHandler:(void (^)(CKAccountStatus, NSError *error))completionHandler;
+
 - (void)updateLikeCountForRecordID:(NSString *)recordID shouldIncrement:(BOOL)indicator withCompletionHandler:(void (^)(NSError *error))completionHandler;
+
 - (void)fetchUserFavoritedRecords:(NSArray *)recordIDs withCompletionHandler:(void (^)(NSDictionary *results, NSError *error))completionHandler;
 @end
 
